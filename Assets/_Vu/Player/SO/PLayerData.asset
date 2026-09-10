@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e4ff0e5461769244a52d11c193b3b66, type: 3}
+  m_Name: PLayerData
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerData
+  speed: 7
+  accel: 40
+  jumpHeight: 2.2
+  coyoteTime: 0.18
+  jumpBufferTime: 0.18
+  apexThreshold: 0.5
+  apexGravityMultiplier: 0.4
+  gravity: -28
+  fallGravityMultiplier: 1.8
+  jumpCutGravityMultiplier: 2.5
+  maxFallSpeed: 25
+  xSensitivity: 30
+  ySensitivity: 30
+  jumpStaminaCost: 20
+  airAccelerate: 100
+  airCap: 25
+  friction: 6.5
+  maxAirSpeed: 7
