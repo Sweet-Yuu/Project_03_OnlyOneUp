@@ -31,7 +31,7 @@ public class PlayerMotor : MonoBehaviour
         if (playerData == null)
             Debug.LogError($"[{nameof(PlayerMotor)}] PlayerData is not assigned on {name}.");
         else if (playerData.airCap <= 0f)
-            Debug.LogWarning($"[{nameof(PlayerMotor)}] {playerData.name}.airCap is {playerData.airCap} — " +
+            Debug.LogWarning($"[{nameof(PlayerMotor)}] {playerData.name}.airCap is {playerData.airCap} ï¿½ " +
                               "air control will be effectively disabled. Set it to a positive value (e.g. 30).");
 
         if (camTransform == null && Camera.main != null)
@@ -134,7 +134,6 @@ public class PlayerMotor : MonoBehaviour
             moveDirection = moveDirection.normalized * wishSpeed;
         }
     }
-
     private void ApplyFriction()
     {
         float speed = moveDirection.magnitude;
@@ -157,7 +156,7 @@ public class PlayerMotor : MonoBehaviour
 
         if (nearApex)
         {
-            // Floaty hang time at the top of the arc — the single biggest
+            // Floaty hang time at the top of the arc ï¿½ the single biggest
             // "game feel" win for a jump, used in Celeste, Hollow Knight, etc.
             currentGravity *= playerData.apexGravityMultiplier;
         }
@@ -173,7 +172,7 @@ public class PlayerMotor : MonoBehaviour
 
         verticalVelocity += currentGravity * dt;
 
-        // Terminal velocity clamp — critical for tall-drop games (Only Up-style):
+        // Terminal velocity clamp ï¿½ critical for tall-drop games (Only Up-style):
         // without this, a long fall can build enough speed for CharacterController.Move()
         // to skip past thin platforms in a single frame (tunneling).
         if (verticalVelocity < -playerData.maxFallSpeed)
