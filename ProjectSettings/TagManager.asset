@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 3
   tags:
   - Dead
+  - Win_Area
+  - Coin
   layers:
   - Default
   - TransparentFX
