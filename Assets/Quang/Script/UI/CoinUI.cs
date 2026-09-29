@@ -7,6 +7,7 @@ public class CoinUI : MonoBehaviour
     private void Start()
     {
         CurrencyManager.instance.OnCoinChanged += UpdateCoinUI;
+        UpdateCoinUI(CurrencyManager.instance.Coin);
     }
     
     private void OnDestroy()

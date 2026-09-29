@@ -3,7 +3,7 @@ using System;
 public class CurrencyManager : MonoBehaviour
 {
     public static CurrencyManager instance;
-    public int Coin;
+    public int Coin {get; private set;}
     public GameObject coinPrefab;
     public event Action<int> OnCoinChanged;
     void Awake()
@@ -16,6 +16,7 @@ public class CurrencyManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        Coin = PlayerPrefs.GetInt("Coin", 0);
     }           
     public void AddCoin(int amount)
     {
