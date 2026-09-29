@@ -30,4 +30,5 @@ public class PlayerController : MonoBehaviour, ISpawnable
            SpawnPlayer.instance.ResetPlayerPosition();
        }
    }
+
 }
