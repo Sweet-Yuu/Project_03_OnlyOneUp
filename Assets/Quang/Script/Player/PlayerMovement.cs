@@ -2,21 +2,32 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    private Rigidbody rb;
-    private PlayerInputActions inputActions;
-    private bool isGrounded = true;
-    private bool canJump = false;
-    private Vector2 movementInput;
+    [HideInInspector] public Rigidbody rb;
+    [HideInInspector] public PlayerInputActions inputActions;
+    [HideInInspector] public Vector2 movementInput;
+    [HideInInspector] public Vector3 moveDirection;
+    [HideInInspector] public bool isGrounded;
+
+    [Header("Movement Stats")]
     public float speed = 5f;
     public float jumpForce = 5f;
     public LayerMask groundLayer;
     public float groundCheckDistance = 1.1f;
     public Transform cameraTransform;
-    private Vector3 moveDirection;
+
+    [Header("Player State")]
+    public PlayerState currentState;
+    public IdleState idleState;
+    public WalkState walkState;
+    public RunState runState;
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         inputActions = new PlayerInputActions();
+        idleState = new IdleState(this);
+        walkState = new WalkState(this);
+        runState = new RunState(this);
+
     }
 
     void OnEnable()
@@ -44,17 +55,13 @@ public class PlayerMovement : MonoBehaviour
         isGrounded = Physics.Raycast(transform.position, Vector3.down, groundCheckDistance, groundLayer);
         if(isGrounded && inputActions.Player.Jump.WasPressedThisFrame())
         {
-            canJump = true;
+            
         }
     }
 
     void FixedUpdate()
     {
-        if(canJump)
-        {
-            Jump();
-            canJump = false;
-        }
+       
         rb.linearVelocity = new Vector3(moveDirection.x * speed, rb.linearVelocity.y, moveDirection.z * speed);
     }
 
