@@ -21735,7 +21735,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -52.9, y: -21.6}
+  m_AnchoredPosition: {x: -52.900024, y: -21.599976}
   m_SizeDelta: {x: 91.5, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &760663353
@@ -38268,6 +38268,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5eaecd0fd6cd04b438d76ee6ec886f66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
+  rb: {fileID: 0}
+  movementInput: {x: 0, y: 0}
+  moveDirection: {x: 0, y: 0, z: 0}
+  isGrounded: 0
   speed: 10
   jumpForce: 13
   groundLayer:
@@ -57753,11 +57757,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 383d56c9c6e72934a8593ef8b9424c0b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 41.6
+      value: 40.51
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 383d56c9c6e72934a8593ef8b9424c0b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.4
+      value: -0.33
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 383d56c9c6e72934a8593ef8b9424c0b, type: 3}
       propertyPath: m_LocalPosition.z
