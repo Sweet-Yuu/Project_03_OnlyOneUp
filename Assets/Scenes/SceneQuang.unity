@@ -38268,12 +38268,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5eaecd0fd6cd04b438d76ee6ec886f66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  speed: 10
+  animator: {fileID: 1355129924}
+  rb: {fileID: 0}
+  movementInput: {x: 0, y: 0}
+  moveDirection: {x: 0, y: 0, z: 0}
+  isGrounded: 0
+  isSprinting: 0
+  speed: 20
+  runSpeed: 9
   jumpForce: 13
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
   groundCheckDistance: 1.1
+  rotationSpeed: 10
   cameraTransform: {fileID: 461669292}
 --- !u!54 &1355129921
 Rigidbody:
@@ -38338,6 +38346,11 @@ CapsuleCollider:
   m_Height: 20.317081
   m_Direction: 1
   m_Center: {x: -0.58568317, y: 9.811717, z: 0.28911388}
+--- !u!95 &1355129924 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: b014306d7be7bb34b97ac46cd54832e0, type: 3}
+  m_PrefabInstance: {fileID: 857833903}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1357139134
 PrefabInstance:
   m_ObjectHideFlags: 0

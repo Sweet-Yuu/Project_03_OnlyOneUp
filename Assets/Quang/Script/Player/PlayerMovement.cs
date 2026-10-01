@@ -2,43 +2,42 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public Animator animator;
     [HideInInspector] public Rigidbody rb;
     [HideInInspector] public PlayerInputActions inputActions;
     [HideInInspector] public Vector2 movementInput;
     [HideInInspector] public Vector3 moveDirection;
     [HideInInspector] public bool isGrounded;
+    [HideInInspector] public bool isSprinting;
 
     [Header("Movement Stats")]
     public float speed = 5f;
+    public float runSpeed = 9f;
     public float jumpForce = 5f;
     public LayerMask groundLayer;
     public float groundCheckDistance = 1.1f;
+    public float rotationSpeed = 10f;
     public Transform cameraTransform;
 
-    [Header("Player State")]
     public PlayerState currentState;
     public IdleState idleState;
     public WalkState walkState;
-    public RunState runState;
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         inputActions = new PlayerInputActions();
         idleState = new IdleState(this);
         walkState = new WalkState(this);
-        runState = new RunState(this);
-
     }
 
-    void OnEnable()
+    void Start()
     {
-        inputActions.Enable();
+        ChangeState(idleState);
     }
 
-    void OnDisable()
-    {
-        inputActions.Disable();
-    }
+    void OnEnable() => inputActions.Enable();
+
+    void OnDisable() => inputActions.Disable();
     
     void Update()
     {
@@ -53,25 +52,20 @@ public class PlayerMovement : MonoBehaviour
 
         moveDirection = camForward * movementInput.y + camright * movementInput.x;
         isGrounded = Physics.Raycast(transform.position, Vector3.down, groundCheckDistance, groundLayer);
-        if(isGrounded && inputActions.Player.Jump.WasPressedThisFrame())
-        {
-            
-        }
+        if(currentState != null) currentState.Execute();
     }
 
     void FixedUpdate()
     {
        
-        rb.linearVelocity = new Vector3(moveDirection.x * speed, rb.linearVelocity.y, moveDirection.z * speed);
+        if(currentState != null) currentState.FixedUpdate();
     }
 
-    void Jump()
+    public void ChangeState(PlayerState newState)
     {
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpForce, rb.linearVelocity.z);
-    }
-
-    void Lift()
-    {
-        
+        if(currentState == newState) return;
+        if(currentState != null) currentState.Exit();
+        currentState = newState;
+        currentState.Enter();
     }
 }
