@@ -945,11 +945,11 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 1
   windowsGamepadBackendHint: 0
-  cloudProjectId: 75fdb3be-3237-40c6-b944-85eda98dddd4
+  cloudProjectId: be9c8e05-c8bc-4001-8a0a-4910cef6c66d
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
   projectName: Project_03_OnlyOneUp
-  organizationId: sweetyuu
+  organizationId: quanglee123
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}
