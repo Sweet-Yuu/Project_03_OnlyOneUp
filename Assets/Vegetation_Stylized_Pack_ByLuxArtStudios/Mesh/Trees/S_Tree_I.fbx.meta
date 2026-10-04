@@ -1,7 +1,7 @@
 fileFormatVersion: 2
-guid: 520116461b4a5d34f85f5679b2090829
+guid: 7055b18405a5cab4e9296d32922bc6e1
 ModelImporter:
-  serializedVersion: 22200
+  serializedVersion: 24200
   internalIDToNameTable: []
   externalObjects: {}
   materials:
@@ -16,8 +16,6 @@ ModelImporter:
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
     motionNodeName: 
-    rigImportErrors: 
-    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -58,6 +56,9 @@ ModelImporter:
     maxBonesPerVertex: 4
     minBoneWeight: 0.001
     optimizeBones: 1
+    generateMeshLods: 0
+    meshLodGenerationFlags: 0
+    maximumMeshLod: -1
     meshOptimizationFlags: -1
     indexFormat: 0
     secondaryUVAngleDistortion: 8
@@ -107,10 +108,3 @@ ModelImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 298238
-  packageName: Vegetation Stylized Kit
-  packageVersion: 1.0
-  assetPath: Assets/Vegetation_Stylized_Pack_ByLuxArtStudios/Mesh/Trees/S_Tree_I.fbx
-  uploadId: 701453
