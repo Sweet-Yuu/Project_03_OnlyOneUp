@@ -6,7 +6,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
 public sealed class NestEggBody : MonoBehaviour
 {
-    public const float Height = 0.68f;
+    public const float Height =  3.06f;
     public Rigidbody Body { get; private set; }
     public event Action Broken;
     public bool IsSimulating => authority && phase == NestEggPhase.Intact;
@@ -18,16 +18,14 @@ public sealed class NestEggBody : MonoBehaviour
     private bool authority;
     private NestEggPhase phase;
     private float ignoreImpactUntil;
-    private float breakSpeed;
     private bool presentationInitialized;
 
-    public void Initialize(Transform nestRoot, GameObject visualPrefab, float impactSpeed)
+    public void Initialize(Transform nestRoot, GameObject visualPrefab)
     {
         // This wraps a native Unity object: create it on the main thread after
         // AddComponent has completed, never in a MonoBehaviour field initializer.
         properties = new MaterialPropertyBlock();
         nest = nestRoot;
-        breakSpeed = impactSpeed;
         Body = GetComponent<Rigidbody>();
         Body.isKinematic = true;
         Body.useGravity = false;
@@ -37,7 +35,7 @@ public sealed class NestEggBody : MonoBehaviour
         Body.solverIterations = 12;
         Body.solverVelocityIterations = 4;
         var capsule = GetComponent<CapsuleCollider>();
-        capsule.radius = 0.22f;
+        capsule.radius = 0.99f;
         capsule.height = Height;
         capsule.direction = 1;
         shell = capsule;
@@ -72,7 +70,7 @@ public sealed class NestEggBody : MonoBehaviour
             Bounds bounds = renderers[0].bounds;
             foreach (Renderer r in renderers) bounds.Encapsulate(r.bounds);
             float scale = Mathf.Min(Height / Mathf.Max(bounds.size.y, 0.001f),
-                0.44f / Mathf.Max(bounds.size.x, bounds.size.z, 0.001f));
+                1.98f / Mathf.Max(bounds.size.x, bounds.size.z, 0.001f));
             Vector3 center = transform.InverseTransformPoint(bounds.center);
             model.transform.localScale *= scale;
             model.transform.localPosition = -center * scale;
@@ -130,8 +128,9 @@ public sealed class NestEggBody : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         if (!IsSimulating || Time.time < ignoreImpactUntil) return;
-        bool touchedNest = collision.collider.transform.IsChildOf(nest);
-        if (!touchedNest || collision.relativeVelocity.magnitude >= breakSpeed)
+        // The nest is safe at any impact speed. Landing on the environment
+        // (ground, obstacles, etc.) breaks the egg; only the server decides.
+        if (!collision.collider.transform.IsChildOf(nest))
             BreakOnServer();
     }
 

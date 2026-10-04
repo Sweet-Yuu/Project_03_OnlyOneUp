@@ -1,116 +1,166 @@
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
+// Network adapter/composition root. Serialized fields and public API remain here
+// so existing scene/prefab data and NetworkNest references remain compatible.
 [RequireComponent(typeof(CharacterController), typeof(OwnerNetworkTransform))]
-public class NetworkTestMovement : NetworkBehaviour
+public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
 {
+    [Header("Online animation")]
+    [SerializeField] private Animator onlineAnimator;
+    [SerializeField, Min(0f)] private float animationFade = 0.1f;
     [SerializeField] private float speed = 5f;
     [SerializeField] private float jumpHeight = 1.5f;
-    private const float Gravity = -20f;
-    private CharacterController controller;
-    private Camera localCamera;
-    private Vector3 savedCameraPosition;
-    private Quaternion savedCameraRotation;
-    private float verticalSpeed;
+    [Header("Local camera")]
+    [SerializeField] private Transform cameraTrackingTarget;
     [Header("Carry distance - prototype")]
     [SerializeField, Min(0f)] private float carrySlack = 0.1f;
     [SerializeField, Min(0.1f)] private float correctionSpeed = 6f;
+    [SerializeField] private Transform carryAnchor;
+    // Preserve the user's existing extra 10 units of maximum reach.
+    private const float ExtraCarryReach = 10f;
 
+    private readonly NetworkVariable<OnlineMovementState> movementState =
+        new NetworkVariable<OnlineMovementState>(OnlineMovementState.Idle,
+            NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    private readonly PlayerPreparation preparation = new PlayerPreparation();
+    private OnlinePlayerStateMachine stateMachine;
+    private IOnlinePlayerInput inputSource;
+    private CharacterController controller;
+    private OwnerNetworkTransform networkTransform;
+    private PlayerCharacterMotor motor;
+    private PlayerSpawnProbe spawnProbe;
+    private LocalPlayerCamera playerCamera;
+    private PlayerAnimationPresenter animationPresenter;
     private NetworkNest nest;
     private NetworkTestMovement partner;
+
+    public Vector3 CarryPoint => carryAnchor != null ? carryAnchor.position : transform.position;
+    public Vector3 CarryOffset => carryAnchor != null
+        ? transform.InverseTransformPoint(carryAnchor.position) : Vector3.zero;
+    public bool HasCarryAnchor => carryAnchor != null;
+    public float BodyRadius => controller.radius;
+
+    // Flat ground, forward-facing anchors and unit root scales are still required.
+    public float GetCarryRootDistance(NetworkTestMovement other, float gripDistance) =>
+        gripDistance + CarryOffset.z + other.CarryOffset.z;
+
+    public bool PreparationRejected(uint sequence) => preparation.Rejected(sequence);
+    public string PreparationDetails(uint sequence) =>
+        preparation.Describe(OwnerClientId, sequence, transform.position);
+    public bool PreparedOnServer(uint sequence) => IsServer && preparation.Ready(sequence, transform.position);
+    public bool StartPositionIsClear(Vector3 position, out string reason) =>
+        spawnProbe.StartPositionIsClear(position, out reason);
+    public bool TryGetStartPosition(Vector3 approximate, out Vector3 position) =>
+        spawnProbe.TryGetStartPosition(approximate, out position);
 
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
         controller.enabled = false;
+        networkTransform = GetComponent<OwnerNetworkTransform>();
+        if (carryAnchor == null) carryAnchor = transform.Find("CarryAnchor");
+        if (onlineAnimator == null) onlineAnimator = GetComponentInChildren<Animator>();
+        stateMachine = new OnlinePlayerStateMachine();
+        inputSource = new KeyboardPlayerInput();
+        motor = new PlayerCharacterMotor(controller, this);
+        spawnProbe = new PlayerSpawnProbe(controller);
+        playerCamera = new LocalPlayerCamera(transform);
+        animationPresenter = new PlayerAnimationPresenter(onlineAnimator, this);
     }
 
     public override void OnNetworkSpawn()
     {
+        preparation.Reset();
+        stateMachine.Reset();
+        movementState.OnValueChanged += OnMovementStateChanged;
+        if (IsOwner) movementState.Value = OnlineMovementState.Idle;
+        OnMovementStateChanged(movementState.Value, movementState.Value);
+        animationPresenter.Validate();
         if (!IsOwner) return;
-
-        // This test scene's ground is at y=0.95493. Separate the two players.
+        // Preserve the prototype's waiting position; round preparation places both players later.
         transform.position = new Vector3(IsHost ? -2f : 2f, 2.1f, 0f);
         controller.enabled = true;
-        localCamera = Camera.main;
-        if (localCamera != null)
-        {
-            savedCameraPosition = localCamera.transform.position;
-            savedCameraRotation = localCamera.transform.rotation;
-        }
+        playerCamera.Bind(cameraTrackingTarget);
     }
 
     private void Update()
     {
         if (!IsSpawned || !IsOwner) return;
-
-        Vector2 input = Vector2.zero;
-        Keyboard keys = Keyboard.current;
-        bool jump = false;
-        if (Application.isFocused && keys != null)
+        if (nest == null) nest = FindFirstObjectByType<NetworkNest>();
+        if (nest == null || (nest.HasEggTest &&
+            (!nest.CanPlayerMove(preparation.LocalSequence) || !preparation.LocalPlacementSucceeded)))
         {
-            input.x = (keys.dKey.isPressed || keys.rightArrowKey.isPressed ? 1f : 0f)
-                - (keys.aKey.isPressed || keys.leftArrowKey.isPressed ? 1f : 0f);
-            input.y = (keys.wKey.isPressed || keys.upArrowKey.isPressed ? 1f : 0f)
-                - (keys.sKey.isPressed || keys.downArrowKey.isPressed ? 1f : 0f);
-            jump = keys.spaceKey.wasPressedThisFrame;
+            motor.Stop();
+            stateMachine.Reset();
+            movementState.Value = OnlineMovementState.Idle;
+            return;
         }
 
-        if (controller.isGrounded)
-        {
-            verticalSpeed = -2f;
-            if (jump) verticalSpeed = Mathf.Sqrt(jumpHeight * -2f * Gravity);
-        }
-
-        input = Vector2.ClampMagnitude(input, 1f);
-        verticalSpeed += Gravity * Time.deltaTime;
-
-        Vector3 requestedMove =
-            new Vector3(input.x * speed, verticalSpeed, input.y * speed)
-            * Time.deltaTime;
-
-        Vector3 limitedMove = LimitCarryMovement(requestedMove);
-
-        // Tránh tích lũy vận tốc lên/xuống khi bị giới hạn khoảng cách.
-        if (Time.deltaTime > 0f)
-        {
-            bool upwardBlocked =
-                verticalSpeed > 0f &&
-                limitedMove.y < requestedMove.y - 0.0001f;
-
-            bool downwardBlocked =
-                verticalSpeed < 0f &&
-                limitedMove.y > requestedMove.y + 0.0001f;
-
-            if (upwardBlocked || downwardBlocked)
-                verticalSpeed = limitedMove.y / Time.deltaTime;
-        }
-
-        CollisionFlags flags = controller.Move(limitedMove);
-
-        if ((flags & CollisionFlags.Above) != 0 && verticalSpeed > 0f)
-            verticalSpeed = 0f;
-
-        if ((flags & CollisionFlags.Below) != 0 && verticalSpeed < 0f)
-            verticalSpeed = -2f;
+        OnlinePlayerInput input = inputSource.Read();
+        Vector2 move = stateMachine.Tick(input.Move, input.Jump);
+        movementState.Value = stateMachine.CurrentState.Kind;
+        motor.Move(move, stateMachine.JumpPressed, speed, jumpHeight, Time.deltaTime);
+        if (partner != null && partner.IsSpawned)
+            transform.rotation = PlayerCharacterMotor.FacingRotation(transform.position, partner.transform.position);
     }
 
     private void LateUpdate()
     {
-        if (!IsSpawned || !IsOwner || localCamera == null) return;
-        localCamera.transform.position = transform.position + new Vector3(0f, 5f, -8f);
-        localCamera.transform.LookAt(transform.position + Vector3.up * 0.5f);
+        if (IsSpawned && IsOwner) playerCamera.Tick();
     }
 
     public override void OnNetworkDespawn()
     {
+        movementState.OnValueChanged -= OnMovementStateChanged;
+        stateMachine.Reset();
+        motor.Stop();
         controller.enabled = false;
-        if (localCamera == null) return;
-        localCamera.transform.SetPositionAndRotation(savedCameraPosition, savedCameraRotation);
-        localCamera = null;
+        playerCamera.Unbind();
+        nest = null;
+        partner = null;
     }
 
+    private void OnMovementStateChanged(OnlineMovementState previous, OnlineMovementState next) =>
+        animationPresenter.Show(next, animationFade);
+
+    public void PrepareOnServer(uint sequence, Vector3 position, Vector3 partnerPosition)
+    {
+        if (!IsServer) return;
+        preparation.Begin(sequence, position);
+        PrepareOwnerRpc(sequence, position, partnerPosition);
+    }
+
+    [Rpc(SendTo.Owner, InvokePermission = RpcInvokePermission.Server)]
+    private void PrepareOwnerRpc(uint sequence, Vector3 position, Vector3 partnerPosition)
+    {
+        if (!preparation.TryBeginLocal(sequence)) return;
+        motor.Stop();
+        controller.enabled = false;
+        transform.SetPositionAndRotation(position, PlayerCharacterMotor.FacingRotation(position, partnerPosition));
+        controller.enabled = true;
+        controller.Move(Vector3.down * 0.2f);
+        preparation.CompleteLocal(controller.isGrounded && Vector3.Distance(transform.position, position) < 0.15f);
+        networkTransform.Teleport(transform.position, transform.rotation, transform.localScale);
+        ConfirmPreparationRpc(sequence, preparation.LocalPlacementSucceeded,
+            $"ownerGrounded={controller.isGrounded}, ownerPosition={transform.position:F3}, " +
+            $"ownerError={Vector3.Distance(transform.position, position):F3}");
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
+    private void ConfirmPreparationRpc(uint sequence, bool grounded, string details) =>
+        preparation.Confirm(sequence, grounded, details);
+
+    Vector3 IPlayerMovementConstraint.Limit(Vector3 requestedMove, float deltaTime)
+    {
+        FindCarryReferences();
+        if (nest == null || !nest.IsSpawned || partner == null || !partner.IsSpawned || nest.GripDistance <= 0.01f)
+            return requestedMove;
+        float rootDistance = GetCarryRootDistance(partner, nest.GripDistance);
+        return CarryDistanceConstraint.Limit(requestedMove, transform.position, partner.transform.position,
+            Mathf.Max(0.01f, rootDistance - carrySlack), rootDistance + carrySlack + ExtraCarryReach,
+            correctionSpeed, deltaTime, OwnerClientId < partner.OwnerClientId);
+    }
     private void FindCarryReferences()
     {
         if (nest == null)
@@ -135,76 +185,5 @@ public class NetworkTestMovement : NetworkBehaviour
                 break;
             }
         }
-    }
-
-    private Vector3 LimitCarryMovement(Vector3 requestedMove)
-    {
-        FindCarryReferences();
-
-        if (nest == null || !nest.IsSpawned ||
-            partner == null || !partner.IsSpawned)
-        {
-            return requestedMove;
-        }
-
-        float gripDistance = nest.GripDistance;
-
-        if (gripDistance <= 0.01f)
-            return requestedMove;
-
-        float minDistance = Mathf.Max(0.01f, gripDistance - carrySlack);
-        float maxDistance = gripDistance + carrySlack;
-
-        Vector3 currentPosition = transform.position;
-        Vector3 partnerPosition = partner.transform.position;
-
-        Vector3 wantedPosition = currentPosition + requestedMove;
-        Vector3 offset = wantedPosition - partnerPosition;
-
-        float distance = offset.magnitude;
-
-        // Nằm trong khoảng cho phép thì di chuyển bình thường.
-        if (distance >= minDistance && distance <= maxDistance)
-            return requestedMove;
-
-        Vector3 direction;
-
-        if (distance > 0.001f)
-        {
-            direction = offset / distance;
-        }
-        else
-        {
-            // Nếu vị trí dự kiến trùng nhau, dùng hướng hiện tại.
-            Vector3 currentOffset = currentPosition - partnerPosition;
-
-            if (currentOffset.sqrMagnitude > 0.000001f)
-            {
-                direction = currentOffset.normalized;
-            }
-            else
-            {
-                // Hai nhân vật trùng vị trí: chọn hai hướng đối nhau.
-                direction = OwnerClientId < partner.OwnerClientId
-                    ? Vector3.left
-                    : Vector3.right;
-            }
-        }
-
-        // Quá gần → đưa ra khoảng cách tối thiểu.
-        // Quá xa → đưa về khoảng cách tối đa.
-        float targetDistance = Mathf.Clamp(
-            distance, minDistance, maxDistance);
-
-        Vector3 limitedPosition =
-            partnerPosition + direction * targetDistance;
-
-        Vector3 limitedMove = limitedPosition - currentPosition;
-
-        float maxStep = Mathf.Max(
-            requestedMove.magnitude,
-            correctionSpeed * Time.deltaTime);
-
-        return Vector3.ClampMagnitude(limitedMove, maxStep);
     }
 }

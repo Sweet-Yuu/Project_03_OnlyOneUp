@@ -240,12 +240,29 @@ public class NetworkTestUI : MonoBehaviour
             if (testNest != null && testNest.IsSpawned && testNest.HasEggTest)
             {
                 GUILayout.Space(8);
+                switch (testNest.RoundStage)
+                {
+                    case NestRoundStage.WaitingForPlayers:
+                        GUILayout.Label("Dang cho du 2 nguoi...");
+                        break;
+                    case NestRoundStage.PreparingPlayers:
+                        GUILayout.Label("Dang chuan bi: dat vi tri va cho xac nhan...");
+                        break;
+                    case NestRoundStage.PlacingNest:
+                        GUILayout.Label("Dang dat to va trung...");
+                        break;
+                    case NestRoundStage.SetupFailed:
+                        GUILayout.Label("Chuan bi that bai. Host xem Console va thu lai.");
+                        if (manager.IsHost && GUILayout.Button("Retry Setup"))
+                            testNest.RetryPreparationOnServer();
+                        break;
+                }
                 GUILayout.Label(testNest.EggPhase == NestEggPhase.Waiting
-                    ? "Trung: Cho du 2 nguoi"
+                    ? "Trung: Chua tha"
                     : testNest.EggPhase == NestEggPhase.Intact
                         ? "Trung: Nguyen ven"
                         : "Trung: Da vo (mau do) - Host bam Reset");
-                if (manager.IsHost && testNest.CanResetEgg)
+                if (manager.IsHost && testNest.CanResetEgg && testNest.RoundStage == NestRoundStage.Playing)
                 {
                     if (GUILayout.Button("Reset Egg (test)", GUILayout.Height(30)))
                         testNest.ResetEggOnServer();

@@ -11,9 +11,12 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SceneTest_Multi.unity
     guid: aef1dfe24134b0649a5110c2d9657c72
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SceneTest_Multi_Egg.unity
     guid: e2ddda8b86334fe9bf89be480aae29a6
+  - enabled: 1
+    path: Assets/Scenes/MainMap_Online.unity
+    guid: 0ac4a08f4ee48a44ba75e8ed53437bcd
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
