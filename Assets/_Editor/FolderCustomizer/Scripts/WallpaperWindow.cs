@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -265,3 +266,5 @@ namespace Henrizy.Editor.ColoredFolder
         }
     }
 }
+
+#endif
