@@ -17,6 +17,10 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
     [SerializeField, Min(0f)] private float carrySlack = 0.1f;
     [SerializeField, Min(0.1f)] private float correctionSpeed = 6f;
     [SerializeField] private Transform carryAnchor;
+    [Header("Duck neck reach")]
+    [SerializeField, Range(1f, 3f)] private float neckStretchLimit = 1.8f;
+    [SerializeField, Range(0.5f, 1.2f)] private float minimumDuckDistanceRatio = 0.95f;
+    public float NeckStretchLimit => Mathf.Clamp(neckStretchLimit, 1f, 3f);
     // Preserve the user's existing extra 10 units of maximum reach.
     private const float ExtraCarryReach = 10f;
 
@@ -34,11 +38,13 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
     private PlayerAnimationPresenter animationPresenter;
     private NetworkNest nest;
     private NetworkTestMovement partner;
+    private DuckNeckIK neckIK;
 
     public Vector3 CarryPoint => carryAnchor != null ? carryAnchor.position : transform.position;
     public Vector3 CarryOffset => carryAnchor != null
         ? transform.InverseTransformPoint(carryAnchor.position) : Vector3.zero;
     public bool HasCarryAnchor => carryAnchor != null;
+    public bool HasDuckRig => neckIK != null && neckIK.Ready;
     public float BodyRadius => controller.radius;
 
     // Flat ground, forward-facing anchors and unit root scales are still required.
@@ -60,6 +66,8 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
         controller.enabled = false;
         networkTransform = GetComponent<OwnerNetworkTransform>();
         if (carryAnchor == null) carryAnchor = transform.Find("CarryAnchor");
+        neckIK = GetComponent<DuckNeckIK>();
+        if (neckIK == null) neckIK = gameObject.AddComponent<DuckNeckIK>();
         if (onlineAnimator == null) onlineAnimator = GetComponentInChildren<Animator>();
         stateMachine = new OnlinePlayerStateMachine();
         inputSource = new KeyboardPlayerInput();
@@ -157,9 +165,61 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
         if (nest == null || !nest.IsSpawned || partner == null || !partner.IsSpawned || nest.GripDistance <= 0.01f)
             return requestedMove;
         float rootDistance = GetCarryRootDistance(partner, nest.GripDistance);
+        if (neckIK != null && neckIK.Ready && partner.neckIK != null && partner.neckIK.Ready && nest.CarryReady)
+        {
+            // Evaluate the moving nest as well as both necks, rather than tethering
+            // the owner to yesterday's grip position (which prevents shared travel).
+            float initial = ReachError(Vector3.zero);
+            float allowed = Mathf.Max(0f, initial);
+            if (ReachError(requestedMove) <= allowed) return requestedMove;
+            // Remove the outward component while retaining tangential movement.
+            const float epsilon = 0.002f;
+            Vector3 gradient = new Vector3(
+                ReachError(Vector3.right * epsilon) - ReachError(Vector3.left * epsilon),
+                ReachError(Vector3.up * epsilon) - ReachError(Vector3.down * epsilon),
+                ReachError(Vector3.forward * epsilon) - ReachError(Vector3.back * epsilon)).normalized;
+            float outward = Vector3.Dot(requestedMove, gradient);
+            if (outward > 0f)
+            {
+                Vector3 tangent = requestedMove - gradient * outward;
+                // Small inward curvature allowance for travel around the boundary.
+                tangent -= gradient * Mathf.Min(0.01f, tangent.sqrMagnitude / Mathf.Max(0.1f, neckIK.Reach));
+                if (ReachError(tangent) <= allowed) return tangent;
+            }
+            float low = 0f, high = 1f;
+            for (int i = 0; i < 14; i++)
+            {
+                float mid = (low + high) * 0.5f;
+                if (ReachError(requestedMove * mid) <= allowed) low = mid;
+                else high = mid;
+            }
+            return requestedMove * low;
+        }
         return CarryDistanceConstraint.Limit(requestedMove, transform.position, partner.transform.position,
             Mathf.Max(0.01f, rootDistance - carrySlack), rootDistance + carrySlack + ExtraCarryReach,
             correctionSpeed, deltaTime, OwnerClientId < partner.OwnerClientId);
+    }
+    private float ReachError(Vector3 move)
+    {
+        Vector3 mine = transform.position + move;
+        Vector3 theirs = partner.transform.position;
+        Quaternion myRotation = PlayerCharacterMotor.FacingRotation(mine, theirs);
+        Quaternion theirRotation = PlayerCharacterMotor.FacingRotation(theirs, mine);
+        Vector3 myAnchor = mine + myRotation * Vector3.Scale(CarryOffset, transform.lossyScale);
+        Vector3 theirAnchor = theirs + theirRotation * Vector3.Scale(partner.CarryOffset, partner.transform.lossyScale);
+        bool host = OwnerClientId == Unity.Netcode.NetworkManager.ServerClientId;
+        Vector3 h = host ? myAnchor : theirAnchor;
+        Vector3 g = host ? theirAnchor : myAnchor;
+        Vector3 myRoot = mine + myRotation * Vector3.Scale(neckIK.RootLocal, transform.lossyScale);
+        Vector3 theirRoot = theirs + theirRotation * Vector3.Scale(partner.neckIK.RootLocal, partner.transform.lossyScale);
+        float minimumDistance = Mathf.Max(BodyRadius + partner.BodyRadius,
+            GetCarryRootDistance(partner, nest.GripDistance) *
+            Mathf.Max(minimumDuckDistanceRatio, partner.minimumDuckDistanceRatio));
+        Vector3 horizontalSeparation = mine - theirs;
+        horizontalSeparation.y = 0f;
+        return Mathf.Max(minimumDistance - horizontalSeparation.magnitude, Mathf.Max(
+            Vector3.Distance(myRoot, nest.PredictGrip(OwnerClientId, h, g)) - neckIK.MaximumReach * 0.985f,
+            Vector3.Distance(theirRoot, nest.PredictGrip(partner.OwnerClientId, h, g)) - partner.neckIK.MaximumReach * 0.985f));
     }
     private void FindCarryReferences()
     {

@@ -681,7 +681,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85602ea2fe684374f8348596238a37dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_Title
-  sceneName: SampleScene
+  sceneName: MainMap_Online
 --- !u!4 &161592651
 Transform:
   m_ObjectHideFlags: 0
