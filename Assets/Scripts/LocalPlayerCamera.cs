@@ -17,6 +17,21 @@ public sealed class LocalPlayerCamera
 
     public LocalPlayerCamera(Transform player) => transform = player;
 
+    public Vector2 ToWorldMovement(Vector2 input)
+    {
+        if (localCamera == null) localCamera = Camera.main;
+        if (localCamera == null) return input;
+
+        // Use the rendered camera, not the rotating duck or virtual-camera target.
+        // Projecting right also remains stable when the camera looks straight down.
+        Vector3 right = Vector3.ProjectOnPlane(localCamera.transform.right, Vector3.up);
+        if (right.sqrMagnitude < 0.0001f) return input;
+        right.Normalize();
+        Vector3 forward = Vector3.Cross(right, Vector3.up);
+        Vector3 world = right * input.x + forward * input.y;
+        return new Vector2(world.x, world.z);
+    }
+
     public void Bind(Transform trackingTarget)
     {
         cameraTrackingTarget = trackingTarget;

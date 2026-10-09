@@ -21,7 +21,8 @@ public sealed class PlayerCharacterMotor
 
     public void Stop() => verticalSpeed = 0f;
 
-    public void Move(Vector2 input, bool jump, float speed, float jumpHeight, float deltaTime)
+    public void Move(Vector2 input, bool jump, float speed, float jumpHeight, float deltaTime,
+        float fallGravityMultiplier = 1f)
     {
         if (controller.isGrounded)
         {
@@ -30,7 +31,9 @@ public sealed class PlayerCharacterMotor
         }
 
         input = Vector2.ClampMagnitude(input, 1f);
-        verticalSpeed += Gravity * deltaTime;
+        // Keep ascent unchanged; accelerate the descent for a heavier landing.
+        float gravityScale = verticalSpeed <= 0f ? Mathf.Clamp(fallGravityMultiplier, 1f, 6f) : 1f;
+        verticalSpeed += Gravity * gravityScale * deltaTime;
 
         Vector3 requestedMove =
             new Vector3(input.x * speed, verticalSpeed, input.y * speed)

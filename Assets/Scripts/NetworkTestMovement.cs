@@ -11,6 +11,8 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
     [SerializeField, Min(0f)] private float animationFade = 0.1f;
     [SerializeField] private float speed = 5f;
     [SerializeField] private float jumpHeight = 1.5f;
+    [Tooltip("Gravity multiplier while descending. Higher values give a faster, heavier landing without increasing jump height.")]
+    [SerializeField, Range(1f, 6f)] private float fallGravityMultiplier = 3f;
     [Header("Local camera")]
     [SerializeField] private Transform cameraTrackingTarget;
     [Header("Carry distance - prototype")]
@@ -21,12 +23,32 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
     [SerializeField, Range(1f, 3f)] private float neckStretchLimit = 1.8f;
     [SerializeField, Range(0.5f, 1.2f)] private float minimumDuckDistanceRatio = 0.95f;
     public float NeckStretchLimit => Mathf.Clamp(neckStretchLimit, 1f, 3f);
+    [Header("Duck body lean")]
+    [SerializeField, Range(0f, 40f)] private float maximumChestLean = 20f;
+    [SerializeField, Range(0.2f, 0.95f)] private float chestLeanStart = 0.65f;
+    [SerializeField, Min(0.1f)] private float chestLeanSpeed = 6f;
+    public float MaximumChestLean => maximumChestLean;
+    public float ChestLeanStart => chestLeanStart;
+    public float ChestLeanSpeed => chestLeanSpeed;
+    [Header("Duck wing spread")]
+    [SerializeField, Range(0f, 100f)] private float maximumWingSpread = 65f;
+    [Tooltip("Fraction of available extra neck stretch at which the wings reach full spread. Spreading starts as soon as the neck stretches while movement is held.")]
+    [SerializeField, Range(0.2f, 0.95f)] private float wingSpreadStart = 0.65f;
+    [SerializeField, Min(0.1f)] private float wingSpreadSpeed = 5f;
+    public float MaximumWingSpread => maximumWingSpread;
+    public float WingSpreadStart => wingSpreadStart;
+    public float WingSpreadSpeed => wingSpreadSpeed;
+    [SerializeField, Range(0f, 30f)] private float wingTipSpread = 12f;
+    [SerializeField, Range(0f, 35f)] private float primaryFanSpread = 24f;
+    public float WingTipSpread => wingTipSpread;
+    public float PrimaryFanSpread => primaryFanSpread;
     // Preserve the user's existing extra 10 units of maximum reach.
     private const float ExtraCarryReach = 10f;
 
     private readonly NetworkVariable<OnlineMovementState> movementState =
         new NetworkVariable<OnlineMovementState>(OnlineMovementState.Idle,
             NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    public bool IsMovingForWings => IsSpawned && movementState.Value == OnlineMovementState.Walk;
     private readonly PlayerPreparation preparation = new PlayerPreparation();
     private OnlinePlayerStateMachine stateMachine;
     private IOnlinePlayerInput inputSource;
@@ -108,7 +130,8 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
         OnlinePlayerInput input = inputSource.Read();
         Vector2 move = stateMachine.Tick(input.Move, input.Jump);
         movementState.Value = stateMachine.CurrentState.Kind;
-        motor.Move(move, stateMachine.JumpPressed, speed, jumpHeight, Time.deltaTime);
+        motor.Move(playerCamera.ToWorldMovement(move), stateMachine.JumpPressed, speed, jumpHeight,
+            Time.deltaTime, fallGravityMultiplier);
         if (partner != null && partner.IsSpawned)
             transform.rotation = PlayerCharacterMotor.FacingRotation(transform.position, partner.transform.position);
     }
@@ -210,16 +233,14 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
         bool host = OwnerClientId == Unity.Netcode.NetworkManager.ServerClientId;
         Vector3 h = host ? myAnchor : theirAnchor;
         Vector3 g = host ? theirAnchor : myAnchor;
-        Vector3 myRoot = mine + myRotation * Vector3.Scale(neckIK.RootLocal, transform.lossyScale);
-        Vector3 theirRoot = theirs + theirRotation * Vector3.Scale(partner.neckIK.RootLocal, partner.transform.lossyScale);
         float minimumDistance = Mathf.Max(BodyRadius + partner.BodyRadius,
             GetCarryRootDistance(partner, nest.GripDistance) *
             Mathf.Max(minimumDuckDistanceRatio, partner.minimumDuckDistanceRatio));
         Vector3 horizontalSeparation = mine - theirs;
         horizontalSeparation.y = 0f;
         return Mathf.Max(minimumDistance - horizontalSeparation.magnitude, Mathf.Max(
-            Vector3.Distance(myRoot, nest.PredictGrip(OwnerClientId, h, g)) - neckIK.MaximumReach * 0.985f,
-            Vector3.Distance(theirRoot, nest.PredictGrip(partner.OwnerClientId, h, g)) - partner.neckIK.MaximumReach * 0.985f));
+            neckIK.ReachErrorAt(mine, myRotation, nest.PredictGrip(OwnerClientId, h, g)),
+            partner.neckIK.ReachErrorAt(theirs, theirRotation, nest.PredictGrip(partner.OwnerClientId, h, g))));
     }
     private void FindCarryReferences()
     {
