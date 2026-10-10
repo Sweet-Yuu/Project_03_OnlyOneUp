@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public sealed class NestCarryPose
+public sealed class NestCarryPose : INestCarryGeometry
 {
     private Vector3 gripMidpoint;
     private Quaternion localGripFrame;

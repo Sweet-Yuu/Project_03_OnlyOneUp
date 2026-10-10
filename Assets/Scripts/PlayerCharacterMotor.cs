@@ -22,22 +22,29 @@ public sealed class PlayerCharacterMotor
     public void Stop() => verticalSpeed = 0f;
 
     public void Move(Vector2 input, bool jump, float speed, float jumpHeight, float deltaTime,
-        float fallGravityMultiplier = 1f)
+        float fallGravityMultiplier = 1f, float riseGravityMultiplier = 1f)
     {
+        float riseGravity = Gravity * Mathf.Clamp(riseGravityMultiplier, 1f, 6f);
+        float fallGravity = Gravity * Mathf.Clamp(fallGravityMultiplier, 1f, 6f);
         if (controller.isGrounded)
         {
             verticalSpeed = -2f;
-            if (jump) verticalSpeed = Mathf.Sqrt(jumpHeight * -2f * Gravity);
+            if (jump) verticalSpeed = Mathf.Sqrt(Mathf.Max(0f, jumpHeight) * -2f * riseGravity);
         }
 
         input = Vector2.ClampMagnitude(input, 1f);
-        // Keep ascent unchanged; accelerate the descent for a heavier landing.
-        float gravityScale = verticalSpeed <= 0f ? Mathf.Clamp(fallGravityMultiplier, 1f, 6f) : 1f;
-        verticalSpeed += Gravity * gravityScale * deltaTime;
+        // Integrate both phases in the same frame if we cross the apex:
+        // no extra frame hanging at zero velocity, and jump height is frame-rate independent.
+        float riseTime = verticalSpeed > 0f
+            ? Mathf.Min(deltaTime, verticalSpeed / -riseGravity) : 0f;
+        float verticalMove = verticalSpeed * riseTime + 0.5f * riseGravity * riseTime * riseTime;
+        verticalSpeed += riseGravity * riseTime;
+        float fallTime = deltaTime - riseTime;
+        verticalMove += verticalSpeed * fallTime + 0.5f * fallGravity * fallTime * fallTime;
+        verticalSpeed += fallGravity * fallTime;
 
         Vector3 requestedMove =
-            new Vector3(input.x * speed, verticalSpeed, input.y * speed)
-            * deltaTime;
+            new Vector3(input.x * speed * deltaTime, verticalMove, input.y * speed * deltaTime);
 
         Vector3 limitedMove = constraint.Limit(requestedMove, deltaTime);
 

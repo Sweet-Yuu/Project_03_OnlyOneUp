@@ -1,7 +1,9 @@
 using Unity.Netcode;
 using UnityEngine;
+using System.Collections;
 
 [RequireComponent(typeof(NetworkObject), typeof(Rigidbody))]
+[DefaultExecutionOrder(500)]
 public class NetworkNest : NetworkBehaviour
 {
     [SerializeField] private Transform leftGrip;
@@ -13,6 +15,28 @@ public class NetworkNest : NetworkBehaviour
     [SerializeField] private BoxCollider nestFloor;
     [SerializeField, Min(0f)] private float eggDropClearance = 0.2f;
     [SerializeField, Range(0.05f, 0.25f)] private float presentationDelay = 0.1f;
+    [Header("Smooth online carry (scene opt-in)")]
+    [SerializeField] private bool _smoothOnlineCarry;
+    [SerializeField] private bool _predictCarryInputs;
+    [SerializeField, Range(0.01f, 0.1f)] private float _carryInputResponseTime = 0.025f;
+    private INestCarrySimulation _carrySimulation;
+    private NestCarryPrediction _carryPrediction;
+    private readonly NestCarryInputBuffer _carryInputs = new NestCarryInputBuffer();
+    private readonly NestReconciledPresentation _reconciledPresentation = new NestReconciledPresentation();
+    private NestCarryState _serverCarryState;
+    private Vector3 _lastGuestCarryAnchor;
+    [SerializeField, Range(0.02f, 0.3f)] private float _serverSmoothTime = 0.1f;
+    [SerializeField, Range(0.01f, 0.2f)] private float _clientSmoothTime = 0.04f;
+    [SerializeField, Range(0.05f, 0.5f)] private float _clientCorrectionTime = 0.2f;
+    [SerializeField, Min(0.1f)] private float _clientCorrectionSpeed = 4f;
+    [SerializeField, Min(1f)] private float _clientCorrectionAngularSpeed = 90f;
+    [SerializeField, Min(0f)] private float _maxPresentationOffset = 3f;
+    [SerializeField, Range(0f, 45f)] private float _maxPresentationAngle = 20f;
+    private readonly NestPositionSmoother _serverPosition = new NestPositionSmoother();
+    private readonly NestClientPresentation _clientPresentation = new NestClientPresentation();
+    private NetworkTestMovement _hostMovement;
+    private NetworkTestMovement _guestMovement;
+    private Coroutine _cachePlayersRoutine;
     [Header("Round preparation (flat starting ground)")]
     [SerializeField] private Vector3 startCenter = new Vector3(0f, 2.1f, 0f);
     [SerializeField, Min(0.1f)] private float stableDuration = 0.2f;
@@ -72,6 +96,7 @@ public class NetworkNest : NetworkBehaviour
         placed = false;
         phase = NestEggPhase.Waiting;
         history.Clear();
+        _serverPosition.Reset(body.position);
         preparation.Reset();
         if (IsServer)
         {
@@ -90,6 +115,8 @@ public class NetworkNest : NetworkBehaviour
             Debug.LogError(error, this);
             return;
         }
+        _carrySimulation = new NestCarrySimulation(carryPose, _carryInputResponseTime);
+        _carryPrediction = new NestCarryPrediction(_carrySimulation);
         // Existing movement-only scenes keep their NetworkTransform setup.
         if (!enableEggTest)
         {
@@ -108,6 +135,29 @@ public class NetworkNest : NetworkBehaviour
         {
             frame.OnValueChanged += ReceiveFrame;
             ReceiveFrame(default, frame.Value);
+            if (_smoothOnlineCarry || _predictCarryInputs)
+                _cachePlayersRoutine = StartCoroutine(CachePresentationPlayers());
+        }
+    }
+
+    private IEnumerator CachePresentationPlayers()
+    {
+        var interval = new WaitForSecondsRealtime(0.25f);
+        while (IsSpawned)
+        {
+            if (_hostMovement == null || !_hostMovement.IsSpawned ||
+                _guestMovement == null || !_guestMovement.IsSpawned)
+            {
+                _hostMovement = _guestMovement = null;
+                // Client không có ConnectedClientsList. Cache sau khi player được spawn.
+                foreach (NetworkObject player in NetworkManager.SpawnManager.SpawnedObjectsList)
+                {
+                    if (!player.IsPlayerObject || !player.TryGetComponent(out NetworkTestMovement movement)) continue;
+                    if (player.OwnerClientId == Unity.Netcode.NetworkManager.ServerClientId) _hostMovement = movement;
+                    else _guestMovement = movement;
+                }
+            }
+            yield return interval;
         }
     }
 
@@ -125,7 +175,12 @@ public class NetworkNest : NetworkBehaviour
 
     private void FixedUpdate()
     {
-        if (!IsSpawned || !IsServer || !validSetup) return;
+        if (!IsSpawned || !validSetup) return;
+        if (!IsServer)
+        {
+            PredictCarryInput();
+            return;
+        }
         if (!TryGetPlayers(out NetworkObject host, out NetworkObject guest))
         {
             if (placed || (enableEggTest && roundStage.Value != NestRoundStage.WaitingForPlayers))
@@ -155,6 +210,17 @@ public class NetworkNest : NetworkBehaviour
         Vector3 rightTarget = enableEggTest || duckPair
             ? guest.GetComponent<NetworkTestMovement>().CarryPoint
             : guest.transform.position + Vector3.up * carryHeight;
+        if (_predictCarryInputs && enableEggTest && placed)
+        {
+            if (_carryInputs.TryTake(out NestCarryInput input))
+            {
+                // Giới hạn một bước dịch chuyển bất thường; không nhận HostAnchor từ client.
+                _lastGuestCarryAnchor = Vector3.MoveTowards(_lastGuestCarryAnchor, input.GuestAnchor,
+                    100f * Time.fixedDeltaTime);
+            }
+            else if (_carryInputs.AppliedSequence == 0) _lastGuestCarryAnchor = rightTarget;
+            rightTarget = _lastGuestCarryAnchor;
+        }
         if (!NestCarryPose.IsValidAxis(rightTarget - leftTarget)) return;
         Pose pose = carryPose.Calculate(leftTarget, rightTarget);
         Vector3 position = pose.position;
@@ -164,15 +230,59 @@ public class NetworkNest : NetworkBehaviour
         {
             body.position = position;
             body.rotation = rotation;
+            _serverPosition.Reset(position);
             placed = true;
             ResetEggOnServer();
         }
         else
         {
+            if (_predictCarryInputs && enableEggTest)
+            {
+                _serverCarryState.Position = body.position;
+                _serverCarryState.Rotation = body.rotation;
+                _serverCarryState = _carrySimulation.Step(_serverCarryState, new NestCarryInput
+                {
+                    HostAnchor = leftTarget, GuestAnchor = rightTarget
+                }, Time.fixedDeltaTime);
+                position = _serverCarryState.Position;
+                rotation = _serverCarryState.Rotation;
+            }
+            else if (_smoothOnlineCarry && enableEggTest)
+            {
+                // Lọc mục tiêu trước MovePosition để bước nhảy của gói mạng không
+                // biến thành một bước nhảy vận tốc lớn của sàn tổ trong vật lý.
+                position = _serverPosition.Step(position, _serverSmoothTime, Time.fixedDeltaTime);
+                rotation = Quaternion.Slerp(body.rotation, rotation,
+                    1f - Mathf.Exp(-Time.fixedDeltaTime / Mathf.Max(0.01f, _serverSmoothTime)));
+            }
             body.MovePosition(position);
             body.MoveRotation(rotation);
         }
         eggs.Tick(host, guest);
+    }
+
+    private bool CanPredictCarry => _predictCarryInputs && enableEggTest &&
+        _carryPrediction != null && _carryPrediction.Generation != 0 &&
+        roundStage.Value == NestRoundStage.Playing && frame.Value.Phase != NestEggPhase.Waiting &&
+        _hostMovement != null && _hostMovement.IsSpawned &&
+        _guestMovement != null && _guestMovement.IsSpawned && _guestMovement.IsOwner;
+
+    private void PredictCarryInput()
+    {
+        if (!CanPredictCarry) return;
+        _carryPrediction.Predict(_hostMovement.CarryPoint, _guestMovement.CarryPoint);
+        NestCarryInput[] batch = _carryPrediction.GetResendBatch();
+        if (batch.Length > 0) SubmitCarryInputsRpc(batch);
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone, Delivery = RpcDelivery.Unreliable)]
+    private void SubmitCarryInputsRpc(NestCarryInput[] inputs, RpcParams rpcParams = default)
+    {
+        if (!_predictCarryInputs || !enableEggTest || roundStage.Value != NestRoundStage.Playing ||
+            inputs == null || inputs.Length > NestCarryInputBuffer.BatchSize ||
+            !TryGetPlayers(out _, out NetworkObject guest) ||
+            guest.OwnerClientId != rpcParams.Receive.SenderClientId) return;
+        foreach (NestCarryInput input in inputs) _carryInputs.Add(input);
     }
 
     private bool PrepareRound(NetworkObject host, NetworkObject guest)
@@ -203,6 +313,7 @@ public class NetworkNest : NetworkBehaviour
         Pose pose = carryPose.Calculate(left, right);
         body.position = pose.position;
         body.rotation = pose.rotation;
+        _serverPosition.Reset(pose.position);
         placed = true;
         generation++;
         PublishFrame();
@@ -225,8 +336,37 @@ public class NetworkNest : NetworkBehaviour
         {
             if (NetworkManager.ServerTime.Time >= nextSnapshot) PublishFrame();
         }
-        else if (history.Sample(NetworkManager.ServerTime.Time - presentationDelay, out NestEggFrame sample))
+        else if (history.Sample(NetworkManager.ServerTime.Time - presentationDelay,
+                     out NestEggFrame sample, _smoothOnlineCarry))
         {
+            if (_predictCarryInputs && _carryPrediction.Generation != 0)
+            {
+                Pose predicted = _carryPrediction.Current.Pose;
+                if (CanPredictCarry && _carryPrediction.PendingCount < NestCarryInputBuffer.Capacity)
+                    predicted = _carryPrediction.Preview(_hostMovement.CarryPoint, _guestMovement.CarryPoint,
+                        Mathf.Max(0f, Time.time - Time.fixedTime));
+                sample = _reconciledPresentation.Present(sample, predicted, Time.deltaTime,
+                    _clientCorrectionTime, _clientCorrectionSpeed, _clientCorrectionAngularSpeed);
+            }
+            else if (_smoothOnlineCarry)
+            {
+                Pose target = new Pose(sample.NestPosition, sample.NestRotation);
+                bool anticipate = false;
+                bool fresh = NetworkManager.ServerTime.Time - frame.Value.Time < 0.3;
+                if (fresh && roundStage.Value == NestRoundStage.Playing &&
+                    sample.Phase != NestEggPhase.Waiting &&
+                    _hostMovement != null && _hostMovement.IsSpawned &&
+                    _guestMovement != null && _guestMovement.IsSpawned &&
+                    NestCarryPose.IsValidAxis(_guestMovement.CarryPoint - _hostMovement.CarryPoint))
+                {
+                    // Dùng điểm mang local ngay trong frame hiện tại, không chờ vòng khứ hồi.
+                    target = carryPose.Calculate(_hostMovement.CarryPoint, _guestMovement.CarryPoint);
+                    anticipate = true;
+                }
+                sample = _clientPresentation.Step(sample, target, _clientSmoothTime,
+                    _maxPresentationOffset, _maxPresentationAngle, Time.deltaTime, anticipate,
+                    _clientCorrectionTime, _clientCorrectionSpeed, _clientCorrectionAngularSpeed);
+            }
             transform.SetPositionAndRotation(sample.NestPosition, sample.NestRotation);
             egg.ApplyRemote(sample);
             phase = sample.Phase;
@@ -236,12 +376,25 @@ public class NetworkNest : NetworkBehaviour
     private void PublishFrame()
     {
         if (!IsServer || egg == null) return;
+        if (_carryInputs.Generation != generation)
+        {
+            _carryInputs.Reset(generation);
+            _serverCarryState = new NestCarryState { Position = body.position, Rotation = body.rotation };
+            if (TryGetPlayers(out _, out NetworkObject guest) &&
+                guest.TryGetComponent(out NetworkTestMovement movement))
+                _lastGuestCarryAnchor = movement.CarryPoint;
+        }
         double time = NetworkManager.ServerTime.Time;
         frame.Value = new NestEggFrame
         {
             Time = time,
             Generation = generation,
             Phase = phase,
+            EggSupported = egg.IsSupportedByNest,
+            EggInNest = eggs.IsEggInNest,
+            AppliedCarrySequence = _predictCarryInputs ? _carryInputs.AppliedSequence : 0,
+            CarryStepDuration = Time.fixedDeltaTime,
+            NestVelocity = _serverCarryState.Velocity,
             NestPosition = body.position,
             NestRotation = body.rotation,
             EggPosition = egg.Body.position,
@@ -253,8 +406,23 @@ public class NetworkNest : NetworkBehaviour
     private void ReceiveFrame(NestEggFrame previous, NestEggFrame current)
     {
         if (!history.Add(current)) return;
+        if (_predictCarryInputs && _carryPrediction != null)
+        {
+            if (_carryPrediction.Generation != current.Generation)
+            {
+                _carryPrediction.Reset(current);
+                _reconciledPresentation.Reset(current);
+            }
+            else
+            {
+                Pose beforeReplay = _carryPrediction.Current.Pose;
+                if (_carryPrediction.Reconcile(current))
+                    _reconciledPresentation.Correct(beforeReplay, _carryPrediction.Current.Pose);
+            }
+        }
         if (history.Count == 1)
         {
+            _clientPresentation.Reset(current);
             transform.SetPositionAndRotation(current.NestPosition, current.NestRotation);
             egg.ApplyRemote(current);
             phase = current.Phase;
@@ -291,6 +459,9 @@ public class NetworkNest : NetworkBehaviour
     {
         frame.OnValueChanged -= ReceiveFrame;
         history.Clear();
+        if (_cachePlayersRoutine != null) StopCoroutine(_cachePlayersRoutine);
+        _cachePlayersRoutine = null;
+        _hostMovement = _guestMovement = null;
         validSetup = placed = false;
         phase = NestEggPhase.Waiting;
         DestroyEgg();

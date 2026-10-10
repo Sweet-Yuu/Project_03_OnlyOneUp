@@ -753,6 +753,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
+  - component: {fileID: 900000200}
   - component: {fileID: 34696197}
   - component: {fileID: 34696198}
   m_Layer: 0
@@ -2515,7 +2516,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 153142b218e4f004ea645562b5f7cd3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Coin
-  coinCollider: {fileID: 1897553620}
 --- !u!1 &105098513 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -2566757154332968402, guid: 4d48d7318b76f2d438d1030616f1e803, type: 3}
@@ -2772,7 +2772,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 153142b218e4f004ea645562b5f7cd3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Coin
-  coinCollider: {fileID: 1897553620}
 --- !u!1001 &118221423
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9135,7 +9134,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 153142b218e4f004ea645562b5f7cd3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Coin
-  coinCollider: {fileID: 1897553620}
 --- !u!1 &318481625
 GameObject:
   m_ObjectHideFlags: 0
@@ -38678,7 +38676,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 153142b218e4f004ea645562b5f7cd3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Coin
-  coinCollider: {fileID: 1897553620}
 --- !u!1 &1371281444 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4876802797025004689, guid: 58dcc716fad80402c8e8bd41dfef9a7a, type: 3}
@@ -41007,7 +41004,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 153142b218e4f004ea645562b5f7cd3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Coin
-  coinCollider: {fileID: 1897553620}
 --- !u!1 &1473663510
 GameObject:
   m_ObjectHideFlags: 0
@@ -52693,7 +52689,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 153142b218e4f004ea645562b5f7cd3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Coin
-  coinCollider: {fileID: 1897553620}
 --- !u!4 &1897553625 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7002c200c163f344695af15ce88ad7f6, type: 3}
@@ -53431,7 +53426,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 153142b218e4f004ea645562b5f7cd3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Coin
-  coinCollider: {fileID: 1897553620}
 --- !u!1 &1929451117 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2290242024310275514, guid: eb53ce8c8d2c44bb9b09ea4c58395c34, type: 3}
@@ -61387,3 +61381,24 @@ SceneRoots:
   - {fileID: 1342286769}
   - {fileID: 2059063547}
   - {fileID: 2087141671}
+--- !u!114 &900000200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 34696196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a861f5a64d424c26908d2298f2cd2e3a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::CoinWalletInstaller
+  _currencyManager: {fileID: 34696198}
+  _coins:
+  - {fileID: 103873178}
+  - {fileID: 116283890}
+  - {fileID: 317719621}
+  - {fileID: 1370146530}
+  - {fileID: 1473419631}
+  - {fileID: 1897553622}
+  - {fileID: 1927668379}

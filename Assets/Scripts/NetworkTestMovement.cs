@@ -11,6 +11,8 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
     [SerializeField, Min(0f)] private float animationFade = 0.1f;
     [SerializeField] private float speed = 5f;
     [SerializeField] private float jumpHeight = 1.5f;
+    [Tooltip("Higher values reach the same jump height faster, with less time near the apex.")]
+    [SerializeField, Range(1f, 6f)] private float riseGravityMultiplier = 3f;
     [Tooltip("Gravity multiplier while descending. Higher values give a faster, heavier landing without increasing jump height.")]
     [SerializeField, Range(1f, 6f)] private float fallGravityMultiplier = 3f;
     [Header("Local camera")]
@@ -131,7 +133,7 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
         Vector2 move = stateMachine.Tick(input.Move, input.Jump);
         movementState.Value = stateMachine.CurrentState.Kind;
         motor.Move(playerCamera.ToWorldMovement(move), stateMachine.JumpPressed, speed, jumpHeight,
-            Time.deltaTime, fallGravityMultiplier);
+            Time.deltaTime, fallGravityMultiplier, riseGravityMultiplier);
         if (partner != null && partner.IsSpawned)
             transform.rotation = PlayerCharacterMotor.FacingRotation(transform.position, partner.transform.position);
     }

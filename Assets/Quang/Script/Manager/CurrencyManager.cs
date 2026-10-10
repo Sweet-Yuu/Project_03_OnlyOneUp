@@ -1,6 +1,6 @@
 using UnityEngine;
 using System;
-public class CurrencyManager : MonoBehaviour
+public class CurrencyManager : MonoBehaviour, ICoinWallet
 {
     public static CurrencyManager instance;
     public int Coin {get; private set;}

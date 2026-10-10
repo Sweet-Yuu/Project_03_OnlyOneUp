@@ -10,6 +10,9 @@ public sealed class NestEggBody : MonoBehaviour
     public Rigidbody Body { get; private set; }
     public event Action Broken;
     public bool IsSimulating => authority && phase == NestEggPhase.Intact;
+    public bool IsSupportedByNest => IsSimulating && !float.IsNegativeInfinity(_lastNestSupportTime) &&
+        (Body.IsSleeping() || Time.fixedTime - _lastNestSupportTime <= Time.fixedDeltaTime * 1.5f);
+    private float _lastNestSupportTime = float.NegativeInfinity;
 
     private Transform nest;
     private Collider shell;
@@ -87,6 +90,7 @@ public sealed class NestEggBody : MonoBehaviour
 
     private void Freeze()
     {
+        _lastNestSupportTime = float.NegativeInfinity;
         if (!Body.isKinematic)
         {
             Body.linearVelocity = Vector3.zero;
@@ -127,6 +131,7 @@ public sealed class NestEggBody : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        RecordNestSupport(collision);
         if (!IsSimulating || Time.time < ignoreImpactUntil) return;
         // The nest is safe at any impact speed. Landing on the environment
         // (ground, obstacles, etc.) breaks the egg; only the server decides.
@@ -136,9 +141,24 @@ public sealed class NestEggBody : MonoBehaviour
 
     private void OnCollisionStay(Collision collision)
     {
+        RecordNestSupport(collision);
         // A ground contact may begin during the short spawn grace period.
         if (IsSimulating && Time.time >= ignoreImpactUntil &&
             !collision.collider.transform.IsChildOf(nest)) BreakOnServer();
+    }
+
+    private void RecordNestSupport(Collision collision)
+    {
+        if (!IsSimulating || !collision.collider.transform.IsChildOf(nest)) return;
+        // Chỉ tiếp xúc nâng đỡ mới kéo hình ảnh trứng theo tổ; chạm thành bên không đủ.
+        for (int i = 0; i < collision.contactCount; i++)
+        {
+            if (Vector3.Dot(collision.GetContact(i).normal, Vector3.up) > 0.5f)
+            {
+                _lastNestSupportTime = Time.fixedTime;
+                return;
+            }
+        }
     }
 
     public void BreakOnServer()
