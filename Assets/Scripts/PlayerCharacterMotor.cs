@@ -12,6 +12,7 @@ public sealed class PlayerCharacterMotor
     private readonly CharacterController controller;
     private readonly IPlayerMovementConstraint constraint;
     private float verticalSpeed;
+    public bool JumpedThisMove { get; private set; }
 
     public PlayerCharacterMotor(CharacterController controller, IPlayerMovementConstraint constraint)
     {
@@ -24,12 +25,17 @@ public sealed class PlayerCharacterMotor
     public void Move(Vector2 input, bool jump, float speed, float jumpHeight, float deltaTime,
         float fallGravityMultiplier = 1f, float riseGravityMultiplier = 1f)
     {
+        JumpedThisMove = false;
         float riseGravity = Gravity * Mathf.Clamp(riseGravityMultiplier, 1f, 6f);
         float fallGravity = Gravity * Mathf.Clamp(fallGravityMultiplier, 1f, 6f);
         if (controller.isGrounded)
         {
             verticalSpeed = -2f;
-            if (jump) verticalSpeed = Mathf.Sqrt(Mathf.Max(0f, jumpHeight) * -2f * riseGravity);
+            if (jump && jumpHeight > 0f)
+            {
+                verticalSpeed = Mathf.Sqrt(jumpHeight * -2f * riseGravity);
+                JumpedThisMove = true;
+            }
         }
 
         input = Vector2.ClampMagnitude(input, 1f);
@@ -63,7 +69,9 @@ public sealed class PlayerCharacterMotor
                 verticalSpeed = limitedMove.y / deltaTime;
         }
 
+        float previousY = controller.transform.position.y;
         CollisionFlags flags = controller.Move(limitedMove);
+        JumpedThisMove &= controller.transform.position.y > previousY + 0.0001f;
 
         if ((flags & CollisionFlags.Above) != 0 && verticalSpeed > 0f)
             verticalSpeed = 0f;

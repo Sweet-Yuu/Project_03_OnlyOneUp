@@ -10,6 +10,8 @@ public sealed class NestEggLifecycle : IDisposable
     private NestEggBody egg;
     private NetworkObject ignoredHost, ignoredGuest;
     private NestEggContainment _containment;
+    private INestEggCarryPhysics _carryPhysics;
+    public void SetCarryPhysics(INestEggCarryPhysics physics) => _carryPhysics = physics;
     public bool IsEggInNest
     {
         get
@@ -64,7 +66,7 @@ public sealed class NestEggLifecycle : IDisposable
         return bounds;
     }
     private void OnBroken() => Broken?.Invoke();
-    public void Wait() { if (egg != null) egg.WaitForPlayers(); }
+    public void Wait() { _carryPhysics?.Stop(); if (egg != null) egg.WaitForPlayers(); }
     public void Tick(NetworkObject host, NetworkObject guest)
     {
         IgnorePlayers(host, guest);
@@ -87,12 +89,15 @@ public sealed class NestEggLifecycle : IDisposable
         Vector3 position = body.position + body.rotation *
             (localTop + Vector3.up * (NestEggBody.Height * 0.5f + eggDropClearance));
         egg.ResetOnServer(position, body.rotation);
+        _carryPhysics?.Reset(new Pose(body.position, body.rotation),
+            localTop + Vector3.up * (NestEggBody.Height * 0.5f + 0.03f));
         // Collider re-enabling during reset can clear ignored pairs.
         ignoredHost = ignoredGuest = null;
         IgnorePlayers(host, guest);
     }
     public void DropForTest()
     {
+        _carryPhysics?.Stop();
         _containment?.Reset();
         if (egg == null) return;
         Bounds bounds = nestFloor.bounds;
@@ -103,6 +108,8 @@ public sealed class NestEggLifecycle : IDisposable
     }
     public void Dispose()
     {
+        _carryPhysics?.Stop();
+        _carryPhysics = null;
         if (egg != null)
         {
             egg.Broken -= OnBroken;

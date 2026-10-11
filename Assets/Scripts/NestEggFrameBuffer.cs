@@ -46,6 +46,7 @@ public sealed class NestEggFrameBuffer
         result.NestPosition = Vector3.Lerp(a.NestPosition, b.NestPosition, t);
         result.NestRotation = Quaternion.Slerp(a.NestRotation, b.NestRotation, t);
         result.EggPosition = Vector3.Lerp(a.EggPosition, b.EggPosition, t);
+        result.EggVelocity = Vector3.Lerp(a.EggVelocity, b.EggVelocity, t);
         result.EggRotation = Quaternion.Slerp(a.EggRotation, b.EggRotation, t);
         if (relativeEgg && ((a.EggInNest && b.EggInNest) || (a.EggSupported && b.EggSupported)) &&
             a.Phase == NestEggPhase.Intact && b.Phase == NestEggPhase.Intact)

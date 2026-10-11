@@ -1,18 +1,29 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 // Not a separate NetworkObject: NetworkNest replicates this body's pose together
 // with the tray in one frame. Only the server ever simulates this Rigidbody.
 [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
-public sealed class NestEggBody : MonoBehaviour
+public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
 {
     public const float Height =  3.06f;
     public Rigidbody Body { get; private set; }
     public event Action Broken;
+    public byte DamageCount { get; private set; }
     public bool IsSimulating => authority && phase == NestEggPhase.Intact;
-    public bool IsSupportedByNest => IsSimulating && !float.IsNegativeInfinity(_lastNestSupportTime) &&
-        (Body.IsSleeping() || Time.fixedTime - _lastNestSupportTime <= Time.fixedDeltaTime * 1.5f);
+    public bool IsSupportedByNest => IsSimulating && (_carried ||
+        (!float.IsNegativeInfinity(_lastNestSupportTime) &&
+        (Body.IsSleeping() || Time.fixedTime - _lastNestSupportTime <= Time.fixedDeltaTime * 1.5f)));
     private float _lastNestSupportTime = float.NegativeInfinity;
+    private bool _carried;
+    private Collider[] _overlaps = new Collider[32];
+    private readonly HashSet<Collider> _ignoredPlayerColliders = new HashSet<Collider>();
+    private readonly HashSet<Collider> _environmentContacts = new HashSet<Collider>();
+    private readonly HashSet<Collider> _currentContacts = new HashSet<Collider>();
+    private bool _progressiveDamage;
+    private float _lastImpactTime = float.NegativeInfinity;
+    private NestEggDamageVisual _damageVisual;
 
     private Transform nest;
     private Collider shell;
@@ -81,6 +92,14 @@ public sealed class NestEggBody : MonoBehaviour
         SetPresentation(NestEggPhase.Waiting);
     }
 
+    public void ConfigureProgressiveDamage(GameObject brokenVisual)
+    {
+        _progressiveDamage = true;
+        _damageVisual?.Dispose();
+        _damageVisual = new NestEggDamageVisual(transform, renderers, brokenVisual);
+        _damageVisual.Show(phase, DamageCount);
+    }
+
     public void SetAuthority(bool server)
     {
         authority = server;
@@ -90,6 +109,9 @@ public sealed class NestEggBody : MonoBehaviour
 
     private void Freeze()
     {
+        _carried = false;
+        _environmentContacts.Clear();
+        _currentContacts.Clear();
         _lastNestSupportTime = float.NegativeInfinity;
         if (!Body.isKinematic)
         {
@@ -112,6 +134,8 @@ public sealed class NestEggBody : MonoBehaviour
     {
         if (!authority) return;
         Freeze();
+        _ignoredPlayerColliders.Clear();
+        _lastImpactTime = float.NegativeInfinity;
         Body.position = position;
         Body.rotation = rotation;
         Body.isKinematic = false;
@@ -126,25 +150,114 @@ public sealed class NestEggBody : MonoBehaviour
     public void IgnorePlayer(GameObject player)
     {
         foreach (Collider c in player.GetComponentsInChildren<Collider>(true))
+        {
+            _ignoredPlayerColliders.Add(c);
             Physics.IgnoreCollision(shell, c);
+        }
+    }
+
+    public void BeginCarry(Pose pose)
+    {
+        if (!IsSimulating) return;
+        Body.linearVelocity = Vector3.zero;
+        Body.angularVelocity = Vector3.zero;
+        Body.collisionDetectionMode = CollisionDetectionMode.Discrete;
+        Body.isKinematic = true;
+        Body.useGravity = false;
+        Body.position = pose.position;
+        Body.rotation = pose.rotation;
+        _carried = true;
+    }
+
+    public void MoveCarried(Pose pose)
+    {
+        if (!IsSimulating || !_carried) return;
+        Body.MovePosition(pose.position);
+        Body.MoveRotation(pose.rotation);
+        if (Time.time < ignoreImpactUntil) return;
+        // Kinematic không phát contact với vật tĩnh: kiểm tra capsule để vẫn vỡ
+        // khi va môi trường; chỉ bỏ qua tổ và collider của hai người đang mang.
+        Vector3 axis = pose.rotation * Vector3.up * (Height * 0.5f - 0.99f);
+        int count;
+        do
+        {
+            count = Physics.OverlapCapsuleNonAlloc(pose.position - axis, pose.position + axis,
+                0.99f, _overlaps, ~0, QueryTriggerInteraction.Ignore);
+            if (count < _overlaps.Length) break;
+            Array.Resize(ref _overlaps, _overlaps.Length * 2);
+        } while (true);
+        _currentContacts.Clear();
+        for (int i = 0; i < count; i++)
+        {
+            Collider other = _overlaps[i];
+            if (!IsEnvironment(other)) continue;
+            _currentContacts.Add(other);
+            TouchEnvironment(other);
+            if (!IsSimulating) break;
+        }
+        _environmentContacts.IntersectWith(_currentContacts);
+    }
+
+    public void ReleaseCarry(Vector3 velocity, Vector3 angularVelocity)
+    {
+        if (!IsSimulating || !_carried) return;
+        _carried = false;
+        _lastNestSupportTime = float.NegativeInfinity;
+        Body.isKinematic = false;
+        Body.useGravity = true;
+        Body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        Body.linearVelocity = velocity;
+        Body.angularVelocity = angularVelocity;
+        Body.WakeUp();
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         RecordNestSupport(collision);
-        if (!IsSimulating || Time.time < ignoreImpactUntil) return;
-        // The nest is safe at any impact speed. Landing on the environment
-        // (ground, obstacles, etc.) breaks the egg; only the server decides.
-        if (!collision.collider.transform.IsChildOf(nest))
-            BreakOnServer();
+        if (!_carried) TouchEnvironment(collision.collider);
     }
 
     private void OnCollisionStay(Collision collision)
     {
         RecordNestSupport(collision);
-        // A ground contact may begin during the short spawn grace period.
-        if (IsSimulating && Time.time >= ignoreImpactUntil &&
-            !collision.collider.transform.IsChildOf(nest)) BreakOnServer();
+        // Contact bắt đầu trong thời gian bảo vệ spawn vẫn được tính đúng một lần.
+        if (!_carried) TouchEnvironment(collision.collider);
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        if (!_carried) _environmentContacts.Remove(collision.collider);
+    }
+
+    private bool IsEnvironment(Collider other) => other != null && other != shell &&
+        !other.isTrigger && !other.transform.IsChildOf(nest) &&
+        !_ignoredPlayerColliders.Contains(other) &&
+        !Physics.GetIgnoreLayerCollision(gameObject.layer, other.gameObject.layer);
+
+    private void TouchEnvironment(Collider other)
+    {
+        if (!IsSimulating || Time.time < ignoreImpactUntil || !IsEnvironment(other)) return;
+        bool sameObject = false;
+        foreach (Collider contact in _environmentContacts)
+            if (contact != null && (contact.gameObject == other.gameObject ||
+                (other.attachedRigidbody != null && contact.attachedRigidbody == other.attachedRigidbody)))
+            { sameObject = true; break; }
+        if (!_environmentContacts.Add(other) || sameObject) return;
+        // Gộp các contact trong cùng bước vật lý; tì liên tục không mất thêm lượt.
+        if (Time.fixedTime == _lastImpactTime) return;
+        _lastImpactTime = Time.fixedTime;
+        if (!_progressiveDamage || DamageCount >= 2)
+        {
+            Vector3 surface = other.ClosestPoint(Body.position);
+            BreakOnServer();
+            if (_progressiveDamage)
+            {
+                // Đặt model lòng trắng/lòng đỏ trên điểm va chạm thay vì treo ở tâm vỏ.
+                Body.position = surface + Vector3.up * (Height * .5f);
+                Body.rotation = Quaternion.identity;
+            }
+        }
+        else SetPresentation(NestEggPhase.Intact, (byte)(DamageCount + 1));
     }
 
     private void RecordNestSupport(Collision collision)
@@ -165,7 +278,7 @@ public sealed class NestEggBody : MonoBehaviour
     {
         if (!IsSimulating) return;
         Freeze();
-        SetPresentation(NestEggPhase.Broken);
+        SetPresentation(NestEggPhase.Broken, 3);
         Broken?.Invoke();
     }
 
@@ -173,14 +286,21 @@ public sealed class NestEggBody : MonoBehaviour
     {
         if (authority) return;
         transform.SetPositionAndRotation(frame.EggPosition, frame.EggRotation);
-        SetPresentation(frame.Phase);
+        SetPresentation(frame.Phase, frame.EggDamage);
     }
 
-    private void SetPresentation(NestEggPhase next)
+    private void SetPresentation(NestEggPhase next, byte damage = 0)
     {
-        if (presentationInitialized && phase == next) return;
+        damage = next == NestEggPhase.Broken ? (byte)3 : next == NestEggPhase.Waiting ? (byte)0 : (byte)Mathf.Min(damage, 2);
+        if (presentationInitialized && phase == next && DamageCount == damage) return;
         presentationInitialized = true;
         phase = next;
+        DamageCount = damage;
+        if (_damageVisual != null)
+        {
+            _damageVisual.Show(next, damage);
+            return;
+        }
         if (renderers == null) return;
         foreach (Renderer r in renderers)
         {
@@ -195,4 +315,6 @@ public sealed class NestEggBody : MonoBehaviour
             else r.SetPropertyBlock(null);
         }
     }
+
+    private void OnDestroy() => _damageVisual?.Dispose();
 }

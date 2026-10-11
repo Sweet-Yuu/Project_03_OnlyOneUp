@@ -9,6 +9,7 @@ public struct NestEggFrame : INetworkSerializable, IEquatable<NestEggFrame>
     public double Time;
     public uint Generation;
     public NestEggPhase Phase;
+    public byte EggDamage;
     public bool EggSupported;
     public bool EggInNest;
     public uint AppliedCarrySequence;
@@ -17,6 +18,7 @@ public struct NestEggFrame : INetworkSerializable, IEquatable<NestEggFrame>
     public Vector3 NestPosition;
     public Quaternion NestRotation;
     public Vector3 EggPosition;
+    public Vector3 EggVelocity;
     public Quaternion EggRotation;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
@@ -24,6 +26,7 @@ public struct NestEggFrame : INetworkSerializable, IEquatable<NestEggFrame>
         serializer.SerializeValue(ref Time);
         serializer.SerializeValue(ref Generation);
         serializer.SerializeValue(ref Phase);
+        serializer.SerializeValue(ref EggDamage);
         serializer.SerializeValue(ref EggSupported);
         serializer.SerializeValue(ref EggInNest);
         serializer.SerializeValue(ref AppliedCarrySequence);
@@ -32,14 +35,15 @@ public struct NestEggFrame : INetworkSerializable, IEquatable<NestEggFrame>
         serializer.SerializeValue(ref NestPosition);
         serializer.SerializeValue(ref NestRotation);
         serializer.SerializeValue(ref EggPosition);
+        serializer.SerializeValue(ref EggVelocity);
         serializer.SerializeValue(ref EggRotation);
     }
 
     public bool Equals(NestEggFrame other) => Time.Equals(other.Time) &&
         Generation == other.Generation && Phase == other.Phase && EggSupported == other.EggSupported &&
-        EggInNest == other.EggInNest &&
+        EggInNest == other.EggInNest && EggDamage == other.EggDamage &&
         AppliedCarrySequence == other.AppliedCarrySequence && CarryStepDuration.Equals(other.CarryStepDuration) &&
         NestVelocity.Equals(other.NestVelocity) &&
         NestPosition.Equals(other.NestPosition) && NestRotation.Equals(other.NestRotation) &&
-        EggPosition.Equals(other.EggPosition) && EggRotation.Equals(other.EggRotation);
+        EggPosition.Equals(other.EggPosition) && EggVelocity.Equals(other.EggVelocity) && EggRotation.Equals(other.EggRotation);
 }

@@ -4,7 +4,7 @@ using System.Collections;
 
 [RequireComponent(typeof(NetworkObject), typeof(Rigidbody))]
 [DefaultExecutionOrder(500)]
-public class NetworkNest : NetworkBehaviour
+public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
 {
     [SerializeField] private Transform leftGrip;
     [SerializeField] private Transform rightGrip;
@@ -12,9 +12,31 @@ public class NetworkNest : NetworkBehaviour
     [Header("Host-authoritative egg test")]
     [SerializeField] private bool enableEggTest;
     [SerializeField] private GameObject eggVisualPrefab;
+    [SerializeField] private bool _progressiveEggDamage;
+    [SerializeField] private GameObject _brokenEggVisualPrefab;
+    [Header("Local egg damage feedback")]
+    [SerializeField, Min(0.01f)] private float _eggDamageShakeDuration = .35f;
+    [SerializeField, Min(0f)] private float _eggDamageShakeStrength = .07f;
+    [SerializeField, Min(0.01f)] private float _eggDamageFlashDuration = .9f;
+    private EggDamageFeedback _damageFeedback;
+    [SerializeField] private bool _showEggTrajectory;
+    private EggFallTrajectory _fallTrajectory;
     [SerializeField] private BoxCollider nestFloor;
     [SerializeField, Min(0f)] private float eggDropClearance = 0.2f;
     [SerializeField, Range(0.05f, 0.25f)] private float presentationDelay = 0.1f;
+    [Header("Cooperative egg physics (scene opt-in)")]
+    [SerializeField] private bool _assistEggCarry;
+    [Tooltip("Maximum time between the two actual takeoffs, in seconds.")]
+    [SerializeField, Range(0.05f, 0.4f)] private float _combinedJumpWindow = 0.2f;
+    [Tooltip("Distance from the resting point to the rim, measured at the egg centre. The current nest fits 0.75 units.")]
+    [SerializeField, Min(0f)] private float _eggTravel = 0.75f;
+    [Tooltip("Release the egg to gravity when the nest tilts beyond this angle from world up.")]
+    [SerializeField, Range(0f, 90f)] private float _eggReleaseTilt = 70f;
+    [Tooltip("Upward launch speed added to the nest's point velocity on a paired jump.")]
+    [SerializeField, Min(0f)] private float _eggLaunchUp = 15f;
+    [SerializeField, Min(0f)] private float _eggLaunchSide = 5f;
+    private INestEggCarryPhysics _eggCarryPhysics;
+    private double _eggRoundStart;
     [Header("Smooth online carry (scene opt-in)")]
     [SerializeField] private bool _smoothOnlineCarry;
     [SerializeField] private bool _predictCarryInputs;
@@ -38,7 +60,13 @@ public class NetworkNest : NetworkBehaviour
     private NetworkTestMovement _guestMovement;
     private Coroutine _cachePlayersRoutine;
     [Header("Round preparation (flat starting ground)")]
+    [Tooltip("Fallback for scenes without IRoundSession. MainMap_Online uses Start Center on NetworkRoundManager.")]
     [SerializeField] private Vector3 startCenter = new Vector3(0f, 2.1f, 0f);
+    private IRoundSession _roundSession;
+    private bool IsRoundSuspended => _roundSession != null && _roundSession.IsRespawning;
+    private Vector3 PreparationCenter => _roundSession != null ? _roundSession.RespawnCenter : startCenter;
+    public event System.Action RoundFailed;
+    public bool IsPlaying => IsSpawned && validSetup && enableEggTest && roundStage.Value == NestRoundStage.Playing;
     [SerializeField, Min(0.1f)] private float stableDuration = 0.2f;
     [SerializeField, Min(2f)] private float preparationTimeout = 15f;
     private readonly NetworkVariable<NestRoundStage> roundStage = new NetworkVariable<NestRoundStage>();
@@ -74,11 +102,12 @@ public class NetworkNest : NetworkBehaviour
     }
     public NestRoundStage RoundStage => roundStage.Value;
     public bool CanPlayerMove(uint sequence) => IsSpawned &&
-        roundStage.Value == NestRoundStage.Playing && sequence != 0 && releasedPreparation.Value == sequence;
-    public bool CanResetEgg => IsSpawned && IsServer && placed && egg != null;
+        !IsRoundSuspended && roundStage.Value == NestRoundStage.Playing && sequence != 0 && releasedPreparation.Value == sequence;
+    public bool CanResetEgg => IsSpawned && IsServer && placed && egg != null && !IsRoundSuspended;
 
     private void Awake()
     {
+        _roundSession = GetComponent<IRoundSession>();
         body = GetComponent<Rigidbody>();
         body.useGravity = false;
         body.isKinematic = true;
@@ -124,6 +153,22 @@ public class NetworkNest : NetworkBehaviour
             return;
         }
         eggs.Create(eggVisualPrefab, IsServer);
+        if (_showEggTrajectory && IsClient) _fallTrajectory = new EggFallTrajectory(transform, egg.transform);
+        if (_progressiveEggDamage) egg.ConfigureProgressiveDamage(_brokenEggVisualPrefab);
+        if (_progressiveEggDamage && IsClient)
+        {
+            // Canvas overlay ở gốc scene để không nhận chuyển động/quay của tổ.
+            var feedbackObject = new GameObject("Local egg damage feedback", typeof(RectTransform));
+            _damageFeedback = feedbackObject.AddComponent<EggDamageFeedback>();
+            _damageFeedback.Initialize(Camera.main, _eggDamageShakeDuration,
+                _eggDamageShakeStrength, _eggDamageFlashDuration);
+        }
+        if (IsServer && _assistEggCarry)
+        {
+            _eggCarryPhysics = new NestEggCarryPhysics(egg, _combinedJumpWindow,
+                _eggTravel, _eggLaunchUp, _eggLaunchSide, _eggReleaseTilt);
+            eggs.SetCarryPhysics(_eggCarryPhysics);
+        }
         validSetup = true;
 
         if (IsServer)
@@ -200,6 +245,7 @@ public class NetworkNest : NetworkBehaviour
             return;
         }
 
+        if (IsRoundSuspended) return;
         if (enableEggTest && !PrepareRound(host, guest)) return;
 
         bool duckPair = host.GetComponent<NetworkTestMovement>() is NetworkTestMovement hm && hm.HasDuckRig &&
@@ -258,10 +304,33 @@ public class NetworkNest : NetworkBehaviour
             body.MovePosition(position);
             body.MoveRotation(rotation);
         }
+        _eggCarryPhysics?.Step(new Pose(position, rotation), Time.fixedDeltaTime);
         eggs.Tick(host, guest);
     }
 
+    public void ReportLocalJump()
+    {
+        if (!_assistEggCarry || !enableEggTest || !CarryReady) return;
+        // LocalTime của NGO đã bù nửa RTT; bỏ buffer gửi sớm để ước lượng
+        // thời điểm bấm thật trên đồng hồ host, không dùng lúc RPC tới nơi.
+        double time = NetworkManager.LocalTime.Time - NetworkManager.NetworkTimeSystem.LocalBufferSec;
+        ReportEggJumpRpc(frame.Value.Generation, time);
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void ReportEggJumpRpc(uint eggGeneration, double time, RpcParams rpcParams = default)
+    {
+        if (!_assistEggCarry || !enableEggTest || !CarryReady || eggGeneration != generation ||
+            double.IsNaN(time) || double.IsInfinity(time) || time < _eggRoundStart ||
+            time < NetworkManager.ServerTime.Time - 1.0 || time > NetworkManager.ServerTime.Time + 0.1 ||
+            !TryGetPlayers(out NetworkObject host, out NetworkObject guest)) return;
+        ulong sender = rpcParams.Receive.SenderClientId;
+        if (sender != host.OwnerClientId && sender != guest.OwnerClientId) return;
+        _eggCarryPhysics?.ReportJump(sender == host.OwnerClientId, time);
+    }
+
     private bool CanPredictCarry => _predictCarryInputs && enableEggTest &&
+        !IsRoundSuspended &&
         _carryPrediction != null && _carryPrediction.Generation != 0 &&
         roundStage.Value == NestRoundStage.Playing && frame.Value.Phase != NestEggPhase.Waiting &&
         _hostMovement != null && _hostMovement.IsSpawned &&
@@ -287,7 +356,7 @@ public class NetworkNest : NetworkBehaviour
 
     private bool PrepareRound(NetworkObject host, NetworkObject guest)
     {
-        preparation.Configure(startCenter, stableDuration, preparationTimeout);
+        preparation.Configure(PreparationCenter, stableDuration, preparationTimeout);
         bool ready = preparation.Step(host, guest);
         SyncPreparation();
         return ready;
@@ -323,9 +392,19 @@ public class NetworkNest : NetworkBehaviour
     {
         if (!IsServer || !enableEggTest || roundStage.Value != NestRoundStage.SetupFailed) return;
         if (!TryGetPlayers(out NetworkObject host, out NetworkObject guest)) return;
-        preparation.Configure(startCenter, stableDuration, preparationTimeout);
+        preparation.Configure(PreparationCenter, stableDuration, preparationTimeout);
         preparation.Begin(host, guest);
         SyncPreparation();
+    }
+
+    public bool TryRestartRound(Vector3 center)
+    {
+        if (!IsSpawned || !IsServer || !validSetup || !enableEggTest ||
+            !TryGetPlayers(out NetworkObject host, out NetworkObject guest)) return false;
+        preparation.Configure(center, stableDuration, preparationTimeout);
+        preparation.Begin(host, guest);
+        SyncPreparation();
+        return true;
     }
 
     // Capture after physics; both bodies share the same network timestamp.
@@ -335,6 +414,9 @@ public class NetworkNest : NetworkBehaviour
         if (IsServer)
         {
             if (NetworkManager.ServerTime.Time >= nextSnapshot) PublishFrame();
+            _damageFeedback?.Observe(generation, egg.DamageCount, phase);
+            _fallTrajectory?.Present(egg.transform.position, egg.Body.linearVelocity,
+                phase == NestEggPhase.Intact && !eggs.IsEggInNest && !egg.IsSupportedByNest);
         }
         else if (history.Sample(NetworkManager.ServerTime.Time - presentationDelay,
                      out NestEggFrame sample, _smoothOnlineCarry))
@@ -369,6 +451,9 @@ public class NetworkNest : NetworkBehaviour
             }
             transform.SetPositionAndRotation(sample.NestPosition, sample.NestRotation);
             egg.ApplyRemote(sample);
+            _damageFeedback?.Observe(sample.Generation, sample.EggDamage, sample.Phase);
+            _fallTrajectory?.Present(sample.EggPosition, sample.EggVelocity,
+                sample.Phase == NestEggPhase.Intact && !sample.EggInNest && !sample.EggSupported);
             phase = sample.Phase;
         }
     }
@@ -390,6 +475,7 @@ public class NetworkNest : NetworkBehaviour
             Time = time,
             Generation = generation,
             Phase = phase,
+            EggDamage = egg.DamageCount,
             EggSupported = egg.IsSupportedByNest,
             EggInNest = eggs.IsEggInNest,
             AppliedCarrySequence = _predictCarryInputs ? _carryInputs.AppliedSequence : 0,
@@ -398,6 +484,7 @@ public class NetworkNest : NetworkBehaviour
             NestPosition = body.position,
             NestRotation = body.rotation,
             EggPosition = egg.Body.position,
+            EggVelocity = egg.Body.isKinematic ? Vector3.zero : egg.Body.linearVelocity,
             EggRotation = egg.Body.rotation
         };
         nextSnapshot = time + 1.0 / Mathf.Max(1, (int)NetworkManager.NetworkConfig.TickRate);
@@ -434,6 +521,7 @@ public class NetworkNest : NetworkBehaviour
         if (!CanResetEgg || egg == null) return;
         if (!TryGetPlayers(out NetworkObject host, out NetworkObject guest)) host = guest = null;
         eggs.Reset(eggDropClearance, host, guest);
+        _eggRoundStart = NetworkManager.ServerTime.Time;
         phase = NestEggPhase.Intact;
         generation++;
         PublishFrame();
@@ -453,6 +541,7 @@ public class NetworkNest : NetworkBehaviour
         if (!IsServer) return;
         phase = NestEggPhase.Broken;
         nextSnapshot = 0;
+        RoundFailed?.Invoke();
     }
 
     public override void OnNetworkDespawn()
@@ -467,7 +556,19 @@ public class NetworkNest : NetworkBehaviour
         DestroyEgg();
     }
 
-    private void DestroyEgg() => eggs?.Dispose();
+    private void DestroyEgg()
+    {
+        _fallTrajectory?.Dispose();
+        _fallTrajectory = null;
+        if (_damageFeedback != null)
+        {
+            _damageFeedback.enabled = false;
+            Destroy(_damageFeedback.gameObject);
+            _damageFeedback = null;
+        }
+        eggs?.Dispose();
+        _eggCarryPhysics = null;
+    }
 
     public override void OnDestroy()
     {

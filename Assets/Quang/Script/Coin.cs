@@ -54,8 +54,7 @@ public class Coin : NetworkBehaviour
         NetworkObject player = client.PlayerObject;
         if (player == null || !player.TryGetComponent(out CharacterController controller)) return;
 
-        // Controller của người chơi từ xa bị tắt trên host, nên tính bounds từ
-        // kích thước controller và vị trí đã đồng bộ thay vì controller.bounds.
+        // Controller của người chơi từ xa bị tắt trên host, nên tính bounds từ kích thước controller và vị trí đã đồng bộ thay vì controller.bounds.
         Vector3 scale = player.transform.lossyScale;
         float radius = controller.radius * Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.z));
         float height = Mathf.Max(radius * 2f, controller.height * Mathf.Abs(scale.y));

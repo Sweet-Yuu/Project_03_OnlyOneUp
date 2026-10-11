@@ -34,6 +34,11 @@ public static class NestCarryValidation
             TestClientPhysics();
             _assertions += NestPredictionValidation.Run();
             _assertions += NestEggPresentationValidation.Run();
+            _assertions += NestEggPhysicsValidation.Run();
+            _assertions += PlayerJumpValidation.Run();
+            _assertions += EggDamageFeedbackValidation.Run();
+            _assertions += NetworkRoundManagerValidation.Run();
+            TestFallTrajectory();
             string result = $"PASS: {_assertions} nest carry assertions using Unity runtime math/physics components.";
             File.WriteAllText(Path.Combine(Application.dataPath, "../result.txt"), result);
             Debug.Log(result);
@@ -43,6 +48,55 @@ public static class NestCarryValidation
             File.WriteAllText(Path.Combine(Application.dataPath, "../result.txt"), "FAIL: " + error);
             Debug.LogException(error);
             EditorApplication.Exit(1);
+        }
+    }
+
+    private static void TestFallTrajectory()
+    {
+        var history = new NestEggFrameBuffer();
+        NestEggFrame a = Frame(1), b = Frame(2);
+        a.EggVelocity = Vector3.right * 2;
+        b.EggVelocity = Vector3.right * 4;
+        history.Add(a);
+        history.Add(b);
+        Check(history.Sample(1.5, out NestEggFrame sample), "Client samples trajectory velocity");
+        Near(sample.EggVelocity, Vector3.right * 3, "Client interpolates authoritative egg velocity");
+        NestEggFrame changed = a;
+        changed.EggVelocity = Vector3.zero;
+        Check(!a.Equals(changed), "Velocity-only changes are included in snapshot equality");
+        var nest = new GameObject("Trajectory nest");
+        var egg = new GameObject("Trajectory egg");
+        var floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        EggFallTrajectory trajectory = null;
+        try
+        {
+            floor.transform.position = new Vector3(2000, 0, 0);
+            floor.transform.localScale = new Vector3(100, 1, 100);
+            Physics.SyncTransforms();
+            trajectory = new EggFallTrajectory(nest.transform, egg.transform);
+            Vector3 position = new Vector3(2000, 10, 0);
+            trajectory.Present(position, Vector3.right * 4, true);
+            var lines = nest.GetComponentsInChildren<LineRenderer>();
+            Check(lines.Length == 2, "Trajectory creates path and landing ring");
+            Check(lines[0].enabled && lines[1].enabled && lines[0].positionCount > 2,
+                "Falling egg displays curved path and detected landing point");
+            Near(lines[0].GetPosition(0), position, "Trajectory starts at displayed egg position");
+            Vector3 end = lines[0].GetPosition(lines[0].positionCount - 1);
+            Check(end.x > position.x && Mathf.Abs(end.y - .54f) < .02f,
+                "Predicted contact respects horizontal velocity and real floor collider");
+            Check(!ShaderUtil.ShaderHasError(lines[0].sharedMaterial.shader), "Trajectory shader compiles");
+            trajectory.Present(position, Vector3.zero, false);
+            Check(!lines[0].enabled && !lines[1].enabled, "Carried/broken/reset egg hides trajectory");
+            floor.GetComponent<Collider>().enabled = false;
+            trajectory.Present(position, Vector3.right, true);
+            Check(lines[0].enabled && !lines[1].enabled, "No surface in prediction range produces no false landing marker");
+        }
+        finally
+        {
+            trajectory?.Dispose();
+            UnityEngine.Object.DestroyImmediate(nest);
+            UnityEngine.Object.DestroyImmediate(egg);
+            UnityEngine.Object.DestroyImmediate(floor);
         }
     }
 

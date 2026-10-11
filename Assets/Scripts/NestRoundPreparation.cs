@@ -102,6 +102,8 @@ public sealed class NestRoundPreparation
     }
     public void Begin(NetworkObject host, NetworkObject guest)
     {
+        preparingHost = host;
+        preparingGuest = guest;
         Stage = NestRoundStage.PreparingPlayers;
         ReleasedSequence = 0;
         Started?.Invoke();

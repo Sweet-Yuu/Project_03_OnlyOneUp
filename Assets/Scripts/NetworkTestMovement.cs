@@ -61,6 +61,7 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
     private LocalPlayerCamera playerCamera;
     private PlayerAnimationPresenter animationPresenter;
     private NetworkNest nest;
+    private IRoundSession _roundSession;
     private NetworkTestMovement partner;
     private DuckNeckIK neckIK;
 
@@ -134,6 +135,8 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
         movementState.Value = stateMachine.CurrentState.Kind;
         motor.Move(playerCamera.ToWorldMovement(move), stateMachine.JumpPressed, speed, jumpHeight,
             Time.deltaTime, fallGravityMultiplier, riseGravityMultiplier);
+        if (motor.JumpedThisMove && nest is IEggJumpReceiver jumpReceiver)
+            jumpReceiver.ReportLocalJump();
         if (partner != null && partner.IsSpawned)
             transform.rotation = PlayerCharacterMotor.FacingRotation(transform.position, partner.transform.position);
     }
@@ -143,6 +146,16 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
         if (IsSpawned && IsOwner) playerCamera.Tick();
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (IsSpawned && IsOwner) _roundSession?.ReportPlayerContact(other, preparation.LocalSequence);
+    }
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (IsSpawned && IsOwner) _roundSession?.ReportPlayerContact(hit.collider, preparation.LocalSequence);
+    }
+
     public override void OnNetworkDespawn()
     {
         movementState.OnValueChanged -= OnMovementStateChanged;
@@ -150,6 +163,7 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
         motor.Stop();
         controller.enabled = false;
         playerCamera.Unbind();
+        _roundSession = null;
         nest = null;
         partner = null;
     }
@@ -168,6 +182,8 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
     private void PrepareOwnerRpc(uint sequence, Vector3 position, Vector3 partnerPosition)
     {
         if (!preparation.TryBeginLocal(sequence)) return;
+        if (nest == null) nest = FindFirstObjectByType<NetworkNest>();
+        _roundSession = nest != null ? nest.GetComponent<IRoundSession>() : null;
         motor.Stop();
         controller.enabled = false;
         transform.SetPositionAndRotation(position, PlayerCharacterMotor.FacingRotation(position, partnerPosition));
@@ -175,6 +191,7 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
         controller.Move(Vector3.down * 0.2f);
         preparation.CompleteLocal(controller.isGrounded && Vector3.Distance(transform.position, position) < 0.15f);
         networkTransform.Teleport(transform.position, transform.rotation, transform.localScale);
+        playerCamera.ResetAfterTeleport();
         ConfirmPreparationRpc(sequence, preparation.LocalPlacementSucceeded,
             $"ownerGrounded={controller.isGrounded}, ownerPosition={transform.position:F3}, " +
             $"ownerError={Vector3.Distance(transform.position, position):F3}");

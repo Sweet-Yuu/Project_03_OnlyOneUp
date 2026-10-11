@@ -30,8 +30,55 @@ internal static class NetworkWorkflowTests
     public static void Main()
     {
         CheckRounds();
+        CheckRespawns();
         CheckSessions().GetAwaiter().GetResult();
         Console.WriteLine("PASS: " + checks + " workflow assertions (engine/network doubles).");
+    }
+
+    private static void CheckRespawns()
+    {
+        var prep = new NestRoundPreparation(new Transform(),
+            new Transform { position = Vector3.left * 2 }, new Transform { position = Vector3.right * 2 }, null);
+        var host = new NetworkObject();
+        var guest = new NetworkObject();
+        Vector3 initial = new Vector3(45, 2.1f, 30);
+        Vector3 checkpoint = new Vector3(41.4f, 3.7f, 156.6f);
+        int releases = 0;
+        prep.Released += () => releases++;
+        Time.unscaledTime = 0;
+        prep.Configure(initial, .2f, 15f);
+        prep.Begin(host, guest);
+        Check(((host.transform.position + guest.transform.position) * .5f - initial).sqrMagnitude < .001f,
+            "Initial preparation uses configured Start Center");
+        prep.Step(host, guest);
+        Check(host.Movement.Sequence == 1 && guest.Movement.Sequence == 1,
+            "Explicit Begin must not issue a second teleport on next Step");
+        for (int i = 0; i < 8; i++) prep.Step(host, guest);
+        Check(releases == 1, "Initial round releases one fresh egg");
+
+        prep.Configure(checkpoint, .2f, 15f);
+        prep.Begin(host, guest);
+        Check(prep.ReleasedSequence == 0 && host.Movement.Sequence == 2 && guest.Movement.Sequence == 2,
+            "Death/egg break locks movement and gives both owners a new preparation sequence");
+        Check(((host.transform.position + guest.transform.position) * .5f - checkpoint).sqrMagnitude < .001f,
+            "Both players are placed around the checkpoint instead of initial spawn");
+        Check(Math.Abs(Vector3.Distance(host.transform.position, guest.transform.position) - 6f) < .001f,
+            "Respawn preserves the carrying distance between players");
+        for (int i = 0; i < 8; i++) prep.Step(host, guest);
+        Check(releases == 2 && prep.ReleasedSequence == 2, "Checkpoint respawn releases exactly one new egg");
+        host.transform.position = Vector3.zero;
+        guest.transform.position = Vector3.zero;
+        prep.Begin(host, guest);
+        for (int i = 0; i < 8; i++) prep.Step(host, guest);
+        Check(releases == 3 && ((host.transform.position + guest.transform.position) * .5f - checkpoint).sqrMagnitude < .001f,
+            "Repeated failure retains the checkpoint");
+        prep.Reset();
+        guest = new NetworkObject();
+        prep.Begin(host, guest);
+        uint sequence = host.Movement.Sequence;
+        prep.Step(host, guest);
+        Check(host.Movement.Sequence == sequence && guest.Movement.Sequence == sequence,
+            "Rejoining player does not cause duplicate Begin after explicit respawn");
     }
 
     private static void CheckRounds()

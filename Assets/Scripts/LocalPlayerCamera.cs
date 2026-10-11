@@ -86,6 +86,12 @@ public sealed class LocalPlayerCamera
         localCamera.transform.position = transform.position + new Vector3(0f, 5f, -8f);
         localCamera.transform.LookAt(transform.position + Vector3.up * 0.5f);
     }
+    public void ResetAfterTeleport()
+    {
+        // Hồi sinh xa: bỏ lịch sử damping để camera không bay xuyên map tới checkpoint.
+        if (followCamera != null) followCamera.PreviousStateIsValid = false;
+        Tick();
+    }
     public void Unbind()
     {
         if (followCamera != null && followCamera.Target.TrackingTarget == boundCameraTarget)

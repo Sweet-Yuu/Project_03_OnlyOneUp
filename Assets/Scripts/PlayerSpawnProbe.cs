@@ -24,6 +24,13 @@ public sealed class PlayerSpawnProbe
         reason = null;
         return true;
     }
+    public static bool IsDeadZone(Transform target)
+    {
+        for (Transform current = target; current != null; current = current.parent)
+            if (current.CompareTag("Dead")) return true;
+        return false;
+    }
+
     public bool TryGetStartPosition(Vector3 approximate, out Vector3 position)
     {
         position = approximate;
@@ -31,7 +38,8 @@ public sealed class PlayerSpawnProbe
         foreach (RaycastHit hit in Physics.RaycastAll(approximate + Vector3.up * 5f,
                      Vector3.down, 20f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
         {
-            if (hit.normal.y < 0.98f || hit.collider.GetComponentInParent<NetworkNest>() != null ||
+            if (hit.normal.y < 0.98f || IsDeadZone(hit.collider.transform) ||
+                hit.collider.GetComponentInParent<NetworkNest>() != null ||
                 hit.collider.GetComponentInParent<NetworkTestMovement>() != null) continue;
             highest = Mathf.Max(highest, hit.point.y);
         }
