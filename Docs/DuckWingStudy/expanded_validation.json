@@ -1,0 +1,77 @@
+{
+  "existing_bone_count": 56,
+  "max_existing_rest_matrix_error": 0.0,
+  "existing_parents_preserved": true,
+  "existing_deform_flags_preserved": true,
+  "unrelated_mesh_coords_weights_exact": true,
+  "constraint_names_types_preserved": true,
+  "new_bones": [
+    "DEF_Primary_01.L",
+    "DEF_Primary_02.L",
+    "DEF_Primary_03.L",
+    "DEF_Primary_04.L",
+    "DEF_Primary_05.L",
+    "DEF_Primary_01.R",
+    "DEF_Primary_02.R",
+    "DEF_Primary_03.R",
+    "DEF_Primary_04.R",
+    "DEF_Primary_05.R"
+  ],
+  "wing_armature_modifiers": {
+    "Wing_L": [
+      "Duck_Rig"
+    ],
+    "Wing_L_Covert_00": [
+      "Duck_Rig"
+    ],
+    "Wing_L_Covert_01": [
+      "Duck_Rig"
+    ],
+    "Wing_L_Covert_02": [
+      "Duck_Rig"
+    ],
+    "Wing_L_Primary_00": [
+      "Duck_Rig"
+    ],
+    "Wing_L_Primary_01": [
+      "Duck_Rig"
+    ],
+    "Wing_L_Primary_02": [
+      "Duck_Rig"
+    ],
+    "Wing_L_Primary_03": [
+      "Duck_Rig"
+    ],
+    "Wing_L_Primary_04": [
+      "Duck_Rig"
+    ],
+    "Wing_R": [
+      "Duck_Rig"
+    ],
+    "Wing_R_Covert_00": [
+      "Duck_Rig"
+    ],
+    "Wing_R_Covert_01": [
+      "Duck_Rig"
+    ],
+    "Wing_R_Covert_02": [
+      "Duck_Rig"
+    ],
+    "Wing_R_Primary_00": [
+      "Duck_Rig"
+    ],
+    "Wing_R_Primary_01": [
+      "Duck_Rig"
+    ],
+    "Wing_R_Primary_02": [
+      "Duck_Rig"
+    ],
+    "Wing_R_Primary_03": [
+      "Duck_Rig"
+    ],
+    "Wing_R_Primary_04": [
+      "Duck_Rig"
+    ]
+  },
+  "wing_max_weight_sum_error": 1.2759119272232056e-07
+}

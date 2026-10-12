@@ -1,0 +1,31 @@
+{
+  "mesh_weight_unchanged": true,
+  "all_rest_matrices_unchanged": true,
+  "action": "Duck_LookAround_HeadScratch",
+  "frame_range": [
+    1,
+    255
+  ],
+  "fps": 30,
+  "animated_bones": [
+    "Chest",
+    "Neck_01",
+    "Neck_02",
+    "Neck_03",
+    "Head",
+    "Wing.L",
+    "Wing.R",
+    "WingTip.L",
+    "WingTip.R",
+    "DEF_Primary_01.L",
+    "DEF_Primary_02.L",
+    "DEF_Primary_03.L",
+    "DEF_Primary_04.L",
+    "DEF_Primary_05.L",
+    "DEF_Primary_01.R",
+    "DEF_Primary_02.R",
+    "DEF_Primary_03.R",
+    "DEF_Primary_04.R",
+    "DEF_Primary_05.R"
+  ]
+}

@@ -1,0 +1,3 @@
+Name panel created, menu initially disabled, persistent completion wired.
+Test name cleared after successful first-run and returning-player Play Mode checks.
+Test name cleared after successful first-run and returning-player Play Mode checks.
