@@ -169,6 +169,5 @@ Packages/packages-lock.json linguist-generated
 
 # Exceptions for .asset files such as lightning pre-baking
 LightingData.asset     binary
-
-# Treat Terrain assets as binary and use LFS due to their large size
-*Terrain.asset filter=lfs diff=lfs merge=lfs -text
+LightingData.asset     binary
+Assets/Quang/Terrain/*.asset binary
