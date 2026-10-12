@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 7654861759507536313}
   - component: {fileID: 7654861759507536314}
   - component: {fileID: 7654861759507536315}
+  - component: {fileID: 1295206699109162644}
   m_Layer: 7
   m_Name: NetWorkPlayer
   m_TagString: Untagged
@@ -240,6 +241,19 @@ MonoBehaviour:
   wingSpreadSpeed: 5
   wingTipSpread: 12
   primaryFanSpread: 24
+--- !u!114 &1295206699109162644
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2623746540007455877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28cf7488038531d41aed476da6a8a9b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkPlayerIdentity
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &2638402628446935739
 GameObject:
   m_ObjectHideFlags: 0

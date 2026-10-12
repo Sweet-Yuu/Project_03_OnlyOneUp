@@ -1,0 +1,2 @@
+PASS: actual Relay host + guest connected; both roster counts 2/2, host and guest names/roles and room code match.
+PASS: guest leave updates host roster to 1/2.

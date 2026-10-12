@@ -1,1 +1,1 @@
-Panel references configured; open and empty-code guard checked. Play Mode navigation verification follows.
+2026-10-12: Play Mode verified Start -> room cards -> Join code form; ab12cd displayed as AB12CD; Back restored room cards. Exited Play Mode. No C# compilation errors or NullReferenceException found in current Editor.log. Escape/gamepad not manually verified. Relay remains unwired.
