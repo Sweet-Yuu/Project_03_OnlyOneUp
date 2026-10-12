@@ -1,0 +1,16 @@
+{
+  "original_bone_names_parents_deform_preserved": true,
+  "original_rest_matrices_max_error": 0.0,
+  "new_bones": [
+    "CTRL_Beak",
+    "MCH_HeadTarget",
+    "CTRL_NeckPole"
+  ],
+  "new_bones_non_deform": true,
+  "armature_modifiers_retained": true,
+  "changed_neck_vertices": 12800,
+  "changed_vertices_outside_neck": 0,
+  "max_weight_normalization_error": 1.0605435818433762e-07,
+  "max_reachable_beak_mesh_error": 1.4317933808803005e-06,
+  "max_neck_length_change": 2.80941260311085e-07
+}
