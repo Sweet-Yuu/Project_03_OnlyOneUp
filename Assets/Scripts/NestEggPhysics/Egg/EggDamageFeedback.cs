@@ -13,6 +13,7 @@ public sealed class EggDamageFeedback : MonoBehaviour
     private Texture2D _gradient;
     private uint _generation;
     private byte _damage;
+    private uint _impactSequence;
     private bool _initialized;
     private bool _applied;
     private Pose _basePose;
@@ -54,7 +55,7 @@ public sealed class EggDamageFeedback : MonoBehaviour
         }
     }
 
-    public void Observe(uint generation, byte damage, NestEggPhase phase)
+    public void Observe(uint generation, byte damage, NestEggPhase phase, uint impactSequence = 0)
     {
         // Snapshot đầu tiên/đổi vòng chỉ thiết lập mốc: vào muộn không bị rung vì vết nứt cũ.
         if (!_initialized || generation != _generation)
@@ -62,16 +63,19 @@ public sealed class EggDamageFeedback : MonoBehaviour
             _initialized = true;
             _generation = generation;
             _damage = damage;
+            _impactSequence = impactSequence;
             Clear();
             return;
         }
-        if (phase != NestEggPhase.Intact || damage < _damage)
+        bool nestImpact = impactSequence != _impactSequence;
+        _impactSequence = impactSequence;
+        if (phase == NestEggPhase.Waiting || damage < _damage)
         {
             _damage = damage;
             Clear();
             return;
         }
-        if (damage > _damage && damage <= 2)
+        if (nestImpact || (phase == NestEggPhase.Intact && damage > _damage && damage <= 2))
         {
             _intensity = damage == 1 ? 1f : 1.35f;
             _started = Time.unscaledTime;

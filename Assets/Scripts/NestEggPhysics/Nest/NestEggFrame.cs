@@ -10,6 +10,7 @@ public struct NestEggFrame : INetworkSerializable, IEquatable<NestEggFrame>
     public uint Generation;
     public NestEggPhase Phase;
     public byte EggDamage;
+    public uint ImpactSequence;
     public bool EggSupported;
     public bool EggInNest;
     public uint AppliedCarrySequence;
@@ -27,6 +28,7 @@ public struct NestEggFrame : INetworkSerializable, IEquatable<NestEggFrame>
         serializer.SerializeValue(ref Generation);
         serializer.SerializeValue(ref Phase);
         serializer.SerializeValue(ref EggDamage);
+        serializer.SerializeValue(ref ImpactSequence);
         serializer.SerializeValue(ref EggSupported);
         serializer.SerializeValue(ref EggInNest);
         serializer.SerializeValue(ref AppliedCarrySequence);
@@ -41,7 +43,7 @@ public struct NestEggFrame : INetworkSerializable, IEquatable<NestEggFrame>
 
     public bool Equals(NestEggFrame other) => Time.Equals(other.Time) &&
         Generation == other.Generation && Phase == other.Phase && EggSupported == other.EggSupported &&
-        EggInNest == other.EggInNest && EggDamage == other.EggDamage &&
+        EggInNest == other.EggInNest && EggDamage == other.EggDamage && ImpactSequence == other.ImpactSequence &&
         AppliedCarrySequence == other.AppliedCarrySequence && CarryStepDuration.Equals(other.CarryStepDuration) &&
         NestVelocity.Equals(other.NestVelocity) &&
         NestPosition.Equals(other.NestPosition) && NestRotation.Equals(other.NestRotation) &&
