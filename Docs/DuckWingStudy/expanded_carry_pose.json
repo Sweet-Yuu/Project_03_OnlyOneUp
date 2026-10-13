@@ -1,0 +1,173 @@
+{
+  "Wing.L": {
+    "rotation_mode": "QUATERNION",
+    "quaternion_wxyz": [
+      0.8746196627616882,
+      0.23622366786003113,
+      3.250902835816305e-08,
+      0.42336609959602356
+    ]
+  },
+  "Wing.R": {
+    "rotation_mode": "QUATERNION",
+    "quaternion_wxyz": [
+      0.8746196627616882,
+      0.23622366786003113,
+      -3.250902835816305e-08,
+      -0.42336609959602356
+    ]
+  },
+  "WingTip.L": {
+    "rotation_mode": "QUATERNION",
+    "quaternion_wxyz": [
+      0.9945219159126282,
+      0.045106902718544006,
+      -3.89398929767637e-10,
+      0.09429511427879333
+    ]
+  },
+  "WingTip.R": {
+    "rotation_mode": "QUATERNION",
+    "quaternion_wxyz": [
+      0.9945219159126282,
+      0.045106902718544006,
+      3.89398929767637e-10,
+      -0.09429511427879333
+    ]
+  },
+  "DEF_Primary_01.L": {
+    "rotation_mode": "QUATERNION",
+    "quaternion_wxyz": [
+      0.9781476259231567,
+      0.0,
+      0.0,
+      -0.20791170001029968
+    ]
+  },
+  "DEF_Primary_02.L": {
+    "rotation_mode": "QUATERNION",
+    "quaternion_wxyz": [
+      0.9945219159126282,
+      0.0,
+      0.0,
+      -0.10452846437692642
+    ]
+  },
+  "DEF_Primary_03.L": {
+    "rotation_mode": "QUATERNION",
+    "quaternion_wxyz": [
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "DEF_Primary_04.L": {
+    "rotation_mode": "QUATERNION",
+    "quaternion_wxyz": [
+      0.9945219159126282,
+      0.0,
+      0.0,
+      0.10452846437692642
+    ]
+  },
+  "DEF_Primary_05.L": {
+    "rotation_mode": "QUATERNION",
+    "quaternion_wxyz": [
+      0.9781476259231567,
+      0.0,
+      0.0,
+      0.20791170001029968
+    ]
+  },
+  "DEF_Primary_01.R": {
+    "rotation_mode": "QUATERNION",
+    "quaternion_wxyz": [
+      0.9781476259231567,
+      0.0,
+      0.0,
+      0.20791170001029968
+    ]
+  },
+  "DEF_Primary_02.R": {
+    "rotation_mode": "QUATERNION",
+    "quaternion_wxyz": [
+      0.9945219159126282,
+      0.0,
+      0.0,
+      0.10452846437692642
+    ]
+  },
+  "DEF_Primary_03.R": {
+    "rotation_mode": "QUATERNION",
+    "quaternion_wxyz": [
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "DEF_Primary_04.R": {
+    "rotation_mode": "QUATERNION",
+    "quaternion_wxyz": [
+      0.9945219159126282,
+      0.0,
+      0.0,
+      -0.10452846437692642
+    ]
+  },
+  "DEF_Primary_05.R": {
+    "rotation_mode": "QUATERNION",
+    "quaternion_wxyz": [
+      0.9781476259231567,
+      0.0,
+      0.0,
+      -0.20791170001029968
+    ]
+  },
+  "Chest": {
+    "rotation_mode": "QUATERNION",
+    "quaternion_wxyz": [
+      0.9876883625984192,
+      0.15643441677093506,
+      0.0,
+      0.0
+    ]
+  },
+  "Neck_01": {
+    "rotation_mode": "QUATERNION",
+    "quaternion_wxyz": [
+      0.9975640773773193,
+      -0.06975643336772919,
+      -0.0,
+      -0.0
+    ]
+  },
+  "Neck_02": {
+    "rotation_mode": "QUATERNION",
+    "quaternion_wxyz": [
+      0.9990482330322266,
+      -0.04361937940120697,
+      -0.0,
+      -0.0
+    ]
+  },
+  "Neck_03": {
+    "rotation_mode": "QUATERNION",
+    "quaternion_wxyz": [
+      0.9996573328971863,
+      -0.026176920160651207,
+      -0.0,
+      -0.0
+    ]
+  },
+  "Head": {
+    "rotation_mode": "QUATERNION",
+    "quaternion_wxyz": [
+      0.9998477101325989,
+      -0.017452426254749298,
+      -0.0,
+      -0.0
+    ]
+  }
+}
