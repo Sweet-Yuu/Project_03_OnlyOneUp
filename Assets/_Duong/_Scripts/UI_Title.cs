@@ -20,4 +20,8 @@ public class UI_Title : MonoBehaviour
     {
         SceneManager.LoadScene("MainMenu");
     }
+    public void OnBackButtonClicked()
+    {
+        SceneManager.LoadScene(sceneName);
+    }
 }
