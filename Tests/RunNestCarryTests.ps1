@@ -15,8 +15,12 @@ foreach ($name in @('NestPositionSmoother', 'NestClientPresentation', 'NestEggFr
     'NestCarrySimulation', 'NestCarryInputBuffer', 'NestCarryPrediction', 'NestReconciledPresentation', 'NestEggPresentation', 'NestEggContainment',
     'INestEggPhysicsBody', 'INestEggCarryPhysics', 'NestEggCarryPhysics', 'CooperativeJumpWindow', 'PlayerCharacterMotor', 'NestEggDamageVisual', 'EggDamageFeedback', 'OnlineCheckpoint',
     'NetworkRoundManager', 'IRoundSession', 'IRoundResetTarget', 'PlayerSpawnProbe', 'EggFallTrajectory')) {
-    Copy-Item "$projectRoot/Assets/Scripts/$name.cs" "$testProject/Assets/$name.cs"
+    $source = @(Get-ChildItem "$projectRoot/Assets/Scripts" -Recurse -Filter "$name.cs")
+    if ($source.Count -ne 1) { throw "Expected one source for $name" }
+    Copy-Item $source[0].FullName "$testProject/Assets/$name.cs"
 }
+Copy-Item "$projectRoot/Assets/Scripts/NestEggPhysics/Nest/NestImpactDetector.cs" "$testProject/Assets/NestImpactDetector.cs"
+Copy-Item "$PSScriptRoot/NestImpactValidation.cs" "$testProject/Assets/Editor/NestImpactValidation.cs"
 Copy-Item "$PSScriptRoot/NestCarryNetcodeDoubles.cs" "$testProject/Assets/NestCarryNetcodeDoubles.cs"
 New-Item -ItemType Directory -Force -Path "$testProject/Assets/Resources" | Out-Null
 Copy-Item "$projectRoot/Assets/Resources/EggTrajectoryLine.shader" "$testProject/Assets/Resources/EggTrajectoryLine.shader"

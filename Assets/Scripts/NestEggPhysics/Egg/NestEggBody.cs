@@ -274,6 +274,21 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
         }
     }
 
+    public void DamageFromNestImpact()
+    {
+        if (!IsSimulating) return;
+        if (!_progressiveDamage || DamageCount >= 2) BreakOnServer();
+        else SetPresentation(NestEggPhase.Intact, (byte)(DamageCount + 1));
+    }
+
+    public void FallFromNestImpact(Vector3 velocity)
+    {
+        if (!IsSimulating) return;
+        // Không reset trứng: giữ nguyên số vết nứt khi bị hất khỏi tổ.
+        _carried = true;
+        ReleaseCarry(velocity, Vector3.Cross(Vector3.up, velocity));
+    }
+
     public void BreakOnServer()
     {
         if (!IsSimulating) return;
