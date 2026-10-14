@@ -77,6 +77,12 @@ public static class EggDamageFeedbackValidation
             feedback.Observe(3, 3, NestEggPhase.Broken);
             Check(!canvas.enabled, "Third hit does not trigger a crack-only effect");
             feedback.Observe(4, 0, NestEggPhase.Intact);
+            feedback.Observe(4, 0, NestEggPhase.Intact, 1);
+            Check(canvas.enabled, "Fall event triggers feedback without a crack");
+            feedback.Observe(5, 0, NestEggPhase.Intact, 1);
+            feedback.Observe(5, 3, NestEggPhase.Broken, 2);
+            Check(canvas.enabled, "Fatal nest impact still triggers feedback");
+            feedback.Observe(4, 0, NestEggPhase.Intact);
             feedback.Observe(4, 1, NestEggPhase.Intact);
             SetTime(feedback, Time.unscaledTime - 2);
             Invoke(feedback, "Update");

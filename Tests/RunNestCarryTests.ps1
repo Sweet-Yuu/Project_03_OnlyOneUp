@@ -7,16 +7,23 @@ Copy-Item "$projectRoot/ProjectSettings/ProjectVersion.txt" "$testProject/Projec
 Copy-Item "$projectRoot/ProjectSettings/TagManager.asset" "$testProject/ProjectSettings/TagManager.asset"
 $ugui = Get-ChildItem "$projectRoot/Library/PackageCache" -Directory -Filter 'com.unity.ugui@*' | Select-Object -First 1
 if ($null -eq $ugui) { throw 'Open the main Unity project once to restore its existing uGUI dependency.' }
-@{ dependencies = @{ 'com.unity.modules.physics' = '1.0.0'; 'com.unity.modules.audio' = '1.0.0';
+@{ dependencies = @{ 'com.unity.modules.physics' = '1.0.0'; 'com.unity.modules.audio' = '1.0.0'; 'com.unity.modules.animation' = '1.0.0';
     'com.unity.ugui' = ('file:' + $ugui.FullName.Replace('\', '/')) } } |
     ConvertTo-Json -Depth 3 | Set-Content "$testProject/Packages/manifest.json"
 foreach ($name in @('NestPositionSmoother', 'NestClientPresentation', 'NestEggFrame', 'NestEggFrameBuffer', 'NestEggPhase', 'NestEggBody',
     'INestCarryGeometry', 'NestCarryPose', 'NestCarryInput', 'NestCarryState', 'INestCarrySimulation',
     'NestCarrySimulation', 'NestCarryInputBuffer', 'NestCarryPrediction', 'NestReconciledPresentation', 'NestEggPresentation', 'NestEggContainment',
     'INestEggPhysicsBody', 'INestEggCarryPhysics', 'NestEggCarryPhysics', 'CooperativeJumpWindow', 'PlayerCharacterMotor', 'NestEggDamageVisual', 'EggDamageFeedback', 'OnlineCheckpoint',
-    'NetworkRoundManager', 'IRoundSession', 'IRoundResetTarget', 'PlayerSpawnProbe', 'EggFallTrajectory')) {
-    Copy-Item "$projectRoot/Assets/Scripts/$name.cs" "$testProject/Assets/$name.cs"
+    'NetworkRoundManager', 'IRoundSession', 'IRoundResetTarget', 'PlayerSpawnProbe', 'EggFallTrajectory',
+    'PlayerAnimationPresenter', 'OnlinePlayerStateMachine', 'NestWinContact')) {
+    $source = @(Get-ChildItem "$projectRoot/Assets/Scripts" -Recurse -Filter "$name.cs")
+    if ($source.Count -ne 1) { throw "Expected one source for $name" }
+    Copy-Item $source[0].FullName "$testProject/Assets/$name.cs"
 }
+Copy-Item "$projectRoot/Assets/Scripts/NestEggPhysics/Nest/Physics/NestImpactDetector.cs" "$testProject/Assets/NestImpactDetector.cs"
+Copy-Item "$PSScriptRoot/NestImpactValidation.cs" "$testProject/Assets/Editor/NestImpactValidation.cs"
+Copy-Item "$PSScriptRoot/WalkSpeedValidation.cs" "$testProject/Assets/Editor/WalkSpeedValidation.cs"
+Copy-Item "$PSScriptRoot/NestWinValidation.cs" "$testProject/Assets/Editor/NestWinValidation.cs"
 Copy-Item "$PSScriptRoot/NestCarryNetcodeDoubles.cs" "$testProject/Assets/NestCarryNetcodeDoubles.cs"
 New-Item -ItemType Directory -Force -Path "$testProject/Assets/Resources" | Out-Null
 Copy-Item "$projectRoot/Assets/Resources/EggTrajectoryLine.shader" "$testProject/Assets/Resources/EggTrajectoryLine.shader"

@@ -19,6 +19,16 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
     [SerializeField, Min(0f)] private float _eggDamageShakeStrength = .07f;
     [SerializeField, Min(0.01f)] private float _eggDamageFlashDuration = .9f;
     private EggDamageFeedback _damageFeedback;
+    [Header("Nest collision consequences")]
+    [SerializeField] private bool _randomEggOnNestImpact = true;
+    [SerializeField, Range(0f, 1f)] private float _nestImpactCrackChance = 0.5f;
+    [SerializeField, Min(0f)] private float _nestImpactCooldown = 0.75f;
+    [SerializeField] private LayerMask _nestImpactLayers = ~0;
+    [SerializeField, Min(0f)] private float _impactFallUpSpeed = 1f;
+    [SerializeField, Min(0f)] private float _impactFallSideSpeed = 2f;
+    private NestImpactDetector _impactDetector;
+    private float _nextNestImpact;
+    private uint _impactSequence;
     [SerializeField] private bool _showEggTrajectory;
     private EggFallTrajectory _fallTrajectory;
     [SerializeField] private BoxCollider nestFloor;
@@ -27,7 +37,7 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
     [Header("Cooperative egg physics (scene opt-in)")]
     [SerializeField] private bool _assistEggCarry;
     [Tooltip("Maximum time between the two actual takeoffs, in seconds.")]
-    [SerializeField, Range(0.05f, 0.4f)] private float _combinedJumpWindow = 0.2f;
+    [SerializeField, Range(0.05f, 1f)] private float _combinedJumpWindow = 0.2f;
     [Tooltip("Distance from the resting point to the rim, measured at the egg centre. The current nest fits 0.75 units.")]
     [SerializeField, Min(0f)] private float _eggTravel = 0.75f;
     [Tooltip("Release the egg to gravity when the nest tilts beyond this angle from world up.")]
@@ -66,6 +76,11 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
     private bool IsRoundSuspended => _roundSession != null && _roundSession.IsRespawning;
     private Vector3 PreparationCenter => _roundSession != null ? _roundSession.RespawnCenter : startCenter;
     public event System.Action RoundFailed;
+    public event System.Action<bool> WinChanged;
+    private readonly NetworkVariable<bool> _hasWon = new NetworkVariable<bool>();
+    private NestWinContact _winContact;
+    public bool HasWon => IsSpawned && _hasWon.Value;
+    private void OnWinChanged(bool previous, bool current) => WinChanged?.Invoke(current);
     public bool IsPlaying => IsSpawned && validSetup && enableEggTest && roundStage.Value == NestRoundStage.Playing;
     [SerializeField, Min(0.1f)] private float stableDuration = 0.2f;
     [SerializeField, Min(2f)] private float preparationTimeout = 15f;
@@ -122,10 +137,18 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
         eggs = new NestEggLifecycle(transform, body, nestFloor);
         eggs.Broken += OnEggBroken;
         _entryGate = GetComponent<IGameEntryGate>();
+        _impactDetector = new NestImpactDetector(transform);
     }
 
     public override void OnNetworkSpawn()
     {
+        _hasWon.OnValueChanged += OnWinChanged;
+        if (IsServer)
+        {
+            _hasWon.Value = false;
+            _winContact = new NestWinContact(transform);
+        }
+        WinChanged?.Invoke(_hasWon.Value);
         validSetup = false;
         placed = false;
         phase = NestEggPhase.Waiting;
@@ -311,6 +334,34 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
         }
         _eggCarryPhysics?.Step(new Pose(position, rotation), Time.fixedDeltaTime);
         eggs.Tick(host, guest);
+        CheckNestImpact(host, guest);
+    }
+
+    private void CheckNestImpact(NetworkObject host, NetworkObject guest)
+    {
+        if (!_randomEggOnNestImpact || egg == null) return;
+        bool entered = _impactDetector.Sample(host.transform, guest.transform,
+            egg.transform, _nestImpactLayers, out Vector3 away);
+        if (!entered || !IsPlaying || IsRoundSuspended || !egg.IsSimulating ||
+            (_entryGate != null && !_entryGate.IsOpen) ||
+            Time.unscaledTime < _nextNestImpact ||
+            NetworkManager.ServerTime.Time - _eggRoundStart < 0.35 ||
+            !(eggs.IsEggInNest || egg.IsSupportedByNest)) return;
+
+        // Chỉ host bốc thăm; snapshot mang cả kết quả và số sự kiện hiệu ứng.
+        _nextNestImpact = Time.unscaledTime + _nestImpactCooldown;
+        _impactSequence++;
+        if (Random.value < _nestImpactCrackChance)
+            egg.DamageFromNestImpact();
+        else
+        {
+            Vector3 direction = Vector3.ProjectOnPlane(away, Vector3.up).normalized;
+            if (direction.sqrMagnitude < 0.01f)
+                direction = Vector3.ProjectOnPlane(transform.right, Vector3.up).normalized;
+            _eggCarryPhysics?.Stop();
+            eggs.FallFromImpact(direction, _impactFallSideSpeed, _impactFallUpSpeed);
+        }
+        PublishFrame();
     }
 
     public void ReportLocalJump()
@@ -418,8 +469,10 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
         if (!IsSpawned || !validSetup || !enableEggTest) return;
         if (IsServer)
         {
+            if (!_hasWon.Value && IsPlaying && !IsRoundSuspended && _winContact.IsTouching())
+                _hasWon.Value = true;
             if (NetworkManager.ServerTime.Time >= nextSnapshot) PublishFrame();
-            _damageFeedback?.Observe(generation, egg.DamageCount, phase);
+            _damageFeedback?.Observe(generation, egg.DamageCount, phase, _impactSequence);
             _fallTrajectory?.Present(egg.transform.position, egg.Body.linearVelocity,
                 phase == NestEggPhase.Intact && !eggs.IsEggInNest && !egg.IsSupportedByNest);
         }
@@ -456,7 +509,7 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
             }
             transform.SetPositionAndRotation(sample.NestPosition, sample.NestRotation);
             egg.ApplyRemote(sample);
-            _damageFeedback?.Observe(sample.Generation, sample.EggDamage, sample.Phase);
+            _damageFeedback?.Observe(sample.Generation, sample.EggDamage, sample.Phase, sample.ImpactSequence);
             _fallTrajectory?.Present(sample.EggPosition, sample.EggVelocity,
                 sample.Phase == NestEggPhase.Intact && !sample.EggInNest && !sample.EggSupported);
             phase = sample.Phase;
@@ -481,6 +534,7 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
             Generation = generation,
             Phase = phase,
             EggDamage = egg.DamageCount,
+            ImpactSequence = _impactSequence,
             EggSupported = egg.IsSupportedByNest,
             EggInNest = eggs.IsEggInNest,
             AppliedCarrySequence = _predictCarryInputs ? _carryInputs.AppliedSequence : 0,
@@ -551,6 +605,8 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
 
     public override void OnNetworkDespawn()
     {
+        _hasWon.OnValueChanged -= OnWinChanged;
+        WinChanged?.Invoke(false);
         frame.OnValueChanged -= ReceiveFrame;
         history.Clear();
         if (_cachePlayersRoutine != null) StopCoroutine(_cachePlayersRoutine);

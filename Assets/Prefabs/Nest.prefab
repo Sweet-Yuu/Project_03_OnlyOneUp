@@ -110,9 +110,39 @@ MonoBehaviour:
   carryHeight: 3
   enableEggTest: 1
   eggVisualPrefab: {fileID: 919132149155446097, guid: 383d56c9c6e72934a8593ef8b9424c0b, type: 3}
+  _progressiveEggDamage: 0
+  _brokenEggVisualPrefab: {fileID: 0}
+  _eggDamageShakeDuration: 0.35
+  _eggDamageShakeStrength: 0.07
+  _eggDamageFlashDuration: 0.9
+  _randomEggOnNestImpact: 1
+  _nestImpactCrackChance: 0.5
+  _nestImpactCooldown: 0.75
+  _nestImpactLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  _impactFallUpSpeed: 1
+  _impactFallSideSpeed: 2
+  _showEggTrajectory: 0
   nestFloor: {fileID: 5324683343565382883}
   eggDropClearance: 0.2
   presentationDelay: 0.1
+  _assistEggCarry: 0
+  _combinedJumpWindow: 0.2
+  _eggTravel: 0.75
+  _eggReleaseTilt: 70
+  _eggLaunchUp: 15
+  _eggLaunchSide: 5
+  _smoothOnlineCarry: 0
+  _predictCarryInputs: 0
+  _carryInputResponseTime: 0.025
+  _serverSmoothTime: 0.1
+  _clientSmoothTime: 0.04
+  _clientCorrectionTime: 0.2
+  _clientCorrectionSpeed: 4
+  _clientCorrectionAngularSpeed: 90
+  _maxPresentationOffset: 3
+  _maxPresentationAngle: 20
   startCenter: {x: 0, y: 2.1, z: 0}
   stableDuration: 0.2
   preparationTimeout: 15
@@ -392,7 +422,7 @@ Transform:
   m_GameObject: {fileID: 3531261563511819355}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.152, y: -1.27, z: 2.54}
+  m_LocalPosition: {x: -0.152, y: -0.4, z: 2.16}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -582,7 +612,7 @@ Transform:
   m_GameObject: {fileID: 8588526409019475714}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.32, y: -1.27, z: -2.31}
+  m_LocalPosition: {x: -0.32, y: -0.4, z: -2.08}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

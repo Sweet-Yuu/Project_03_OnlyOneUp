@@ -24,8 +24,8 @@ public sealed class EggFallTrajectory : IDisposable
             return;
         }
         _material = new Material(shader);
-        _path = CreateLine("Egg fall trajectory", .07f);
-        _landing = CreateLine("Egg landing marker", .06f);
+        _path = CreateLine("Egg fall trajectory", .15f);
+        _landing = CreateLine("Egg landing marker", .12f);
         _landing.loop = true;
     }
 
