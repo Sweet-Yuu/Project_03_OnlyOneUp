@@ -1,0 +1,18 @@
+# Ignore large profiler captures and binary dump files
+*.wpix
+*.rawpix
+*.data
+*.raw
+*.bin
+*.log
+*.tmp
+*.zip
+*.dmp
+
+# Allow tracking documentation, markdown reports, and screenshots
+!*.md
+!*.txt
+!*.png
+!*.jpg
+!*.jpeg
+!*.pdf
