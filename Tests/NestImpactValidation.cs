@@ -41,7 +41,20 @@ public static class NestImpactValidation
             egg.DamageFromNestImpact();
             egg.DamageFromNestImpact();
             Check(!egg.IsSimulating && egg.DamageCount == 3, "Third crack breaks egg");
-            return 8;
+            egg.ResetOnServer(nest.transform.position + Vector3.up * 4, Quaternion.identity);
+            egg.BeginCarry(new Pose(egg.Body.position, Quaternion.identity));
+            egg.FallFromNestImpact(new Vector3(2, 1, 0));
+            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            typeof(NestEggBody).GetField("ignoreImpactUntil", flags).SetValue(egg, -1f);
+            typeof(NestEggBody).GetMethod("TouchEnvironment", flags)
+                .Invoke(egg, new object[] { obstacle.GetComponent<Collider>() });
+            Check(!egg.IsSimulating && egg.DamageCount == 3, "Released egg breaks on first environment contact");
+            egg.ResetOnServer(nest.transform.position + Vector3.up * 4, Quaternion.identity);
+            typeof(NestEggBody).GetField("ignoreImpactUntil", flags).SetValue(egg, -1f);
+            typeof(NestEggBody).GetMethod("TouchEnvironment", flags)
+                .Invoke(egg, new object[] { obstacle.GetComponent<Collider>() });
+            Check(egg.IsSimulating && egg.DamageCount == 1, "Reset clears fatal landing state");
+            return 10;
         }
         finally
         {

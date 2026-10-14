@@ -22,6 +22,7 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
     private readonly HashSet<Collider> _environmentContacts = new HashSet<Collider>();
     private readonly HashSet<Collider> _currentContacts = new HashSet<Collider>();
     private bool _progressiveDamage;
+    private bool _breakOnLanding;
     private float _lastImpactTime = float.NegativeInfinity;
     private NestEggDamageVisual _damageVisual;
 
@@ -133,6 +134,7 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
     public void ResetOnServer(Vector3 position, Quaternion rotation)
     {
         if (!authority) return;
+        _breakOnLanding = false;
         Freeze();
         _ignoredPlayerColliders.Clear();
         _lastImpactTime = float.NegativeInfinity;
@@ -201,6 +203,8 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
     public void ReleaseCarry(Vector3 velocity, Vector3 angularVelocity)
     {
         if (!IsSimulating || !_carried) return;
+        _breakOnLanding = true;
+        _environmentContacts.Clear();
         _carried = false;
         _lastNestSupportTime = float.NegativeInfinity;
         Body.isKinematic = false;
@@ -246,7 +250,7 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
         // Gộp các contact trong cùng bước vật lý; tì liên tục không mất thêm lượt.
         if (Time.fixedTime == _lastImpactTime) return;
         _lastImpactTime = Time.fixedTime;
-        if (!_progressiveDamage || DamageCount >= 2)
+        if (_breakOnLanding || !_progressiveDamage || DamageCount >= 2)
         {
             Vector3 surface = other.ClosestPoint(Body.position);
             BreakOnServer();

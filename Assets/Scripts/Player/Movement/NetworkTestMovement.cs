@@ -8,7 +8,14 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
 {
     [Header("Online animation")]
     [SerializeField] private Animator onlineAnimator;
-    [SerializeField, Min(0f)] private float animationFade = 0.1f;
+    [Tooltip("Tốc độ di chuyển (đơn vị/giây) khớp với clip walking ở 1x.")]
+    [SerializeField, Min(0.01f)] private float _walkReferenceSpeed = 5f;
+    [SerializeField, Min(0.1f)] private float _walkSpeedResponse = 10f;
+    [SerializeField, Min(0.1f)] private float _maxWalkPlaybackSpeed = 4f;
+    private readonly NetworkVariable<float> _animationMoveSpeed = new NetworkVariable<float>(0f,
+        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    private float _localAnimationSpeed;
+    private float _nextAnimationSend;
     [SerializeField] private float speed = 5f;
     [SerializeField] private float jumpHeight = 1.5f;
     [Tooltip("Higher values reach the same jump height faster, with less time near the apex.")]
@@ -106,9 +113,12 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
     {
         preparation.Reset();
         stateMachine.Reset();
-        movementState.OnValueChanged += OnMovementStateChanged;
-        if (IsOwner) movementState.Value = OnlineMovementState.Idle;
-        OnMovementStateChanged(movementState.Value, movementState.Value);
+        if (IsOwner)
+        {
+            movementState.Value = OnlineMovementState.Idle;
+            PublishAnimationSpeed(0f, true);
+        }
+        animationPresenter.Show(OnlineMovementState.Idle, 0f);
         animationPresenter.Validate();
         if (!IsOwner) return;
         // Preserve the prototype's waiting position; round preparation places both players later.
@@ -119,7 +129,12 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
 
     private void Update()
     {
-        if (!IsSpawned || !IsOwner) return;
+        if (!IsSpawned) return;
+        if (!IsOwner)
+        {
+            UpdateWalkingAnimation();
+            return;
+        }
         if (nest == null) nest = FindFirstObjectByType<NetworkNest>();
         if (nest == null || (nest.HasEggTest &&
             (!nest.CanPlayerMove(preparation.LocalSequence) || !preparation.LocalPlacementSucceeded)))
@@ -127,14 +142,22 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
             motor.Stop();
             stateMachine.Reset();
             movementState.Value = OnlineMovementState.Idle;
+            PublishAnimationSpeed(0f, true);
+            UpdateWalkingAnimation();
             return;
         }
 
         OnlinePlayerInput input = inputSource.Read();
         Vector2 move = stateMachine.Tick(input.Move, input.Jump);
         movementState.Value = stateMachine.CurrentState.Kind;
+        Vector3 beforeMove = transform.position;
         motor.Move(playerCamera.ToWorldMovement(move), stateMachine.JumpPressed, speed, jumpHeight,
             Time.deltaTime, fallGravityMultiplier, riseGravityMultiplier);
+        // Đo sau va chạm/giới hạn khoảng cách, không lấy tốc độ cấu hình hay khoảng teleport.
+        Vector3 displacement = transform.position - beforeMove;
+        displacement.y = 0f;
+        PublishAnimationSpeed(Time.deltaTime > 0.00001f ? displacement.magnitude / Time.deltaTime : 0f);
+        UpdateWalkingAnimation();
         if (motor.JumpedThisMove && nest is IEggJumpReceiver jumpReceiver)
             jumpReceiver.ReportLocalJump();
         if (partner != null && partner.IsSpawned)
@@ -158,7 +181,8 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
 
     public override void OnNetworkDespawn()
     {
-        movementState.OnValueChanged -= OnMovementStateChanged;
+        animationPresenter.Show(OnlineMovementState.Idle, 0f);
+        _localAnimationSpeed = 0f;
         stateMachine.Reset();
         motor.Stop();
         controller.enabled = false;
@@ -168,8 +192,19 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
         partner = null;
     }
 
-    private void OnMovementStateChanged(OnlineMovementState previous, OnlineMovementState next) =>
-        animationPresenter.Show(next, animationFade);
+    private void UpdateWalkingAnimation() => animationPresenter.Tick(
+        IsOwner ? _localAnimationSpeed : _animationMoveSpeed.Value,
+        _walkReferenceSpeed, _walkSpeedResponse, _maxWalkPlaybackSpeed, Time.deltaTime);
+
+    private void PublishAnimationSpeed(float actualSpeed, bool force = false)
+    {
+        _localAnimationSpeed = Mathf.Max(0f, actualSpeed);
+        bool crossingThreshold = (_localAnimationSpeed > 0.15f) != (_animationMoveSpeed.Value > 0.15f) ||
+            (_localAnimationSpeed <= 0.05f) != (_animationMoveSpeed.Value <= 0.05f);
+        if (!force && !crossingThreshold && Time.unscaledTime < _nextAnimationSend) return;
+        _animationMoveSpeed.Value = _localAnimationSpeed;
+        _nextAnimationSend = Time.unscaledTime + 0.05f;
+    }
 
     public void PrepareOnServer(uint sequence, Vector3 position, Vector3 partnerPosition)
     {
@@ -182,6 +217,8 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
     private void PrepareOwnerRpc(uint sequence, Vector3 position, Vector3 partnerPosition)
     {
         if (!preparation.TryBeginLocal(sequence)) return;
+        PublishAnimationSpeed(0f, true);
+        animationPresenter.Show(OnlineMovementState.Idle, 0f);
         if (nest == null) nest = FindFirstObjectByType<NetworkNest>();
         _roundSession = nest != null ? nest.GetComponent<IRoundSession>() : null;
         motor.Stop();
