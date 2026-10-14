@@ -31604,6 +31604,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1735328774628698676, guid: dea9d0be98532ac4c9b187309ef71aae, type: 3}
+      propertyPath: _eggLaunchUp
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1735328774628698676, guid: dea9d0be98532ac4c9b187309ef71aae, type: 3}
       propertyPath: startCenter.x
       value: 45
       objectReference: {fileID: 0}
@@ -31616,6 +31620,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1735328774628698676, guid: dea9d0be98532ac4c9b187309ef71aae, type: 3}
+      propertyPath: _impactFallUpSpeed
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1735328774628698676, guid: dea9d0be98532ac4c9b187309ef71aae, type: 3}
       propertyPath: _showEggTrajectory
       value: 1
       objectReference: {fileID: 0}
@@ -31624,8 +31632,16 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1735328774628698676, guid: dea9d0be98532ac4c9b187309ef71aae, type: 3}
+      propertyPath: _combinedJumpWindow
+      value: 0.694
+      objectReference: {fileID: 0}
+    - target: {fileID: 1735328774628698676, guid: dea9d0be98532ac4c9b187309ef71aae, type: 3}
       propertyPath: _predictCarryInputs
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1735328774628698676, guid: dea9d0be98532ac4c9b187309ef71aae, type: 3}
+      propertyPath: _impactFallSideSpeed
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1735328774628698676, guid: dea9d0be98532ac4c9b187309ef71aae, type: 3}
       propertyPath: _progressiveEggDamage
@@ -43741,7 +43757,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkRoundManager
   ShowTopMostFoldoutHeaderGroup: 1
   _startCenter: {x: 45, y: 2.1, z: 30}
-  _eggBreakRespawnDelay: 1
+  _eggBreakRespawnDelay: 0.2
 --- !u!114 &2099000003
 MonoBehaviour:
   m_ObjectHideFlags: 0

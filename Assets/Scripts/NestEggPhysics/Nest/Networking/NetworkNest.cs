@@ -24,8 +24,8 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
     [SerializeField, Range(0f, 1f)] private float _nestImpactCrackChance = 0.5f;
     [SerializeField, Min(0f)] private float _nestImpactCooldown = 0.75f;
     [SerializeField] private LayerMask _nestImpactLayers = ~0;
-    [SerializeField, Min(0f)] private float _impactFallUpSpeed = 8f;
-    [SerializeField, Min(0f)] private float _impactFallSideSpeed = 6f;
+    [SerializeField, Min(0f)] private float _impactFallUpSpeed = 1f;
+    [SerializeField, Min(0f)] private float _impactFallSideSpeed = 2f;
     private NestImpactDetector _impactDetector;
     private float _nextNestImpact;
     private uint _impactSequence;
@@ -37,7 +37,7 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
     [Header("Cooperative egg physics (scene opt-in)")]
     [SerializeField] private bool _assistEggCarry;
     [Tooltip("Maximum time between the two actual takeoffs, in seconds.")]
-    [SerializeField, Range(0.05f, 0.4f)] private float _combinedJumpWindow = 0.2f;
+    [SerializeField, Range(0.05f, 1f)] private float _combinedJumpWindow = 0.2f;
     [Tooltip("Distance from the resting point to the rim, measured at the egg centre. The current nest fits 0.75 units.")]
     [SerializeField, Min(0f)] private float _eggTravel = 0.75f;
     [Tooltip("Release the egg to gravity when the nest tilts beyond this angle from world up.")]
@@ -347,7 +347,7 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
             if (direction.sqrMagnitude < 0.01f)
                 direction = Vector3.ProjectOnPlane(transform.right, Vector3.up).normalized;
             _eggCarryPhysics?.Stop();
-            egg.FallFromNestImpact(direction * _impactFallSideSpeed + Vector3.up * _impactFallUpSpeed);
+            eggs.FallFromImpact(direction, _impactFallSideSpeed, _impactFallUpSpeed);
         }
         PublishFrame();
     }

@@ -95,6 +95,22 @@ public sealed class NestEggLifecycle : IDisposable
         ignoredHost = ignoredGuest = null;
         IgnorePlayers(host, guest);
     }
+    public void FallFromImpact(Vector3 direction, float sideSpeed, float upSpeed)
+    {
+        if (egg == null || !egg.IsSimulating) return;
+        _carryPhysics?.Stop();
+        // Đặt sát phía ngoài mép tổ để không cần lực hất cao vượt thành collider.
+        Bounds bounds = nestFloor.bounds;
+        foreach (Collider collider in transform.GetComponentsInChildren<Collider>())
+            if (collider.enabled && !collider.isTrigger) bounds.Encapsulate(collider.bounds);
+        Vector3 extents = bounds.extents;
+        float distance = Mathf.Abs(direction.x) * extents.x + Mathf.Abs(direction.z) * extents.z + 1.05f;
+        Vector3 position = bounds.center + direction * distance;
+        position.y = egg.Body.position.y;
+        egg.Body.position = position;
+        egg.FallFromNestImpact(direction * sideSpeed + Vector3.up * upSpeed);
+    }
+
     public void DropForTest()
     {
         _carryPhysics?.Stop();

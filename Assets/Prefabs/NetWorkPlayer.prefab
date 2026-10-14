@@ -222,7 +222,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkTestMovement
   ShowTopMostFoldoutHeaderGroup: 1
-  onlineAnimator: {fileID: 0}
+  onlineAnimator: {fileID: 6839039031550333414}
   animationFade: 0.1
   speed: 10
   jumpHeight: 6
@@ -436,7 +436,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4290769151
   m_fontColor: {r: 1, g: 0.94, b: 0.75, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -454,7 +454,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
+  m_fontSize: 32
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -711,6 +711,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Duck_Wings_Expanded
       objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 32f90e0d6d8625a4b821674ff1af034a, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 59de4170fa1001f4a978189ddf8250ad, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -727,5 +731,10 @@ Transform:
 --- !u!4 &2380391218939473217 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -5869481854413913802, guid: 32f90e0d6d8625a4b821674ff1af034a, type: 3}
+  m_PrefabInstance: {fileID: 1117931103094991991}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &6839039031550333414 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 32f90e0d6d8625a4b821674ff1af034a, type: 3}
   m_PrefabInstance: {fileID: 1117931103094991991}
   m_PrefabAsset: {fileID: 0}

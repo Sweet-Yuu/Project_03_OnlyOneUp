@@ -29,6 +29,7 @@ public static class NestCarryValidation
         {
             TestSmoothing();
             _assertions += NestImpactValidation.Run();
+            _assertions += WalkSpeedValidation.Run();
             TestTimeline();
             TestPresentation();
             TestReconciliation();
