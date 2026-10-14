@@ -76,6 +76,11 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
     private bool IsRoundSuspended => _roundSession != null && _roundSession.IsRespawning;
     private Vector3 PreparationCenter => _roundSession != null ? _roundSession.RespawnCenter : startCenter;
     public event System.Action RoundFailed;
+    public event System.Action<bool> WinChanged;
+    private readonly NetworkVariable<bool> _hasWon = new NetworkVariable<bool>();
+    private NestWinContact _winContact;
+    public bool HasWon => IsSpawned && _hasWon.Value;
+    private void OnWinChanged(bool previous, bool current) => WinChanged?.Invoke(current);
     public bool IsPlaying => IsSpawned && validSetup && enableEggTest && roundStage.Value == NestRoundStage.Playing;
     [SerializeField, Min(0.1f)] private float stableDuration = 0.2f;
     [SerializeField, Min(2f)] private float preparationTimeout = 15f;
@@ -137,6 +142,13 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
 
     public override void OnNetworkSpawn()
     {
+        _hasWon.OnValueChanged += OnWinChanged;
+        if (IsServer)
+        {
+            _hasWon.Value = false;
+            _winContact = new NestWinContact(transform);
+        }
+        WinChanged?.Invoke(_hasWon.Value);
         validSetup = false;
         placed = false;
         phase = NestEggPhase.Waiting;
@@ -457,6 +469,8 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
         if (!IsSpawned || !validSetup || !enableEggTest) return;
         if (IsServer)
         {
+            if (!_hasWon.Value && IsPlaying && !IsRoundSuspended && _winContact.IsTouching())
+                _hasWon.Value = true;
             if (NetworkManager.ServerTime.Time >= nextSnapshot) PublishFrame();
             _damageFeedback?.Observe(generation, egg.DamageCount, phase, _impactSequence);
             _fallTrajectory?.Present(egg.transform.position, egg.Body.linearVelocity,
@@ -591,6 +605,8 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
 
     public override void OnNetworkDespawn()
     {
+        _hasWon.OnValueChanged -= OnWinChanged;
+        WinChanged?.Invoke(false);
         frame.OnValueChanged -= ReceiveFrame;
         history.Clear();
         if (_cachePlayersRoutine != null) StopCoroutine(_cachePlayersRoutine);
