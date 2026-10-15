@@ -14,7 +14,7 @@ public sealed class OnlineRoundTransition : MonoBehaviour
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 32766;
         var transition = root.AddComponent<OnlineRoundTransition>();
-        var graphic = new GameObject("Circle", typeof(RectTransform), typeof(CircularRevealGraphic));
+        var graphic = new GameObject("Circle", typeof(RectTransform), typeof(CanvasRenderer), typeof(CircularRevealGraphic));
         graphic.transform.SetParent(root.transform, false);
         transition._cover = graphic.GetComponent<CircularRevealGraphic>();
         var rect = transition._cover.rectTransform;
