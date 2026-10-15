@@ -457,6 +457,7 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
     {
         if (!IsSpawned || !IsServer || !validSetup || !enableEggTest ||
             !TryGetPlayers(out NetworkObject host, out NetworkObject guest)) return false;
+        _hasWon.Value = false;
         preparation.Configure(center, stableDuration, preparationTimeout);
         preparation.Begin(host, guest);
         SyncPreparation();

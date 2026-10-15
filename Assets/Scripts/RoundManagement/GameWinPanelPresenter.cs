@@ -41,8 +41,6 @@ public sealed class GameWinPanelPresenter : MonoBehaviour
     {
         foreach (Button button in _panel.GetComponentsInChildren<Button>(true))
             if (button.name == "MenuButton") { _menuButton = button; break; }
-        if (_menuButton != null) _menuButton.onClick.AddListener(ReturnToMenuTransition.Begin);
-        else Debug.LogWarning("GameWinPanel: không tìm thấy MenuButton.", this);
         _manager = NetworkManager.Singleton;
         if (_manager != null) _manager.OnClientStopped += OnClientStopped;
         // Chỉ tìm trong giai đoạn chờ tổ spawn, không tìm mỗi frame gameplay.
@@ -53,13 +51,17 @@ public sealed class GameWinPanelPresenter : MonoBehaviour
             if (_nest == null) yield return new WaitForSecondsRealtime(.25f);
         }
         _nest.WinChanged += Show;
+        var actions = _nest.GetComponent<IOnlineRoundActions>();
+        var buttons = _panel.GetComponent<OnlineWinButtons>();
+        if (buttons == null) buttons = _panel.AddComponent<OnlineWinButtons>();
+        buttons.Bind(actions);
         Show(_nest.HasWon);
     }
 
     private void Show(bool won)
     {
-        _won |= won;
-        if (_won && !won) return;
+        if (_nest == null || !_nest.IsSpawned) return;
+        _won = won;
         if (_panel != null) _panel.SetActive(won);
         if (!won) return;
         Cursor.lockState = CursorLockMode.None;
