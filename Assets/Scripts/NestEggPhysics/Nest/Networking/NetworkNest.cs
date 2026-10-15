@@ -81,7 +81,7 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
     private NestWinContact _winContact;
     public bool HasWon => IsSpawned && _hasWon.Value;
     private void OnWinChanged(bool previous, bool current) => WinChanged?.Invoke(current);
-    public bool IsPlaying => IsSpawned && validSetup && enableEggTest && roundStage.Value == NestRoundStage.Playing;
+    public bool IsPlaying => IsSpawned && !HasWon && validSetup && enableEggTest && roundStage.Value == NestRoundStage.Playing;
     [SerializeField, Min(0.1f)] private float stableDuration = 0.2f;
     [SerializeField, Min(2f)] private float preparationTimeout = 15f;
     private readonly NetworkVariable<NestRoundStage> roundStage = new NetworkVariable<NestRoundStage>();
@@ -117,12 +117,12 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
         return pose.position + pose.rotation * transform.InverseTransformPoint(GetGrip(owner).position);
     }
     public NestRoundStage RoundStage => roundStage.Value;
-    public bool CanPlayerMove(uint sequence) => IsSpawned && (_entryGate == null || _entryGate.IsOpen) &&
+    public bool CanPlayerMove(uint sequence) => IsSpawned && !HasWon && (_entryGate == null || _entryGate.IsOpen) &&
     !IsRoundSuspended &&
     roundStage.Value == NestRoundStage.Playing &&
     sequence != 0 &&
     releasedPreparation.Value == sequence;
-    public bool CanResetEgg => IsSpawned && IsServer && placed && egg != null && !IsRoundSuspended;
+    public bool CanResetEgg => IsSpawned && IsServer && !HasWon && placed && egg != null && !IsRoundSuspended;
 
     private void Awake()
     {
@@ -249,6 +249,8 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
     private void FixedUpdate()
     {
         if (!IsSpawned || !validSetup) return;
+        CheckWinOnServer();
+        if (HasWon) return;
         if (!IsServer)
         {
             PredictCarryInput();
@@ -385,7 +387,7 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
         _eggCarryPhysics?.ReportJump(sender == host.OwnerClientId, time);
     }
 
-    private bool CanPredictCarry => _predictCarryInputs && enableEggTest &&
+    private bool CanPredictCarry => !HasWon && _predictCarryInputs && enableEggTest &&
         !IsRoundSuspended &&
         _carryPrediction != null && _carryPrediction.Generation != 0 &&
         roundStage.Value == NestRoundStage.Playing && frame.Value.Phase != NestEggPhase.Waiting &&
@@ -464,14 +466,22 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
         return true;
     }
 
+    private void CheckWinOnServer()
+    {
+        if (!IsServer || !IsPlaying || IsRoundSuspended || _winContact == null || !_winContact.IsTouching()) return;
+        // Dừng sát thương trước khi thông báo UI, tránh trứng tiếp tục nứt sau khi thắng.
+        egg?.FinishRound();
+        _hasWon.Value = true;
+        PublishFrame();
+    }
+
     // Capture after physics; both bodies share the same network timestamp.
     private void LateUpdate()
     {
         if (!IsSpawned || !validSetup || !enableEggTest) return;
         if (IsServer)
         {
-            if (!_hasWon.Value && IsPlaying && !IsRoundSuspended && _winContact.IsTouching())
-                _hasWon.Value = true;
+            CheckWinOnServer();
             if (NetworkManager.ServerTime.Time >= nextSnapshot) PublishFrame();
             _damageFeedback?.Observe(generation, egg.DamageCount, phase, _impactSequence);
             _fallTrajectory?.Present(egg.transform.position, egg.Body.linearVelocity,
