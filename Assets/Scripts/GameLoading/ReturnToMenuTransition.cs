@@ -36,7 +36,7 @@ public sealed class ReturnToMenuTransition : MonoBehaviour
         foreach (CircularRevealGraphic existing in FindObjectsByType<CircularRevealGraphic>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             if (existing.gameObject.scene.name == "MainMap_Online") { color = existing.color; break; }
         color.a = 1f;
-        var coverObject = new GameObject("Cover", typeof(RectTransform), typeof(CircularRevealGraphic));
+        var coverObject = new GameObject("Cover", typeof(RectTransform), typeof(CanvasRenderer), typeof(CircularRevealGraphic));
         coverObject.transform.SetParent(root.transform, false);
         var cover = coverObject.GetComponent<CircularRevealGraphic>();
         cover.rectTransform.anchorMin = Vector2.zero;

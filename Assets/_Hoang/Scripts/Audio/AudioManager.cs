@@ -12,6 +12,9 @@ public class AudioManager : MonoBehaviour, IAudioService
     [SerializeField] private AudioClip _backgroundMusicClip;
     [SerializeField] private AudioClip _gameWinMusicClip;
     [SerializeField] private AudioClip _gameOverMusicClip;
+    [SerializeField] private AudioClip _buttonClickClip;
+    [SerializeField] [Tooltip("Thời gian bắt đầu phát (giây) của âm thanh click nút để loại bỏ khoảng lặng đầu file")]
+    private float _buttonClickStartTime = 1.95f;
 
     [Header("Settings")]
     [SerializeField] [Range(0f, 1f)] private float _musicVolume = 0.8f;
@@ -108,6 +111,17 @@ public class AudioManager : MonoBehaviour, IAudioService
         PlayMusic(_gameOverMusicClip, false);
     }
 
+    /// <summary>
+    /// Phát âm thanh click nút (SFX) mặc định đã cấu hình trong AudioManager
+    /// </summary>
+    public void PlayButtonClick()
+    {
+        if (_buttonClickClip != null)
+        {
+            PlaySFX(_buttonClickClip, _sfxVolume, _buttonClickStartTime);
+        }
+    }
+
     public void StopMusic()
     {
         if (_musicSource != null && _musicSource.isPlaying)
@@ -133,16 +147,31 @@ public class AudioManager : MonoBehaviour, IAudioService
     }
 
     /// <summary>
-    /// Phát hiệu ứng âm thanh ngắn (SFX) không làm ngắt nhạc nền
+    /// Phát hiệu ứng âm thanh ngắn (SFX) không làm ngắt nhạc nền. Có hỗ trợ thời gian bắt đầu (startTime) để bỏ qua khoảng lặng.
     /// </summary>
-    public void PlaySFX(AudioClip clip, float volumeScale = 1f)
+    public void PlaySFX(AudioClip clip, float volumeScale = 1f, float startTime = 0f)
     {
         if (clip == null || _sfxSource == null)
         {
             return;
         }
 
-        _sfxSource.PlayOneShot(clip, _sfxVolume * Mathf.Clamp01(volumeScale));
+        float finalVolume = _sfxVolume * Mathf.Clamp01(volumeScale);
+        float clampedStart = Mathf.Clamp(startTime, 0f, Mathf.Max(0f, clip.length - 0.05f));
+
+        // Nếu có thời gian bắt đầu > 0, tua trực tiếp bằng AudioSource.time để phát ngay lập tức
+        if (clampedStart > 0f)
+        {
+            _sfxSource.clip = clip;
+            _sfxSource.volume = finalVolume;
+            _sfxSource.time = clampedStart;
+            _sfxSource.Play();
+            _sfxSource.time = clampedStart;
+        }
+        else
+        {
+            _sfxSource.PlayOneShot(clip, finalVolume);
+        }
     }
 
     public void SetMusicVolume(float volume)
