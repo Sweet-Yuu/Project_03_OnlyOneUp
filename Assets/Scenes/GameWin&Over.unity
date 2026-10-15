@@ -461,6 +461,7 @@ GameObject:
   - component: {fileID: 285989712}
   - component: {fileID: 285989711}
   - component: {fileID: 1800000016}
+  - component: {fileID: 1800000043}
   m_Layer: 5
   m_Name: QuitButton
   m_TagString: Untagged
@@ -1104,7 +1105,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &760953207
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1181,6 +1182,7 @@ GameObject:
   - component: {fileID: 1006138996}
   - component: {fileID: 1006138995}
   - component: {fileID: 1800000035}
+  - component: {fileID: 1800000045}
   m_Layer: 5
   m_Name: MenuButton
   m_TagString: Untagged
@@ -1396,6 +1398,7 @@ GameObject:
   - component: {fileID: 1109495428}
   - component: {fileID: 1109495427}
   - component: {fileID: 1800000034}
+  - component: {fileID: 1800000044}
   m_Layer: 5
   m_Name: RetryButton
   m_TagString: Untagged
@@ -2296,6 +2299,7 @@ GameObject:
   - component: {fileID: 1692928793}
   - component: {fileID: 1692928792}
   - component: {fileID: 1800000014}
+  - component: {fileID: 1800000041}
   m_Layer: 5
   m_Name: RetryButton
   m_TagString: Untagged
@@ -3025,6 +3029,96 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.65}
   m_EffectDistance: {x: 0, y: -5}
   m_UseGraphicAlpha: 1
+--- !u!114 &1800000041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1692928790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c83e109f584e4f16b2518e9a117d3b94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
+  _clickClip: {fileID: 8300000, guid: 84d60d8a9683ff54e81be8d0305525b7, type: 3}
+  _volume: 1
+  _startTimeOffset: 3.2
+--- !u!114 &1800000042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1948564713}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c83e109f584e4f16b2518e9a117d3b94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
+  _clickClip: {fileID: 8300000, guid: 84d60d8a9683ff54e81be8d0305525b7, type: 3}
+  _volume: 1
+  _startTimeOffset: 3.2
+--- !u!114 &1800000043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 285989709}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c83e109f584e4f16b2518e9a117d3b94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
+  _clickClip: {fileID: 8300000, guid: 84d60d8a9683ff54e81be8d0305525b7, type: 3}
+  _volume: 1
+  _startTimeOffset: 3.2
+--- !u!114 &1800000044
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1109495425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c83e109f584e4f16b2518e9a117d3b94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
+  _clickClip: {fileID: 8300000, guid: 84d60d8a9683ff54e81be8d0305525b7, type: 3}
+  _volume: 1
+  _startTimeOffset: 3.2
+--- !u!114 &1800000045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1006138993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c83e109f584e4f16b2518e9a117d3b94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
+  _clickClip: {fileID: 8300000, guid: 84d60d8a9683ff54e81be8d0305525b7, type: 3}
+  _volume: 1
+  _startTimeOffset: 3.2
+--- !u!114 &1800000046
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2113354624}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c83e109f584e4f16b2518e9a117d3b94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIButtonSound
+  _clickClip: {fileID: 8300000, guid: 84d60d8a9683ff54e81be8d0305525b7, type: 3}
+  _volume: 1
+  _startTimeOffset: 3.2
 --- !u!1 &1948564713
 GameObject:
   m_ObjectHideFlags: 0
@@ -3038,6 +3132,7 @@ GameObject:
   - component: {fileID: 1948564716}
   - component: {fileID: 1948564715}
   - component: {fileID: 1800000015}
+  - component: {fileID: 1800000042}
   m_Layer: 5
   m_Name: MenuButton
   m_TagString: Untagged
@@ -3172,6 +3267,7 @@ GameObject:
   - component: {fileID: 2113354627}
   - component: {fileID: 2113354626}
   - component: {fileID: 1800000036}
+  - component: {fileID: 1800000046}
   m_Layer: 5
   m_Name: QuitButton
   m_TagString: Untagged
