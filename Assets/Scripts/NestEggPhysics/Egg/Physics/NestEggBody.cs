@@ -11,7 +11,8 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
     public Rigidbody Body { get; private set; }
     public event Action Broken;
     public byte DamageCount { get; private set; }
-    public bool IsSimulating => authority && phase == NestEggPhase.Intact;
+    private bool _roundFinished;
+    public bool IsSimulating => authority && !_roundFinished && phase == NestEggPhase.Intact;
     public bool IsSupportedByNest => IsSimulating && (_carried ||
         (!float.IsNegativeInfinity(_lastNestSupportTime) &&
         (Body.IsSleeping() || Time.fixedTime - _lastNestSupportTime <= Time.fixedDeltaTime * 1.5f)));
@@ -131,9 +132,16 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
         SetPresentation(NestEggPhase.Waiting);
     }
 
+    public void FinishRound()
+    {
+        _roundFinished = true;
+        Freeze(); // Giữ nguyên hình ảnh/vết nứt hiện có, chỉ ngừng vật lý và sát thương.
+    }
+
     public void ResetOnServer(Vector3 position, Quaternion rotation)
     {
         if (!authority) return;
+        _roundFinished = false;
         _breakOnLanding = false;
         Freeze();
         _ignoredPlayerColliders.Clear();
@@ -234,9 +242,17 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
     }
 
     private bool IsEnvironment(Collider other) => other != null && other != shell &&
-        !other.isTrigger && !other.transform.IsChildOf(nest) &&
+        !other.isTrigger && !other.transform.IsChildOf(nest) && !IsWinArea(other.transform) &&
         !_ignoredPlayerColliders.Contains(other) &&
         !Physics.GetIgnoreLayerCollision(gameObject.layer, other.gameObject.layer);
+
+    private static bool IsWinArea(Transform target)
+    {
+        // Tag có thể nằm ở object cha của BoxCollider vùng đích.
+        for (Transform current = target; current != null; current = current.parent)
+            if (current.CompareTag("Win_Area")) return true;
+        return false;
+    }
 
     private void TouchEnvironment(Collider other)
     {
