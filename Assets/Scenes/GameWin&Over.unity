@@ -445,7 +445,7 @@ MonoBehaviour:
   _gameWinPanel: {fileID: 760953206}
   _mainMenuSceneName: Menu_Scene
   _defaultGameplaySceneName: MainMap_Online
-  _winMusicClip: {fileID: 8300000, guid: e314a7280516b3b47a9b2ec0857b668c, type: 3}
+  _winMusicClip: {fileID: 8300000, guid: 760a5ccc7c64a624a85b16e134e42ef7, type: 3}
   _winMusicVolume: 0.85
   _previewWinInEditor: 1
 --- !u!1 &285989709
@@ -1105,7 +1105,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &760953207
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1321,7 +1321,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1046709932
 RectTransform:
   m_ObjectHideFlags: 0
