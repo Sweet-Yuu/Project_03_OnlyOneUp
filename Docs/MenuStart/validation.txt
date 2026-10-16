@@ -1,0 +1,1 @@
+PASS: initial menu, open/back x3, persistent button bindings, Menu_Scene first in build settings.

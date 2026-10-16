@@ -1,0 +1,3 @@
+System.Exception: Back navigation failed.
+  at JoinCodePanelSetup.Setup () [0x00672] in D:\AGU_Project\Project_03_OnlyOneUp\Assets\Editor\JoinCodePanelSetup.cs:94 
+  at JoinCodePanelSetup+<>c.<CheckRequest>b__3_0 () [0x00023] in D:\AGU_Project\Project_03_OnlyOneUp\Assets\Editor\JoinCodePanelSetup.cs:25 

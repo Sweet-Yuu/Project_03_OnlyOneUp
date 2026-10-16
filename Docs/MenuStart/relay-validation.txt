@@ -1,0 +1,2 @@
+Scene wired: Host/Join -> Relay, roster view, copy and back. Gameplay spawning disabled in menu.
+PASS 2026-10-12: Host created a real Relay allocation; UI showed player name and 1/2. Copy button clipboard matched displayed room code. Back closed lobby and returned to Host/Join. Real guest join/name/role/code sync and leave: see relay-smoke-result.txt. Test used two NGO endpoints in one Unity process, not two physical machines.
