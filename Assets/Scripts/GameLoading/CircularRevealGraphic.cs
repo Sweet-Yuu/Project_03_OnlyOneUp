@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(CanvasRenderer))]
 public sealed class CircularRevealGraphic : MaskableGraphic
 {
     private float _progress;

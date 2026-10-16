@@ -14,6 +14,8 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
     [SerializeField, Min(0.1f)] private float _maxWalkPlaybackSpeed = 4f;
     private readonly NetworkVariable<float> _animationMoveSpeed = new NetworkVariable<float>(0f,
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    private readonly NetworkVariable<bool> _animationSideWalking = new NetworkVariable<bool>(false,
+        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
     private float _localAnimationSpeed;
     private float _nextAnimationSend;
     [SerializeField] private float speed = 5f;
@@ -149,6 +151,8 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
 
         OnlinePlayerInput input = inputSource.Read();
         Vector2 move = stateMachine.Tick(input.Move, input.Jump);
+        // A/D chọn bước ngang; khi đi chéo cùng W/S thì ưu tiên bước thường.
+        _animationSideWalking.Value = Mathf.Abs(move.x) > 0.01f && Mathf.Abs(move.y) <= 0.01f;
         movementState.Value = stateMachine.CurrentState.Kind;
         Vector3 beforeMove = transform.position;
         motor.Move(playerCamera.ToWorldMovement(move), stateMachine.JumpPressed, speed, jumpHeight,
@@ -194,11 +198,13 @@ public class NetworkTestMovement : NetworkBehaviour, IPlayerMovementConstraint
 
     private void UpdateWalkingAnimation() => animationPresenter.Tick(
         IsOwner ? _localAnimationSpeed : _animationMoveSpeed.Value,
-        _walkReferenceSpeed, _walkSpeedResponse, _maxWalkPlaybackSpeed, Time.deltaTime);
+        _walkReferenceSpeed, _walkSpeedResponse, _maxWalkPlaybackSpeed, Time.deltaTime,
+        _animationSideWalking.Value);
 
     private void PublishAnimationSpeed(float actualSpeed, bool force = false)
     {
         _localAnimationSpeed = Mathf.Max(0f, actualSpeed);
+        if (force && _localAnimationSpeed == 0f) _animationSideWalking.Value = false;
         bool crossingThreshold = (_localAnimationSpeed > 0.15f) != (_animationMoveSpeed.Value > 0.15f) ||
             (_localAnimationSpeed <= 0.05f) != (_animationMoveSpeed.Value <= 0.05f);
         if (!force && !crossingThreshold && Time.unscaledTime < _nextAnimationSend) return;
