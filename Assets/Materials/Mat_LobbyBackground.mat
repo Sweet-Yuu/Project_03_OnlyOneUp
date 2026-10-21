@@ -102,13 +102,13 @@ Material:
     - _GlossyReflections: 0
     - _GradientEnd: 10
     - _GradientStart: 0
-    - _GradientStrength: 0
+    - _GradientStrength: 0.217
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _ShadowStrength: 0.55
+    - _ShadowStrength: 0.693
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
