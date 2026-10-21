@@ -1,0 +1,58 @@
+{
+  "name": "com.unity.services.vivox",
+  "displayName": "Vivox",
+  "version": "16.12.1",
+  "vivox_core_version": "5.28.0",
+  "unity": "6000.0",
+  "_upm": {
+    "gameService": {
+      "groupIndex": 2,
+      "groupName": "Multiplayer",
+      "genericDashboardUrl": "https://dashboard.unity3d.com/vivox",
+      "projectDashboardUrl": "https://dashboard.unity3d.com/organizations/{0}/projects/{1}/vivox/credentials",
+      "projectDashboardUrlType": "OrganizationKeyAndProjectGuid",
+      "configurePath": "Project/Services/Vivox"
+    },
+    "supportedPlatforms": [
+      "Android",
+      "iOS",
+      "mac",
+      "visionOS",
+      "Windows",
+      "Linux"
+    ],
+    "changelog": "### Fixed\n- Fixed Vivox being unusable on Android in 16.12.0.\n- Fixed an issue causing repetitive exception logging that could lead to a crash."
+  },
+  "description": "Unity's voice and text chat service for multiplayer communication offers voice chat and direct message text service with a managed hosted solution. Plug into your game and configure your project settings to add communications to your project immediately. Connect an unlimited number of users in 2D and 3D channels. Monitor concurrency on your dashboard. Add a custom UI to allow players to control voice volume, mute, and add audio effects to voice channels and manage them. Place users in team chat and allow them to participate in multiple channels.",
+  "dependencies": {
+    "com.unity.settings-manager": "1.0.3",
+    "com.unity.services.core": "1.15.1",
+    "com.unity.nuget.newtonsoft-json": "3.0.2",
+    "com.unity.modules.audio": "1.0.0"
+  },
+  "samples": [
+    {
+      "displayName": "Chat Channel Sample",
+      "description": "This sample showcases voice chat, text chat, text-to-speech, muting, and chat history features for immersive, interactive user engagement.",
+      "path": "Samples~/ChatChannelSample"
+    },
+    {
+      "displayName": "Text Chat Sample",
+      "description": "This text-focused sample showcases a robust chat experience that demonstrates sending, editing, and deleting DM or channel messages along with retrieving past conversations and their message history.",
+      "path": "Samples~/TextSample"
+    }
+  ],
+  "relatedPackages": {
+    "com.unity.services.vivox.tests": "16.12.1"
+  },
+  "upmCi": {
+    "footprint": "fd7274532ab98a4306316af074055f34106b8594"
+  },
+  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.services.vivox@16.12/manual/index.html",
+  "repository": {
+    "url": "https://github.cds.internal.unity3d.com/unity/vivox-unity-sdk.git",
+    "type": "git",
+    "revision": "6f60aaf5a10b043e34677c276b6ebadb19d28779"
+  },
+  "_fingerprint": "c9029deeec82d7a1836ee4517454285077eb99e2"
+}
