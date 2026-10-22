@@ -1,17 +1,18 @@
 using UnityEngine;
-
-public class SlotItem
+using TMPro;
+using UnityEngine.UI;
+public class SlotItem : MonoBehaviour
 {
-    private string itemName;
-    private int itemPrice;
-    private Sprite itemIcon;
-    public ShopSlot shopItem;
+    public TextMeshProUGUI itemNameText;
+    public TextMeshProUGUI itemPriceText;
+    public Image itemIconImage;
+    private ShopSlot shopSlot;
     
     public void setItem(ShopSlot item)
     {
-        shopItem = item;
-        itemName = item.itemName;
-        itemPrice = item.itemPrice;
-        itemIcon = item.itemIcon;
+        shopSlot = item;
+        itemNameText.text = item.itemName;
+        itemPriceText.text = item.itemPrice.ToString();
+        itemIconImage.sprite = item.itemIcon;
     }
 }

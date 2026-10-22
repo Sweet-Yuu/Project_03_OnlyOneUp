@@ -1,14 +1,14 @@
 using UnityEngine;
-
+using System;
 public class ShopUI : MonoBehaviour
 {
-    public ShopSlot[] shopItems;
+    public SlotItem[] shopItems;
+    public ShopData shopData;
     void Start()
     {
-        foreach (ShopSlot item in shopItems)
+        for (int i = 0; i < shopItems.Length; i++)
         {
-            SlotItem slotItem = new SlotItem();
-            slotItem.setItem(item);
+            shopItems[i].setItem(shopData.shopSlots[i]);
         }
     }
 }

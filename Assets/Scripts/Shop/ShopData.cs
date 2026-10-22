@@ -3,5 +3,5 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "ShopData", menuName = "Scriptable Objects/ShopData")]
 public class ShopData : ScriptableObject
 {
-    public ShopSlot[] shopItems;
+    public ShopSlot[] shopSlots;
 }
