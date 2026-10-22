@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: ShopData
   m_EditorClassIdentifier: Assembly-CSharp::ShopData
   shopItems:
-  - itemName: 
+  - itemName: "M\u0169 h\u1EA3i t\u1EB7c"
     itemPrice: 0
     itemIcon: {fileID: 0}
-  - itemName: 
+  - itemName: "M\u0169 r\u01A1m"
     itemPrice: 0
     itemIcon: {fileID: 0}
-  - itemName: 
+  - itemName: "M\u0169 l\u01B0\u1EE1i trai"
     itemPrice: 0
     itemIcon: {fileID: 0}
   - itemName: 

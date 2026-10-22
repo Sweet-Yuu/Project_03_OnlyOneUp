@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 [Serializable]
-public class ShopItem
+public class ShopSlot
 {
     public string itemName;
     public int itemPrice;
