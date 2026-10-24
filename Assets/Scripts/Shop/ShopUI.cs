@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
 public class ShopUI : MonoBehaviour
 {
     public SlotItem[] shopItems;
@@ -11,9 +12,11 @@ public class ShopUI : MonoBehaviour
     [SerializeField] private Image coinIcon;
     [SerializeField] private TextMeshProUGUI alertText;
     [SerializeField] private ShopPreview shopPreview;
+    [SerializeField] private ShopPurchaseService shopPurchaseService;
     private SlotItem selectedSlot;
     void Start()
     {
+        buyButton.onClick.AddListener(OnBuyButtonClicked);
          if (shopItems == null || shopData == null ||
             shopData.shopSlots == null ||
             shopItems.Length > shopData.shopSlots.Length)
@@ -27,15 +30,15 @@ public class ShopUI : MonoBehaviour
             if (slotItem == null ||
                 !slotItem.TryGetComponent<Button>(out var button))
             {
-                Debug.LogError($"Slot {i} chưa được gán hoặc thiếu Button.", this);
                 continue;
             }
             slotItem.setItem(shopData.shopSlots[i]);
             button.onClick.AddListener(() => SetSelectedSlot(slotItem));
         }
         RefreshSelectionUI();
+        checkItem(PlayerInventory.instance.PurchasedItem);
     }
-
+    //Ham set slot duoc chon
     void SetSelectedSlot(SlotItem slotItem)
     {
         if(selectedSlot == slotItem)
@@ -51,6 +54,42 @@ public class ShopUI : MonoBehaviour
         RefreshSelectionUI();
         shopPreview.Initialize(slotItem.Data.itemPrefab);
     }
+    // Ham check item da mua hay chua
+    void checkItem(List<string> purchaseItem)
+    {
+        for(int i = 0; i < purchaseItem.Count; i++)
+        {
+            for(int j = 0; j < shopItems.Length; j++)
+            {
+                if(purchaseItem[i] == shopItems[j].Data.ItemID)
+                {
+                    SetBoughtSlot(shopItems[j]);
+                }
+            }
+        }
+    }
+
+    void SetBoughtSlot(SlotItem slotItem)
+    {
+        if(slotItem == null) return;
+        slotItem.BoughtSlot();
+    }
+
+    void OnBuyButtonClicked()
+    {
+        Debug.Log("Buy button clicked.");
+        if (selectedSlot == null)
+        {
+            Debug.LogWarning("No slot selected to buy.", this);
+            return;
+        }
+        bool isPurchased = shopPurchaseService.PurchaseItem(selectedSlot.Data);
+        Debug.Log($"Purchase result: {isPurchased} for item {selectedSlot.Data.itemName}");
+        if (isPurchased)
+        {
+            SetBoughtSlot(selectedSlot);
+        }
+    }
 
     private void RefreshSelectionUI()
     {
@@ -65,8 +104,4 @@ public class ShopUI : MonoBehaviour
             priceText.text = selectedSlot.itemPriceText.text;
     }
 
-    private void setUpPrefab(GameObject prefab)
-    {
-        
-    }
 }

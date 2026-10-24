@@ -14,32 +14,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ShopData
   shopSlots:
   - itemName: Flower
-    itemPrice: 100
+    itemPrice: 0
     itemIcon: {fileID: 21300000, guid: 1906ba996f070b74dbb67ab23e8a7274, type: 3}
     itemPrefab: {fileID: 3761301721353554198, guid: a2de9ebddb0776e4d9f7eaeebbd45136, type: 3}
     itemID: flower
   - itemName: StrawHat
-    itemPrice: 150
+    itemPrice: 0
     itemIcon: {fileID: 21300000, guid: 76179e0adc55fc74f8ba81c8e2ddb56b, type: 3}
     itemPrefab: {fileID: 3229408184844974509, guid: e34ef7e75daa2024b9c7b06d79fae83e, type: 3}
     itemID: strawhat
   - itemName: Hat
-    itemPrice: 50
+    itemPrice: 0
     itemIcon: {fileID: 21300000, guid: f95a7bfc1a6766742816dac6d766cb25, type: 3}
     itemPrefab: {fileID: 3822484148794977160, guid: 06fbc0195368d1241ace547d0d664d83, type: 3}
     itemID: hat
   - itemName: Single Flower
-    itemPrice: 50
+    itemPrice: 1
     itemIcon: {fileID: 21300000, guid: 78d205df31510ec46846f7bf9d0b117c, type: 3}
     itemPrefab: {fileID: 8153568050691936687, guid: d156a559733f6e347b909be17da04065, type: 3}
     itemID: single_flower
   - itemName: Pirates Hat
-    itemPrice: 200
+    itemPrice: 1
     itemIcon: {fileID: 21300000, guid: d658840fc6d1b5240a5e9e333a2a0119, type: 3}
     itemPrefab: {fileID: 1036080957121895463, guid: ed367c6c411833746bb2e67de8e18226, type: 3}
     itemID: pirates_hat
   - itemName: Exploration Hat
-    itemPrice: 200
+    itemPrice: 2
     itemIcon: {fileID: 21300000, guid: 67d0af56dc5e6f149943df99a66ff1dd, type: 3}
     itemPrefab: {fileID: 2244390849897466166, guid: 04c3350e2b0d5b64a91cabb494843a66, type: 3}
     itemID: Exploration_hat

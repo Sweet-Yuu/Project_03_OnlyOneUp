@@ -24,17 +24,19 @@ public class CurrencyManager : MonoBehaviour, ICoinWallet
         SaveSystem.instance.SaveCoin(Coin);
     }
 
-    public void SpendCoin(int amount)
+    public bool SpendCoin(int amount)
     {
         if(Coin >= amount)
         {
             Coin -= amount;
             OnCoinChanged?.Invoke(Coin);
             SaveSystem.instance.SaveCoin(Coin);
+            return true;
         }
         else
         {
             Debug.LogWarning("Not enough coins to spend.");
+            return false;
         }
     }
 }

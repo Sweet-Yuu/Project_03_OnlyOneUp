@@ -3,11 +3,11 @@ using TMPro;
 using UnityEngine.UI;
 public class SlotItem : MonoBehaviour
 {
-    public TextMeshProUGUI itemNameText;
+    [SerializeField] private TextMeshProUGUI itemNameText;
     public TextMeshProUGUI itemPriceText;
-    public Image itemIconImage;
-    public Image slotBackground;
-    public Image boughtImage;
+    [SerializeField] private Image itemIconImage;
+    [SerializeField] private Image slotBackground;
+    [SerializeField] private Image boughtImage;
     public ShopSlot Data{get; private set;}
     
     public void setItem(ShopSlot item)
@@ -30,17 +30,9 @@ public class SlotItem : MonoBehaviour
         }
     }
 
-    public void BoughtSlot(bool isBought)
+    public void BoughtSlot()
     {
-        if (isBought)
-        {
-            slotBackground.color = new Color32(118, 191, 228, 255);
-            boughtImage.gameObject.SetActive(true);
-        }
-        else
-        {
-            slotBackground.color = new Color32(255, 255, 255, 255);
-            boughtImage.gameObject.SetActive(false);
-        }
+        slotBackground.color = new Color32(130, 130, 130, 255);
+        boughtImage.gameObject.SetActive(true);
     }
 }

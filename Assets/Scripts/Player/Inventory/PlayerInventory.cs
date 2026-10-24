@@ -1,16 +1,30 @@
 using UnityEngine;
-
+using System.Collections.Generic;
 public class PlayerInventory : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private List<string> purchasedItem = new List<string>();
+    public List<string> PurchasedItem => purchasedItem;
+    public static PlayerInventory instance;
+    void Awake()
     {
-        
+        if(instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
-        
+        if (SaveSystem.instance == null)
+        {
+            Debug.LogError("Không tìm thấy SaveSystem.", this);
+            return;
+        }
+
+        purchasedItem = SaveSystem.instance.LoadItemIds();
     }
 }
