@@ -4,7 +4,6 @@ public class CurrencyManager : MonoBehaviour, ICoinWallet
 {
     public static CurrencyManager instance;
     public int Coin {get; private set;}
-    public GameObject coinPrefab;
     public event Action<int> OnCoinChanged;
     void Awake()
     {
@@ -23,5 +22,19 @@ public class CurrencyManager : MonoBehaviour, ICoinWallet
         Coin += amount;
         OnCoinChanged?.Invoke(Coin);
         SaveSystem.instance.SaveCoin(Coin);
+    }
+
+    public void SpendCoin(int amount)
+    {
+        if(Coin >= amount)
+        {
+            Coin -= amount;
+            OnCoinChanged?.Invoke(Coin);
+            SaveSystem.instance.SaveCoin(Coin);
+        }
+        else
+        {
+            Debug.LogWarning("Not enough coins to spend.");
+        }
     }
 }
