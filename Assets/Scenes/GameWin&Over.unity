@@ -307,7 +307,7 @@ MonoBehaviour:
   _gameOverPanel: {fileID: 1046709931}
   _gameWinPanel: {fileID: 760953206}
   _mainMenuSceneName: Menu_Scene
-  _defaultGameplaySceneName: MainMap_Online
+  _defaultGameplaySceneName: Kitchen_Map
   _winMusicClip: {fileID: 8300000, guid: 760a5ccc7c64a624a85b16e134e42ef7, type: 3}
   _winMusicVolume: 0.85
   _previewWinInEditor: 1

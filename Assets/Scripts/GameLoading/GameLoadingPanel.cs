@@ -40,8 +40,26 @@ public sealed class GameLoadingPanel : MonoBehaviour
         if (_failed)
             return;
 
-        if (_gate == null ||
-            _gate.HasFailed ||
+        if (_gate == null)
+        {
+            foreach (NetworkGameEntryGate gate in FindObjectsByType<NetworkGameEntryGate>(FindObjectsSortMode.None))
+            {
+                if (gate != null && gate.gameObject.scene == gameObject.scene)
+                {
+                    _gate = gate;
+                    break;
+                }
+            }
+
+            if (_gate == null)
+            {
+                if (Time.unscaledTime - _startedAt > _timeout)
+                    ShowError();
+                return;
+            }
+        }
+
+        if (_gate.HasFailed ||
             Time.unscaledTime - _startedAt > _timeout)
         {
             ShowError();

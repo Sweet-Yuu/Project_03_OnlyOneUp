@@ -3718,7 +3718,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkGameStarter
   _runtime: {fileID: 506859949}
   _playerPrefab: {fileID: 7654861759507536313, guid: 1db361a76fe20c947b16492f4a2399f8, type: 3}
-  _gameSceneName: MainMap_Online
+  _gameSceneName: Kitchen_Map
 --- !u!1 &531748204
 GameObject:
   m_ObjectHideFlags: 0

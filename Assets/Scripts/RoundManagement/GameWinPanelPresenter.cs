@@ -22,7 +22,7 @@ public sealed class GameWinPanelPresenter : MonoBehaviour
 
     private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name != "MainMap_Online") return;
+        if (scene.name != "MainMap_Online" && scene.name != "Kitchen_Map") return;
         foreach (GameObject root in scene.GetRootGameObjects())
             foreach (Transform child in root.GetComponentsInChildren<Transform>(true))
             {

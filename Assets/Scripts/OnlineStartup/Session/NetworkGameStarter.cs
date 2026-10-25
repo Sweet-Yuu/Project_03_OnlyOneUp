@@ -8,7 +8,7 @@ public sealed class NetworkGameStarter : MonoBehaviour
 {
     [SerializeField] private NetworkSessionRuntime _runtime;
     [SerializeField] private NetworkObject _playerPrefab;
-    [SerializeField] private string _gameSceneName = "MainMap_Online";
+    [SerializeField] private string _gameSceneName = "Kitchen_Map";
 
     private NetworkManager _manager;
     private NetworkSceneManager _sceneManager;

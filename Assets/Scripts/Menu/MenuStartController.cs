@@ -15,7 +15,12 @@ public sealed class MenuStartController : MonoBehaviour
 
     public bool IsRoomSelectionOpen => _roomSelectionRoot != null && _roomSelectionRoot.activeSelf;
 
-    private void Start() => ShowMainMenu();
+    private void Start()
+    {
+        QualitySettings.vSyncCount = 1;
+        Application.targetFrameRate = 60;
+        ShowMainMenu();
+    }
 
     private void Update()
     {

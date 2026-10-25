@@ -12,7 +12,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Scene Navigation")]
     [SerializeField] private string _mainMenuSceneName = "Menu_Scene";
-    [SerializeField] private string _defaultGameplaySceneName = "MainMap_Online";
+    [SerializeField] private string _defaultGameplaySceneName = "Kitchen_Map";
 
     [Header("Game Win Audio")]
     [SerializeField] private AudioClip _winMusicClip;
