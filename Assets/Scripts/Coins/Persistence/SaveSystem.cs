@@ -29,6 +29,13 @@ public class SaveSystem : MonoBehaviour
         public List<string> itemIds = new List<string>();
     }
 
+    [System.Serializable]
+    private class EquipmentSaveData
+    {
+        public string equippedItemId;
+    }
+    private const string EquipmentKey = "PlayerEquipment";
+
     private const string PurchasedItemsKey = "PurchasedItemIds";
 
     public void SaveItemId(List<string> itemIds)
@@ -62,6 +69,36 @@ public class SaveSystem : MonoBehaviour
         {
             Debug.LogWarning("Dữ liệu item đã mua không đọc được.");
             return new List<string>();
+        }
+    }
+
+    public void SaveEquippedItem(string itemId)
+    {
+        var data = new EquipmentSaveData
+        {
+            equippedItemId = itemId
+        };
+
+        PlayerPrefs.SetString(EquipmentKey, JsonUtility.ToJson(data));
+        PlayerPrefs.Save();
+    }
+
+    public string LoadEquippedItem()
+    {
+        string json = PlayerPrefs.GetString(EquipmentKey, "");
+
+        if (string.IsNullOrEmpty(json))
+            return "";
+
+        try
+        {
+            var data = JsonUtility.FromJson<EquipmentSaveData>(json);
+            return data?.equippedItemId ?? "";
+        }
+        catch (System.ArgumentException)
+        {
+            Debug.LogWarning("Không đọc được dữ liệu trang bị.");
+            return "";
         }
     }
 }
