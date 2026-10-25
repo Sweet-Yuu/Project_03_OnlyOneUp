@@ -22,6 +22,7 @@ public sealed class GameWinPanelPresenter : MonoBehaviour
 
     private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        // [Kitchen_Map]: Cho phép hiển thị bảng Win trên cả hai màn chơi: MainMap_Online và Kitchen_Map
         if (scene.name != "MainMap_Online" && scene.name != "Kitchen_Map") return;
         foreach (GameObject root in scene.GetRootGameObjects())
             foreach (Transform child in root.GetComponentsInChildren<Transform>(true))
@@ -34,7 +35,7 @@ public sealed class GameWinPanelPresenter : MonoBehaviour
                 presenter._panel.SetActive(false);
                 return;
             }
-        Debug.LogWarning("MainMap_Online: không tìm thấy GameWinPanel. Hãy lưu bảng vào scene.");
+        Debug.LogWarning($"{scene.name}: không tìm thấy GameWinPanel. Hãy lưu bảng vào scene.");
     }
 
     private IEnumerator Start()

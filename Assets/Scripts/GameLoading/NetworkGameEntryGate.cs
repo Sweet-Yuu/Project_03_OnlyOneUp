@@ -29,6 +29,8 @@ public sealed class NetworkGameEntryGate :
         EnsureNest();
     }
 
+    // [Kitchen_Map]: Đảm bảo NetworkGameEntryGate luôn có tham chiếu tới NetworkNest (Tổ trứng).
+    // Khi nạp Kitchen_Map, nếu _nest chưa được wire thủ công qua Inspector thì tự động lấy component cùng object hoặc tìm trong scene.
     private void EnsureNest()
     {
         if (_nest == null)

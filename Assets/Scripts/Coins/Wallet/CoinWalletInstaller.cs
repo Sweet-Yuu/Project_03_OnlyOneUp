@@ -14,7 +14,8 @@ public class CoinWalletInstaller : MonoBehaviour
             return;
         }
 
-        // Tự động tìm coin trong scene nếu danh sách chưa được gán hoặc chứa tham chiếu rỗng
+        // [Kitchen_Map]: Tự động tìm coin trong scene nếu danh sách chưa được gán hoặc chứa tham chiếu rỗng
+        // (Giúp map mới như Kitchen_Map tự inject ví tiền vào tất cả coin mà không cần kéo thả thủ công trong Inspector)
         if (_coins == null || _coins.Length == 0 || System.Array.Exists(_coins, c => c == null))
         {
             var sceneCoins = new System.Collections.Generic.List<Coin>();

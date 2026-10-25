@@ -17,6 +17,7 @@ public sealed class MenuStartController : MonoBehaviour
 
     private void Start()
     {
+        // [Kitchen_Map]: Giới hạn FPS ở mức 60 và kích hoạt vSync để tối ưu hóa hiệu năng, chống rách hình (tearing)
         QualitySettings.vSyncCount = 1;
         Application.targetFrameRate = 60;
         ShowMainMenu();

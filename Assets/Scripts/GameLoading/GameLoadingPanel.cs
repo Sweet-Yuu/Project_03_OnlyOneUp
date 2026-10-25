@@ -40,6 +40,8 @@ public sealed class GameLoadingPanel : MonoBehaviour
         if (_failed)
             return;
 
+        // [Kitchen_Map]: Tự động tìm NetworkGameEntryGate trong scene nếu chưa được gán sẵn qua Inspector
+        // Tránh lỗi văng timeout / màn hình loading bị treo khi load scene mới Kitchen_Map
         if (_gate == null)
         {
             foreach (NetworkGameEntryGate gate in FindObjectsByType<NetworkGameEntryGate>(FindObjectsSortMode.None))
