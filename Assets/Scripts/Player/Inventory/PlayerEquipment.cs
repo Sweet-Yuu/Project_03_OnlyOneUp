@@ -23,37 +23,14 @@ public class PlayerEquipment : MonoBehaviour
     }
     public void EquipItem()
     {   
+        count++;
         if(count >= itemID.Count - 1)
         {
             count = -1;
         }
-        count++;
-        string itemId = itemID[count];
+        string itemId = count == -1 ? "" : itemID[count];
         PlayerInventory.instance.SetEquipedItem(itemId);
-        InstantiateItem(itemId);
-    }
-    //Ham khoi tao item
-    private void InstantiateItem(string itemId)
-    {
-        if(itemID == null || itemID.Count == 0)
-        {
-            return;
-        }
-
-        for(int i = 0; i < data.shopSlots.Length; i++)
-        {
-            if(itemId == data.shopSlots[i].ItemID)
-            {
-                Debug.Log("Item ID matched: " + itemId);
-                newItem = Instantiate(data.shopSlots[i].ItemPrefab, hatAnchor, false);
-                break;
-            }
-        }
-        if(currentItem != null)
-        {
-            currentItem.SetActive(false);
-            Destroy(currentItem);
-        }
-        currentItem = newItem;
+        CharacterEquipment.Instance.EquipItem(itemId);
+        UIButtonSFX.Instance.PlayClickSound();
     }
 }

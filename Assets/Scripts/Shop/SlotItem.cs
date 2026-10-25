@@ -9,6 +9,12 @@ public class SlotItem : MonoBehaviour
     [SerializeField] private Image slotBackground;
     [SerializeField] private Image boughtImage;
     public ShopSlot Data{get; private set;}
+    private Button button;
+
+    void Awake()
+    {
+        button = GetComponent<Button>();
+    }
     
     public void setItem(ShopSlot item)
     {
@@ -34,5 +40,9 @@ public class SlotItem : MonoBehaviour
     {
         slotBackground.color = new Color32(130, 130, 130, 255);
         boughtImage.gameObject.SetActive(true);
+        if(button != null)
+        {
+            button.interactable = false;
+        }
     }
 }

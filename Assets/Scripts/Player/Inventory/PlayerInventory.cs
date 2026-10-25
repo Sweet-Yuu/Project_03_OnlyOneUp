@@ -36,11 +36,9 @@ public class PlayerInventory : MonoBehaviour
 
     public void SetEquipedItem(string itemId)
 {
-    if (string.IsNullOrWhiteSpace(itemId) ||
-        !purchasedItem.Contains(itemId))
-    {
+    if (itemId == null ||
+        (itemId != "" && !purchasedItem.Contains(itemId)))
         return;
-    }
 
     if (SaveSystem.instance == null)
     {

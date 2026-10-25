@@ -2,23 +2,9 @@ using UnityEngine;
 
 public class ShopPreview : MonoBehaviour
 {
-    private GameObject currentItem;
-    [SerializeField] private Transform hatAnchor;
-    private ShopData shopData;
-
-    public void Initialize(GameObject prefab)
+    public void PreviewItem(string itemId)
     {
-        if(hatAnchor == null || prefab == null)
-        {
-            Debug.LogError("Hat anchor or prefab is null.", this);
-            return;
-        }
-
-        if(currentItem != null)
-        {
-            currentItem.SetActive(false);
-            Destroy(currentItem);
-        }
-        currentItem = Instantiate(prefab, hatAnchor, false);
+        if(CharacterEquipment.Instance == null) return;
+        CharacterEquipment.Instance.EquipItem(itemId);
     }
 }

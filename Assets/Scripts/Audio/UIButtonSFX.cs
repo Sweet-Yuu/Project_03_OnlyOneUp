@@ -21,5 +21,6 @@ public class UIButtonSFX : MonoBehaviour
     public void PlayClickSound()
     {
         audio.PlayOneShot(clickSound);
+        audio.PlayOneShot(selectSound);
     }
 }

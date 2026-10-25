@@ -70,7 +70,7 @@ public class NetworkPlayerEquipment : NetworkBehaviour
             return;
         }
         ClearEquipment();
-        _currentItem = Instantiate(item.ItemPrefab, _hatAnchor, false);
+        _currentItem = Instantiate(item.itemPrefab, _hatAnchor, false);
     }
 
     private ShopSlot FindItem(string itemId)
@@ -78,7 +78,7 @@ public class NetworkPlayerEquipment : NetworkBehaviour
         if (_shopData == null || _shopData.shopSlots == null) return null;
         foreach (ShopSlot item in _shopData.shopSlots)
         {
-            if (item != null && item.ItemID == itemId && item.ItemPrefab != null)
+            if (item != null && item.ItemID == itemId && item.itemPrefab != null)
                 return item;
         }
         return null;

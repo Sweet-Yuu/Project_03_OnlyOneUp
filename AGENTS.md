@@ -24,6 +24,7 @@
 - Không dùng Find / GetComponent trong Update, hãy cache trong Awake hoặc Start.
 - Tách logic ra khỏi MonoBehaviour khi có thể.
 - Không dùng singleton bừa bãi, ưu tiên inject dependency.
+- Tên biến không được có dấu "_" đằng trước
 
 ## 4. Cách làm việc & Báo cáo
 - Trước khi viết code, giải thích ngắn gọn cách thiết kế và phạm vi ảnh hưởng.

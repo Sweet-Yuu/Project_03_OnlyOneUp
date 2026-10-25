@@ -7,9 +7,7 @@ public class ShopUI : MonoBehaviour
 {
     public SlotItem[] shopItems;
     public ShopData shopData;
-    [SerializeField] private TextMeshProUGUI priceText;
     [SerializeField] private Button buyButton;
-    [SerializeField] private Image coinIcon;
     [SerializeField] private TextMeshProUGUI alertText;
     [SerializeField] private ShopPreview shopPreview;
     [SerializeField] private ShopPurchaseService shopPurchaseService;
@@ -52,7 +50,8 @@ public class ShopUI : MonoBehaviour
         selectedSlot = slotItem;
         selectedSlot.SetSelected(true);
         RefreshSelectionUI();
-        shopPreview.Initialize(slotItem.Data.itemPrefab);
+        shopPreview.PreviewItem(slotItem.Data.ItemID);
+        UIButtonSFX.Instance.PlayClickSound();
     }
     // Ham check item da mua hay chua
     void checkItem(List<string> purchaseItem)
@@ -94,14 +93,8 @@ public class ShopUI : MonoBehaviour
     private void RefreshSelectionUI()
     {
         bool hasSelection = selectedSlot != null;
-
-        priceText.gameObject.SetActive(hasSelection);
         buyButton.gameObject.SetActive(hasSelection);
-        coinIcon.gameObject.SetActive(hasSelection);
         alertText.gameObject.SetActive(!hasSelection);
-
-        if (hasSelection)
-            priceText.text = selectedSlot.itemPriceText.text;
     }
 
 }
