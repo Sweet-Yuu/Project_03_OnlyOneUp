@@ -27,8 +27,7 @@ public class CharacterEquipment : MonoBehaviour
             ClearItem();
             return;
         }
-        Debug.Log("Chay den day");
-        Debug.Log($"ItemId: {itemId}");
+        
         if(data == null || itemId == null)
         {
             return;

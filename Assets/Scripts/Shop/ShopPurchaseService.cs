@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using TMPro;
 public class ShopPurchaseService : MonoBehaviour
 {
     private bool isPurchased = false;
@@ -8,23 +9,19 @@ public class ShopPurchaseService : MonoBehaviour
     public bool PurchaseItem(ShopSlot item)
     {
         isPurchased = CurrencyManager.instance.SpendCoin(item.itemPrice);
-        if (isPurchased)
-        {
-            isBought = true;
-            List<string> list = PlayerInventory.instance.PurchasedItem;
-            list.Add(item.ItemID);  
-            Debug.Log($"Item {item.itemName} purchased successfully.");
-            SaveSystem.instance.SaveItemId(list);
-        }
-        else
-        {
-            OutOfCoin();
-        }
+        if (!isPurchased) return false;
+        
+        isBought = true;
+        List<string> list = PlayerInventory.instance.PurchasedItem;
+        list.Add(item.ItemID);  
+        Debug.Log($"Item {item.itemName} purchased successfully.");
+        SaveSystem.instance.SaveItemId(list);
+        
         return isPurchased;
     }
 
-    public void OutOfCoin()
+    public void OutOfCoin(TextMeshProUGUI text)
     {
-        Debug.Log("Not enough coins to purchase the item.");
+        text.gameObject.SetActive(true);
     }
 }

@@ -8,6 +8,8 @@ public class SlotItem : MonoBehaviour
     [SerializeField] private Image itemIconImage;
     [SerializeField] private Image slotBackground;
     [SerializeField] private Image boughtImage;
+    private bool isPurchased= false;
+    public bool IsPurchased => isPurchased;
     public ShopSlot Data{get; private set;}
     private Button button;
 
@@ -44,5 +46,6 @@ public class SlotItem : MonoBehaviour
         {
             button.interactable = false;
         }
+        isPurchased = true;
     }
 }

@@ -7,7 +7,6 @@ public class ShopSlot
     public int itemPrice;
     public Sprite itemIcon;
     public GameObject itemPrefab;
-    public GameObject ItemPrefab => itemPrefab;
     [SerializeField] private string itemID;
     public string ItemID => itemID;
 }

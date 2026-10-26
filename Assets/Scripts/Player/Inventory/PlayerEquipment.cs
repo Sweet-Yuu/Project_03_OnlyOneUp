@@ -24,7 +24,7 @@ public class PlayerEquipment : MonoBehaviour
     public void EquipItem()
     {   
         count++;
-        if(count >= itemID.Count - 1)
+        if(count >= itemID.Count)
         {
             count = -1;
         }

@@ -11,6 +11,7 @@ public sealed class MenuStartController : MonoBehaviour
     [SerializeField] private Button _startButton;
     [SerializeField] private Button _firstRoomButton;
     [SerializeField] private Image logoImage;
+    [SerializeField] private Button shopButton;
     [SerializeField] private EventSystem _eventSystem;
 
     public bool IsRoomSelectionOpen => _roomSelectionRoot != null && _roomSelectionRoot.activeSelf;
@@ -32,6 +33,7 @@ public sealed class MenuStartController : MonoBehaviour
         _mainMenuRoot.SetActive(false);
         _roomSelectionRoot.SetActive(true);
         logoImage.gameObject.SetActive(false);
+        shopButton.gameObject.SetActive(false);
         Select(_firstRoomButton);
     }
 

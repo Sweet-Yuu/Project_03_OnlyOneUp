@@ -9,6 +9,7 @@ public class ShopUI : MonoBehaviour
     public ShopData shopData;
     [SerializeField] private Button buyButton;
     [SerializeField] private TextMeshProUGUI alertText;
+    public TextMeshProUGUI outOfCoinText;
     [SerializeField] private ShopPreview shopPreview;
     [SerializeField] private ShopPurchaseService shopPurchaseService;
     private SlotItem selectedSlot;
@@ -34,7 +35,19 @@ public class ShopUI : MonoBehaviour
             button.onClick.AddListener(() => SetSelectedSlot(slotItem));
         }
         RefreshSelectionUI();
+        outOfCoinText.gameObject.SetActive(false);
         checkItem(PlayerInventory.instance.PurchasedItem);
+    }
+
+    void OnEnable()
+    {
+        if(selectedSlot != null && !selectedSlot.IsPurchased)
+        {
+            selectedSlot.SetSelected(false);
+        }
+        selectedSlot = null;
+        RefreshSelectionUI();
+        outOfCoinText.gameObject.SetActive(false);
     }
     //Ham set slot duoc chon
     void SetSelectedSlot(SlotItem slotItem)
@@ -43,7 +56,7 @@ public class ShopUI : MonoBehaviour
         {
             return;
         }
-        if (selectedSlot != null)
+        if (selectedSlot != null && !selectedSlot.IsPurchased)
         {
             selectedSlot.SetSelected(false);
         }
@@ -88,6 +101,11 @@ public class ShopUI : MonoBehaviour
         {
             SetBoughtSlot(selectedSlot);
         }
+        else
+        {
+            shopPurchaseService.OutOfCoin(outOfCoinText);
+        }
+        UIButtonSFX.Instance.PlayClickSound();
     }
 
     private void RefreshSelectionUI()
@@ -95,6 +113,7 @@ public class ShopUI : MonoBehaviour
         bool hasSelection = selectedSlot != null;
         buyButton.gameObject.SetActive(hasSelection);
         alertText.gameObject.SetActive(!hasSelection);
+        outOfCoinText.gameObject.SetActive(!hasSelection);
     }
 
 }
