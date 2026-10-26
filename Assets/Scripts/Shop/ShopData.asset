@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c29281111b3eb6143a8de8fa319bb872, type: 3}
+  m_Name: ShopData
+  m_EditorClassIdentifier: Assembly-CSharp::ShopData
+  shopSlots:
+  - itemName: Flower
+    itemPrice: 100
+    itemIcon: {fileID: 21300000, guid: 40a1309747699b4429932452f3b1003b, type: 3}
+  - itemName: StrawHat
+    itemPrice: 150
+    itemIcon: {fileID: 21300000, guid: 190bdebf53b48d246b0db2434fd3766e, type: 3}
+  - itemName: Hat
+    itemPrice: 50
+    itemIcon: {fileID: 21300000, guid: 856aec12e93679c4e824124304d57b2e, type: 3}
+  - itemName: Single Flower
+    itemPrice: 50
+    itemIcon: {fileID: 21300000, guid: 1fcd19fa668431746ab650ddaa614531, type: 3}
+  - itemName: Pirates Hat
+    itemPrice: 200
+    itemIcon: {fileID: 21300000, guid: 498e4bd818962424695077d96269e7f1, type: 3}
+  - itemName: Exploration Hat
+    itemPrice: 200
+    itemIcon: {fileID: 21300000, guid: c50ad18a6e0fd2042b3b5af409992e8f, type: 3}
