@@ -89,37 +89,41 @@ public static class KitchenMapBuilder
         // Tường bao quanh phòng bếp (Cao 32m)
         GameObject wallParent = CreateChild(roomGroup, "Kitchen_Perimeter_Walls");
         float wallWidth = 16f; // wall gốc 4m x 4m, scale (4, 8, 4) => rộng 16m, cao 32m
-        // Tường trái (X = -48)
+        // Tường trái (X = -48) - Chân tường khớp sàn Y = 1.0f
         for (float z = -16f; z <= 152f; z += wallWidth)
         {
             string wallType = (Mathf.Abs(z - 48f) < 10f || Mathf.Abs(z - 112f) < 10f) ? "wall_window_open" : "wall";
-            SpawnProp(wallType, wallParent.transform, new Vector3(-48f, 16f, z), new Vector3(0f, 90f, 0f), new Vector3(4f, 8f, 4f), true);
+            SpawnProp(wallType, wallParent.transform, new Vector3(-48f, 1f, z), new Vector3(0f, 90f, 0f), new Vector3(4f, 8f, 4f), true);
         }
-        // Tường phải (X = +48)
+        // Tường phải (X = +48) - Chân tường khớp sàn Y = 1.0f
         for (float z = -16f; z <= 152f; z += wallWidth)
         {
             string wallType = (Mathf.Abs(z - 32f) < 10f || Mathf.Abs(z - 96f) < 10f) ? "wall_window_open" : "wall_decorated";
-            SpawnProp(wallType, wallParent.transform, new Vector3(48f, 16f, z), new Vector3(0f, -90f, 0f), new Vector3(4f, 8f, 4f), true);
+            SpawnProp(wallType, wallParent.transform, new Vector3(48f, 1f, z), new Vector3(0f, -90f, 0f), new Vector3(4f, 8f, 4f), true);
         }
-        // Tường sau lưng bàn bếp (Z = -24)
+        // Tường sau lưng bàn bếp (Z = -24) - Chân tường khớp sàn Y = 1.0f
         for (float x = -40f; x <= 40f; x += wallWidth)
         {
-            SpawnProp("wall", wallParent.transform, new Vector3(x, 16f, -24f), Vector3.zero, new Vector3(4f, 8f, 4f), true);
+            SpawnProp("wall", wallParent.transform, new Vector3(x, 1f, -24f), Vector3.zero, new Vector3(4f, 8f, 4f), true);
         }
-        // Tường cuối bếp có ô cửa thông ra ngoài đất (Z = 152)
+        // Tường cuối bếp có ô cửa thông ra ngoài đất (Z = 152) - Chân tường khớp sàn Y = 1.0f
         for (float x = -40f; x <= 40f; x += wallWidth)
         {
-            if (Mathf.Abs(x) < 12f) continue; // Bỏ qua x = -8 và x = +8 để tạo khoảng hở rộng 16m chính giữa
-            SpawnProp("wall", wallParent.transform, new Vector3(x, 16f, 152f), new Vector3(0f, 180f, 0f), new Vector3(4f, 8f, 4f), true);
+            if (Mathf.Abs(x) < 12f) continue; // Bỏ qua x = -8 và x = +8 để tạo khoảng hở cửa chính giữa
+            SpawnProp("wall", wallParent.transform, new Vector3(x, 1f, 152f), new Vector3(0f, 180f, 0f), new Vector3(4f, 8f, 4f), true);
         }
-        // Chân tường dưới thềm cửa từ Y = 0 đến 16
-        SpawnProp("wall", wallParent.transform, new Vector3(0f, 8f, 152f), new Vector3(0f, 180f, 0f), new Vector3(4f, 4f, 4f), true);
+        // Hai mảng tường 2 bên khung cửa (X = -12 và X = +12) để bịt kín hoàn toàn khoảng hở 8m
+        SpawnProp("wall", wallParent.transform, new Vector3(-12f, 1f, 152f), new Vector3(0f, 180f, 0f), new Vector3(2f, 8f, 4f), true);
+        SpawnProp("wall", wallParent.transform, new Vector3(12f, 1f, 152f), new Vector3(0f, 180f, 0f), new Vector3(2f, 8f, 4f), true);
 
-        // Cột trụ kiến trúc các góc
-        SpawnProp("pillar_A", roomGroup.transform, new Vector3(-48f, 16f, -24f), Vector3.zero, new Vector3(4f, 8f, 4f), true);
-        SpawnProp("pillar_A", roomGroup.transform, new Vector3(48f, 16f, -24f), Vector3.zero, new Vector3(4f, 8f, 4f), true);
-        SpawnProp("pillar_A", roomGroup.transform, new Vector3(-48f, 16f, 152f), Vector3.zero, new Vector3(4f, 8f, 4f), true);
-        SpawnProp("pillar_A", roomGroup.transform, new Vector3(48f, 16f, 152f), Vector3.zero, new Vector3(4f, 8f, 4f), true);
+        // Mảng tường trên nóc cửa ra ngoài (từ Y = 17 đến 33) để kín trần
+        SpawnProp("wall", wallParent.transform, new Vector3(0f, 17f, 152f), new Vector3(0f, 180f, 0f), new Vector3(4f, 4f, 4f), true);
+
+        // Cột trụ kiến trúc các góc - Chân cột khớp sàn Y = 1.0f
+        SpawnProp("pillar_A", roomGroup.transform, new Vector3(-48f, 1f, -24f), Vector3.zero, new Vector3(4f, 8f, 4f), true);
+        SpawnProp("pillar_A", roomGroup.transform, new Vector3(48f, 1f, -24f), Vector3.zero, new Vector3(4f, 8f, 4f), true);
+        SpawnProp("pillar_A", roomGroup.transform, new Vector3(-48f, 1f, 152f), Vector3.zero, new Vector3(4f, 8f, 4f), true);
+        SpawnProp("pillar_A", roomGroup.transform, new Vector3(48f, 1f, 152f), Vector3.zero, new Vector3(4f, 8f, 4f), true);
 
         // =========================================================================
         // 2. KHU VỰC 1: BÀN ĐẢO BẾP KHỞI ĐẦU (Zone1_PrepIsland) [Z = 0 đến 42, Y = 16]
@@ -152,65 +156,67 @@ public static class KitchenMapBuilder
 
         // Đoạn hạ cánh an toàn xuống sàn bếp:
         SpawnProp("cuttingboard", islandProps.transform, new Vector3(0f, 13f, 32f), new Vector3(18f, 0f, 0f), new Vector3(8f, 2f, 8f), true, 6);
-        SpawnProp("crate", islandProps.transform, new Vector3(0f, 3f, 38f), Vector3.zero, new Vector3(5f, 6f, 5f), true, 6);
+        SpawnProp("crate", islandProps.transform, new Vector3(0f, 1f, 38f), Vector3.zero, new Vector3(5f, 6.5f, 5f), true, 6);
         SpawnProp("crate_buns", islandProps.transform, new Vector3(0f, 1f, 43f), Vector3.zero, new Vector3(5f, 2f, 5f), true, 6);
 
         // =========================================================================
-        // 3. KHU VỰC 2: SÀN BẾP & VÙNG BẾP NẤU RỰC LỬA (Zone2_CookingFloor) [Z = 45 đến 95]
+        // 3. KHU VỰC 2: SÀN BẾP & VÙNG BẾP NẤU (Zone2_CookingFloor) [Z = 45 đến 95]
         // =========================================================================
         GameObject stoveObstacles = CreateChild(zone2Group, "Stoves_And_Hazards");
-        SpawnProp("stove_multi", stoveObstacles.transform, new Vector3(-16f, 3f, 66f), new Vector3(0f, 90f, 0f), new Vector3(5f, 5f, 5f), true, 6);
-        SpawnProp("pot_large", stoveObstacles.transform, new Vector3(-16f, 6f, 66f), Vector3.zero, new Vector3(5f, 5f, 5f), true, 6);
-        SpawnProp("stove_multi", stoveObstacles.transform, new Vector3(16f, 3f, 66f), new Vector3(0f, -90f, 0f), new Vector3(5f, 5f, 5f), true, 6);
-        SpawnProp("oven", stoveObstacles.transform, new Vector3(16f, 3f, 78f), new Vector3(0f, -90f, 0f), new Vector3(5f, 5f, 5f), true, 6);
 
-        // Chảo lửa rực cháy giữa sàn
-        SpawnProp("pan_006", stoveObstacles.transform, new Vector3(0f, 0.5f, 68f), Vector3.zero, new Vector3(10f, 4f, 10f), true);
+        // --- TRẠM BẾP NẤU BÊN TRÁI (Kê sát tường trái X = -12, chân chạm sàn Y = 1.0f) ---
+        SpawnProp("kitchencounter_straight_A", stoveObstacles.transform, new Vector3(-12f, 1f, 56f), new Vector3(0f, 90f, 0f), new Vector3(5f, 5f, 5f), true, 6);
+        SpawnProp("stove_multi", stoveObstacles.transform, new Vector3(-12f, 1f, 66f), new Vector3(0f, 90f, 0f), new Vector3(5f, 5f, 5f), true, 6);
+        SpawnProp("pot_large", stoveObstacles.transform, new Vector3(-12f, 7f, 66f), Vector3.zero, new Vector3(5f, 5f, 5f), true, 6);
+        SpawnProp("kitchencounter_straight_A", stoveObstacles.transform, new Vector3(-12f, 1f, 76f), new Vector3(0f, 90f, 0f), new Vector3(5f, 5f, 5f), true, 6);
 
-        // Vùng lửa chết Dead Zone 2: Đặt khối lửa có gắn tag "Dead"
-        GameObject fireHazard = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        Undo.RegisterCreatedObjectUndo(fireHazard, "Create FireHazard");
-        fireHazard.name = "DeadZone_StoveFire_Center";
-        fireHazard.tag = "Dead";
-        fireHazard.transform.SetParent(deadZoneGroup.transform);
-        fireHazard.transform.position = new Vector3(0f, 1.2f, 68f);
-        fireHazard.transform.localScale = new Vector3(16f, 2.5f, 16f);
-        var fireRenderer = fireHazard.GetComponent<MeshRenderer>();
-        if (fireRenderer != null) fireRenderer.sharedMaterial = fireMat;
+        // Vùng lửa cháy trong nồi bên trái (Dead Zone nhỏ gọn đặt đúng trong lòng nồi, collider trigger)
+        CreateDeadZone(deadZoneGroup.transform, "DeadZone_StoveFire_Left", new Vector3(-12f, 7.5f, 66f), new Vector3(4f, 1.5f, 4f), fireMat, false);
 
-        GameObject fireLeft = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        Undo.RegisterCreatedObjectUndo(fireLeft, "Create FireLeft");
-        fireLeft.name = "DeadZone_StoveFire_Left";
-        fireLeft.tag = "Dead";
-        fireLeft.transform.SetParent(deadZoneGroup.transform);
-        fireLeft.transform.position = new Vector3(-16f, 6f, 66f);
-        fireLeft.transform.localScale = new Vector3(10f, 2f, 10f);
-        if (fireLeft.GetComponent<MeshRenderer>() != null) fireLeft.GetComponent<MeshRenderer>().sharedMaterial = fireMat;
+        // --- TRẠM BẾP & LÒ NƯỚNG BÊN PHẢI (Kê sát tường phải X = 12, chân chạm sàn Y = 1.0f) ---
+        SpawnProp("kitchencounter_straight_A", stoveObstacles.transform, new Vector3(12f, 1f, 56f), new Vector3(0f, -90f, 0f), new Vector3(5f, 5f, 5f), true, 6);
+        SpawnProp("stove_multi", stoveObstacles.transform, new Vector3(12f, 1f, 66f), new Vector3(0f, -90f, 0f), new Vector3(5f, 5f, 5f), true, 6);
+        SpawnProp("oven", stoveObstacles.transform, new Vector3(12f, 1f, 76f), new Vector3(0f, -90f, 0f), new Vector3(5f, 5f, 5f), true, 6);
 
-        // Bục nhảy an toàn parkour băng qua vùng lửa:
-        SpawnProp("chair_stool", zone2Group.transform, new Vector3(-6f, 1.5f, 54f), Vector3.zero, new Vector3(6f, 4f, 6f), true, 6);
-        SpawnProp("kitchencounter_straight_A", zone2Group.transform, new Vector3(-8f, 2.5f, 62f), Vector3.zero, new Vector3(5f, 5f, 5f), true, 6);
-        SpawnProp("lid_large", zone2Group.transform, new Vector3(0f, 6.2f, 68f), new Vector3(180f, 0f, 0f), new Vector3(7f, 2f, 7f), true, 6);
-        SpawnProp("dishrack", zone2Group.transform, new Vector3(7f, 2.2f, 76f), Vector3.zero, new Vector3(6f, 5f, 6f), true, 6);
-        SpawnProp("kitchentable_B", zone2Group.transform, new Vector3(0f, 1f, 85f), Vector3.zero, new Vector3(6f, 2f, 6f), true, 6);
+        // --- CHUỖI PARKOUR VƯỢT CHƯỚNG NGẠI VẬT TRUNG TÂM (Phân bổ khoảng cách đều, KHÔNG chồng chéo) ---
+        // 1. Ghế đẩu khởi đầu: Z = 52
+        SpawnProp("chair_stool", zone2Group.transform, new Vector3(0f, 1f, 52f), Vector3.zero, new Vector3(4f, 3f, 4f), true, 6);
+
+        // 2. Bàn bếp B lệch trái: Z = 60
+        SpawnProp("kitchentable_B", zone2Group.transform, new Vector3(-4f, 1f, 60f), Vector3.zero, new Vector3(3.5f, 2.5f, 3.5f), true, 6);
+
+        // 3. Bếp đơn và chảo lửa trung tâm: Z = 72 (Chân bếp chạm sàn Y = 1, chảo và nắp đặt vững trên mặt bếp)
+        SpawnProp("stove_single", zone2Group.transform, new Vector3(0f, 1f, 72f), Vector3.zero, new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnProp("pan_006", zone2Group.transform, new Vector3(0f, 5.2f, 72f), Vector3.zero, new Vector3(5f, 2.5f, 5f), true);
+        SpawnProp("lid_large", zone2Group.transform, new Vector3(0f, 6.5f, 72f), new Vector3(180f, 0f, 0f), new Vector3(5f, 1.2f, 5f), true, 6);
+
+        // Vùng lửa cháy trong chảo trung tâm (nằm gọn trong lòng chảo)
+        CreateDeadZone(deadZoneGroup.transform, "DeadZone_StoveFire_Center", new Vector3(0f, 5.5f, 72f), new Vector3(3.5f, 1.2f, 3.5f), fireMat, false);
+
+        // 4. Giá đựng đĩa lệch phải: Z = 82
+        SpawnProp("dishrack", zone2Group.transform, new Vector3(4f, 1f, 82f), Vector3.zero, new Vector3(4f, 3.5f, 4f), true, 6);
+
+        // 5. Bàn bếp B dẫn thẳng vào cửa kho: Z = 90
+        SpawnProp("kitchentable_B", zone2Group.transform, new Vector3(0f, 1f, 90f), Vector3.zero, new Vector3(3.5f, 2.5f, 3.5f), true, 6);
 
         // =========================================================================
         // 4. KHU VỰC 3: KHO CHỨA THỰC PHẨM (Zone3_PantryStorage) [Z = 95 đến 145]
         // =========================================================================
         GameObject pantryArch = CreateChild(zone3Group, "Pantry_Archway");
-        SpawnProp("wall_doorway", pantryArch.transform, new Vector3(0f, 8f, 96f), Vector3.zero, new Vector3(4f, 4f, 4f), true, 6);
-        SpawnProp("wall", pantryArch.transform, new Vector3(-16f, 8f, 96f), Vector3.zero, new Vector3(4f, 4f, 4f), true);
-        SpawnProp("wall", pantryArch.transform, new Vector3(16f, 8f, 96f), Vector3.zero, new Vector3(4f, 4f, 4f), true);
+        SpawnProp("wall_doorway", pantryArch.transform, new Vector3(0f, 1f, 96f), Vector3.zero, new Vector3(4f, 4f, 4f), true, 6);
+        SpawnProp("wall", pantryArch.transform, new Vector3(-16f, 1f, 96f), Vector3.zero, new Vector3(4f, 8f, 4f), true);
+        SpawnProp("wall", pantryArch.transform, new Vector3(16f, 1f, 96f), Vector3.zero, new Vector3(4f, 8f, 4f), true);
+        SpawnProp("wall", pantryArch.transform, new Vector3(0f, 17f, 96f), Vector3.zero, new Vector3(4f, 4f, 4f), true);
 
-        // Parkour vươn cao trong kho (Vertical Climb):
-        SpawnProp("crate_carrots", zone3Group.transform, new Vector3(-5f, 1.75f, 104f), Vector3.zero, new Vector3(6f, 4.5f, 6f), true, 6);
-        SpawnProp("crate_cheese", zone3Group.transform, new Vector3(4f, 3.25f, 110f), Vector3.zero, new Vector3(6f, 4.5f, 6f), true, 6);
-        SpawnProp("crate_potatoes", zone3Group.transform, new Vector3(-4f, 4.75f, 116f), Vector3.zero, new Vector3(6f, 4.5f, 6f), true, 6);
-        SpawnProp("kitchencabinet", zone3Group.transform, new Vector3(3f, 6.5f, 122f), Vector3.zero, new Vector3(5f, 7f, 5f), true, 6);
+        // Parkour vươn cao trong kho (Vertical Climb) - Đều có điểm tựa trên sàn Y = 1.0f:
+        SpawnProp("crate_carrots", zone3Group.transform, new Vector3(-5f, 1f, 104f), Vector3.zero, new Vector3(6f, 4.5f, 6f), true, 6);
+        SpawnProp("crate_cheese", zone3Group.transform, new Vector3(4f, 2.5f, 110f), Vector3.zero, new Vector3(6f, 4.5f, 6f), true, 6);
+        SpawnProp("crate_potatoes", zone3Group.transform, new Vector3(-4f, 4.5f, 116f), Vector3.zero, new Vector3(6f, 4.5f, 6f), true, 6);
+        SpawnProp("kitchentable_B", zone3Group.transform, new Vector3(3f, 6.5f, 122f), Vector3.zero, new Vector3(5f, 4f, 5f), true, 6);
 
-        // Tủ lạnh đôi khổng lồ đứng sừng sững ở Z = 131: Nóc tủ lạnh tại Y = 18m
-        SpawnProp("fridge_A_decorated", zone3Group.transform, new Vector3(-7f, 9f, 131f), Vector3.zero, new Vector3(5f, 7.5f, 5f), true, 6);
-        SpawnProp("fridge_B", zone3Group.transform, new Vector3(7f, 9f, 131f), Vector3.zero, new Vector3(5f, 7.5f, 5f), true, 6);
+        // Tủ lạnh đôi khổng lồ đứng sừng sững ở Z = 131: Chân tủ lạnh đặt trên sàn Y = 1.0f, nóc tại Y = 18.5m
+        SpawnProp("fridge_A_decorated", zone3Group.transform, new Vector3(-7f, 1f, 131f), Vector3.zero, new Vector3(5f, 7f, 5f), true, 6);
+        SpawnProp("fridge_B", zone3Group.transform, new Vector3(7f, 1f, 131f), Vector3.zero, new Vector3(5f, 7f, 5f), true, 6);
 
         // Cầu ống hút khói inox nối từ nóc tủ lạnh sang cửa ra ngoài (Y = 17.5, Z = 139)
         SpawnProp("extractorhood", zone3Group.transform, new Vector3(0f, 17.5f, 139f), new Vector3(180f, 0f, 0f), new Vector3(7f, 3f, 6f), true, 6);
@@ -219,36 +225,42 @@ public static class KitchenMapBuilder
 
         // =========================================================================
         // 5. KHU VỰC 4: CỬA RA NGOÀI KHU ĐẤT (Zone4_ExitDoorway - Win Area) [Z = 150 đến 180]
+        // Khung cửa, cánh cửa và pallet ván gỗ đặt khớp hoàn toàn với mặt sàn Y = 1.0f
         // =========================================================================
         GameObject doorFrame = CreateChild(zone4Group, "Exit_Doorway_Frame");
-        SpawnProp("wall_doorway", doorFrame.transform, new Vector3(0f, 16f, 152f), new Vector3(0f, 180f, 0f), new Vector3(4f, 4f, 4f), true, 6);
-        SpawnProp("door_A", doorFrame.transform, new Vector3(-3.2f, 16f, 152f), new Vector3(0f, -60f, 0f), new Vector3(4f, 4f, 4f), true, 6);
+        SpawnProp("wall_doorway", doorFrame.transform, new Vector3(0f, 1f, 152f), new Vector3(0f, 180f, 0f), new Vector3(4f, 4f, 4f), true, 6);
+        GameObject doorInst = SpawnProp("door_A", doorFrame.transform, new Vector3(-3.2f, 1f, 152f), new Vector3(0f, -60f, 0f), new Vector3(4f, 4f, 4f), true, 6);
 
+        // Gán texture Cửa Gỗ mộc mạc (Kitchen_ExitDoor_Wood.mat)
+        Material woodDoorMat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Kitchen_ExitDoor_Wood.mat");
+        if (woodDoorMat != null && doorInst != null)
+        {
+            var doorRend = doorInst.GetComponentInChildren<Renderer>();
+            if (doorRend != null) doorRend.sharedMaterial = woodDoorMat;
+        }
+
+        // Tấm pallet ván gỗ đặt tại ngưỡng cửa (mặt trên khớp chính xác sàn Y = 1.0f)
         GameObject doorStep = GameObject.CreatePrimitive(PrimitiveType.Cube);
         Undo.RegisterCreatedObjectUndo(doorStep, "Create DoorStep");
         doorStep.name = "Door_Threshold_Bridge";
         doorStep.transform.SetParent(zone4Group.transform);
-        doorStep.transform.position = new Vector3(0f, 15.5f, 154f);
+        doorStep.transform.position = new Vector3(0f, 0.5f, 154f);
         doorStep.transform.localScale = new Vector3(12f, 1f, 8f);
         doorStep.layer = 6; // Ground
         if (woodMat != null) doorStep.GetComponent<MeshRenderer>().sharedMaterial = woodMat;
 
-        // VÙNG CHIẾN THẮNG (WIN AREA)
+        // VÙNG CHIẾN THẮNG (WIN AREA - Collider tàng hình tại ngưỡng cửa)
         GameObject winArea = GameObject.CreatePrimitive(PrimitiveType.Cube);
         Undo.RegisterCreatedObjectUndo(winArea, "Create WinArea");
         winArea.name = "Win_Area_Doorway";
         winArea.tag = "Win_Area";
         winArea.transform.SetParent(zone4Group.transform);
-        winArea.transform.position = new Vector3(0f, 19f, 153.5f);
+        winArea.transform.position = new Vector3(0f, 4f, 153.5f);
         winArea.transform.localScale = new Vector3(8f, 6f, 2.5f);
         var winCol = winArea.GetComponent<BoxCollider>();
         winCol.isTrigger = false;
         var winRenderer = winArea.GetComponent<MeshRenderer>();
-        if (winRenderer != null)
-        {
-            if (winMat != null) winRenderer.sharedMaterial = winMat;
-            else winRenderer.enabled = false;
-        }
+        if (winRenderer != null) winRenderer.enabled = false;
         winArea.AddComponent<KitchenLevelTransition>();
 
         // =========================================================================
@@ -270,37 +282,16 @@ public static class KitchenMapBuilder
                 for (int tx = 0; tx < res; tx++)
                     heights[ty, tx] = 0f;
 
-            // Đắp đồi thoai thoải phía sau cánh cửa (Z = 152 đến 260, X = -60 đến +60)
-            int xCenter = Mathf.RoundToInt(0.5f * (res - 1));
-            int zStart = Mathf.RoundToInt(0.352f * (res - 1));
-            int zEnd = Mathf.RoundToInt(0.48f * (res - 1));
-            int xRadius = Mathf.RoundToInt(0.12f * (res - 1));
-
-            for (int ty = zStart; ty <= zEnd; ty++)
-            {
-                float zRatio = (float)(ty - zStart) / (zEnd - zStart);
-                float zCurve = Mathf.Sin(zRatio * Mathf.PI * 0.5f);
-                for (int tx = xCenter - xRadius; tx <= xCenter + xRadius; tx++)
-                {
-                    float distFromCenter = Mathf.Abs(tx - xCenter) / (float)xRadius;
-                    if (distFromCenter <= 1f)
-                    {
-                        float xCurve = Mathf.Cos(distFromCenter * Mathf.PI * 0.5f);
-                        // 0.05 tương đương với độ cao 30m trong Terrain (World Y = -10 + 30 = 20m)
-                        float h = 0.05f * xCurve * zCurve;
-                        heights[ty, tx] = Mathf.Max(heights[ty, tx], h);
-                    }
-                }
-            }
             td.SetHeights(0, 0, heights);
         }
 
+        // Mặt đất/đồi cỏ ngoài trời dẫn sang Map 2 (mặt trên khớp chính xác sàn Y = 1.0f)
         GameObject landPlateau = GameObject.CreatePrimitive(PrimitiveType.Cube);
         Undo.RegisterCreatedObjectUndo(landPlateau, "Create LandPlateau");
         landPlateau.name = "Outdoor_GreenHill";
         landPlateau.layer = 6; // Ground
         landPlateau.transform.SetParent(outdoorGroup.transform);
-        landPlateau.transform.position = new Vector3(0f, 18.5f, 175f);
+        landPlateau.transform.position = new Vector3(0f, -0.5f, 175f);
         landPlateau.transform.localScale = new Vector3(50f, 3f, 40f);
         Material dirtyRoadMat = AssetDatabase.LoadAssetAtPath<Material>(MatBase + "DirtyRoad.mat");
         if (dirtyRoadMat != null) landPlateau.GetComponent<MeshRenderer>().sharedMaterial = dirtyRoadMat;
@@ -309,12 +300,12 @@ public static class KitchenMapBuilder
         if (rockPrefab != null)
         {
             var r1 = (GameObject)PrefabUtility.InstantiatePrefab(rockPrefab, outdoorGroup.transform);
-            r1.transform.position = new Vector3(-12f, 20f, 168f);
+            r1.transform.position = new Vector3(-12f, 1f, 168f);
             r1.transform.localScale = new Vector3(3f, 3f, 3f);
             EnsureCollider(r1, true);
 
             var r2 = (GameObject)PrefabUtility.InstantiatePrefab(rockPrefab, outdoorGroup.transform);
-            r2.transform.position = new Vector3(14f, 20f, 172f);
+            r2.transform.position = new Vector3(14f, 1f, 172f);
             r2.transform.localScale = new Vector3(4f, 4f, 4f);
             EnsureCollider(r2, true);
         }
@@ -323,32 +314,30 @@ public static class KitchenMapBuilder
         if (treePrefab != null)
         {
             var t1 = (GameObject)PrefabUtility.InstantiatePrefab(treePrefab, outdoorGroup.transform);
-            t1.transform.position = new Vector3(-18f, 20f, 176f);
+            t1.transform.position = new Vector3(-18f, 1f, 176f);
             t1.transform.localScale = new Vector3(2f, 2f, 2f);
             EnsureCollider(t1, true);
 
             var t2 = (GameObject)PrefabUtility.InstantiatePrefab(treePrefab, outdoorGroup.transform);
-            t2.transform.position = new Vector3(18f, 20f, 180f);
+            t2.transform.position = new Vector3(18f, 1f, 180f);
             t2.transform.localScale = new Vector3(2.5f, 2.5f, 2.5f);
             EnsureCollider(t2, true);
         }
 
         // =========================================================================
-        // 7. CÁC DEAD ZONE CHUYÊN BIỆT
+        // 7. CÁC DEAD ZONE CHUYÊN BIỆT (Vùng bẫy rơi vực, collider trigger vô hình)
         // =========================================================================
-        CreateDeadZone(deadZoneGroup.transform, "DeadZone_IslandAbyss", new Vector3(0f, 0.5f, 12f), new Vector3(38f, 2f, 36f), deadMat);
-        CreateDeadZone(deadZoneGroup.transform, "DeadZone_PantryChasm", new Vector3(0f, 0.5f, 125f), new Vector3(40f, 2f, 45f), deadMat);
-        CreateDeadZone(deadZoneGroup.transform, "DeadZone_GlobalFall", new Vector3(0f, -10f, 75f), new Vector3(160f, 4f, 260f), deadMat);
+        CreateDeadZone(deadZoneGroup.transform, "DeadZone_GlobalFall", new Vector3(0f, -10f, 75f), new Vector3(160f, 4f, 260f), deadMat, false);
 
         // =========================================================================
-        // 8. CHECKPOINTS
+        // 8. CHECKPOINTS (Cột cờ cắm vững trên sàn Y = 1.0f)
         // =========================================================================
         GameObject flagPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Quang/Model3D/Checkpoint_Flag3.fbx");
         if (flagPrefab != null)
         {
-            CreateCheckpoint(gameplayGroup.transform, flagPrefab, 1, new Vector3(0f, 0.5f, 46f), "Checkpoint_1_FloorArrival");
-            CreateCheckpoint(gameplayGroup.transform, flagPrefab, 2, new Vector3(0f, 0.5f, 98f), "Checkpoint_2_PantryEntrance");
-            CreateCheckpoint(gameplayGroup.transform, flagPrefab, 3, new Vector3(0f, 16.5f, 146f), "Checkpoint_3_DoorApproach");
+            CreateCheckpoint(gameplayGroup.transform, flagPrefab, 1, new Vector3(0f, 1f, 46f), "Checkpoint_1_FloorArrival");
+            CreateCheckpoint(gameplayGroup.transform, flagPrefab, 2, new Vector3(0f, 1f, 98f), "Checkpoint_2_PantryEntrance");
+            CreateCheckpoint(gameplayGroup.transform, flagPrefab, 3, new Vector3(0f, 1f, 146f), "Checkpoint_3_DoorApproach");
         }
 
         // =========================================================================
@@ -460,9 +449,9 @@ public static class KitchenMapBuilder
         }
 
         CreatePointLight(lightsGroup.transform, "Light_IslandTable", new Vector3(0f, 25f, 15f), new Color(1f, 0.9f, 0.75f), 2.5f, 35f);
-        CreatePointLight(lightsGroup.transform, "Light_StoveFire_Left", new Vector3(-16f, 8f, 66f), new Color(1f, 0.35f, 0.05f), 4.5f, 25f);
-        CreatePointLight(lightsGroup.transform, "Light_StoveFire_Center", new Vector3(0f, 4f, 68f), new Color(1f, 0.25f, 0f), 5.5f, 30f);
-        CreatePointLight(lightsGroup.transform, "Light_StoveFire_Right", new Vector3(16f, 8f, 66f), new Color(1f, 0.35f, 0.05f), 4.5f, 25f);
+        CreatePointLight(lightsGroup.transform, "Light_StoveFire_Left", new Vector3(-12f, 8.5f, 66f), new Color(1f, 0.35f, 0.05f), 4.5f, 25f);
+        CreatePointLight(lightsGroup.transform, "Light_StoveFire_Center", new Vector3(0f, 7f, 72f), new Color(1f, 0.25f, 0f), 5.5f, 30f);
+        CreatePointLight(lightsGroup.transform, "Light_StoveFire_Right", new Vector3(12f, 8.5f, 66f), new Color(1f, 0.35f, 0.05f), 4.5f, 25f);
         CreatePointLight(lightsGroup.transform, "Light_Pantry", new Vector3(0f, 22f, 120f), new Color(0.9f, 0.95f, 1f), 2.0f, 35f);
         CreatePointLight(lightsGroup.transform, "Light_ExitPortal", new Vector3(0f, 24f, 153f), new Color(1f, 0.92f, 0.6f), 4.0f, 25f);
 
@@ -516,7 +505,7 @@ public static class KitchenMapBuilder
         }
     }
 
-    private static void CreateDeadZone(Transform parent, string name, Vector3 pos, Vector3 size, Material mat)
+    private static void CreateDeadZone(Transform parent, string name, Vector3 pos, Vector3 size, Material mat, bool visible = false)
     {
         GameObject dz = GameObject.CreatePrimitive(PrimitiveType.Cube);
         Undo.RegisterCreatedObjectUndo(dz, "Create " + name);
@@ -525,8 +514,14 @@ public static class KitchenMapBuilder
         dz.transform.SetParent(parent);
         dz.transform.position = pos;
         dz.transform.localScale = size;
+        var col = dz.GetComponent<BoxCollider>();
+        if (col != null) col.isTrigger = true;
         var r = dz.GetComponent<MeshRenderer>();
-        if (r != null && mat != null) r.sharedMaterial = mat;
+        if (r != null)
+        {
+            if (visible && mat != null) r.sharedMaterial = mat;
+            else r.enabled = false;
+        }
     }
 
     private static void CreateCheckpoint(Transform parent, GameObject flagPrefab, int id, Vector3 pos, string name)
