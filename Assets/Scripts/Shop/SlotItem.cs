@@ -3,16 +3,49 @@ using TMPro;
 using UnityEngine.UI;
 public class SlotItem : MonoBehaviour
 {
-    public TextMeshProUGUI itemNameText;
+    [SerializeField] private TextMeshProUGUI itemNameText;
     public TextMeshProUGUI itemPriceText;
-    public Image itemIconImage;
-    private ShopSlot shopSlot;
+    [SerializeField] private Image itemIconImage;
+    [SerializeField] private Image slotBackground;
+    [SerializeField] private Image boughtImage;
+    private bool isPurchased= false;
+    public bool IsPurchased => isPurchased;
+    public ShopSlot Data{get; private set;}
+    private Button button;
+
+    void Awake()
+    {
+        button = GetComponent<Button>();
+    }
     
     public void setItem(ShopSlot item)
     {
-        shopSlot = item;
+        Data = item;
         itemNameText.text = item.itemName;
         itemPriceText.text = item.itemPrice.ToString();
         itemIconImage.sprite = item.itemIcon;
+    }
+
+    public void SetSelected(bool isSelected)
+    {
+        if (isSelected)
+        {
+            slotBackground.color = new Color32(118, 191, 228, 255);
+        }
+        else
+        {
+            slotBackground.color = new Color32(255, 255, 255, 255); 
+        }
+    }
+
+    public void BoughtSlot()
+    {
+        slotBackground.color = new Color32(130, 130, 130, 255);
+        boughtImage.gameObject.SetActive(true);
+        if(button != null)
+        {
+            button.interactable = false;
+        }
+        isPurchased = true;
     }
 }
