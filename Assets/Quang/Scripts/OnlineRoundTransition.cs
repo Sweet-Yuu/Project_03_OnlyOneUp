@@ -46,7 +46,7 @@ public sealed class OnlineRoundTransition : MonoBehaviour
     }
     public void ReturnToMenu()
     {
-        ReturnToMenuTransition.Begin();
+        ReturnToMenuTransition.BeginCovered();
         Destroy(gameObject);
     }
 }
