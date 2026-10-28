@@ -14,6 +14,16 @@ public sealed class ReturnToMenuTransition : MonoBehaviour
 
     public static void Begin()
     {
+        BeginTransition(false);
+    }
+
+    public static void BeginCovered()
+    {
+        BeginTransition(true);
+    }
+
+    private static void BeginTransition(bool alreadyCovered)
+    {
         if (_running) return;
         if (!Application.CanStreamedLevelBeLoaded(MenuScene))
         {
@@ -24,10 +34,10 @@ public sealed class ReturnToMenuTransition : MonoBehaviour
         var root = new GameObject("Return to menu transition", typeof(RectTransform), typeof(Canvas),
             typeof(CanvasScaler), typeof(GraphicRaycaster));
         DontDestroyOnLoad(root);
-        root.AddComponent<ReturnToMenuTransition>().StartCoroutine(Transition(root));
+        root.AddComponent<ReturnToMenuTransition>().StartCoroutine(Transition(root, alreadyCovered));
     }
 
-    private static IEnumerator Transition(GameObject root)
+    private static IEnumerator Transition(GameObject root, bool alreadyCovered)
     {
         Canvas canvas = root.GetComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -45,8 +55,21 @@ public sealed class ReturnToMenuTransition : MonoBehaviour
         cover.rectTransform.offsetMin = cover.rectTransform.offsetMax = Vector2.zero;
         cover.color = color;
         cover.raycastTarget = true;
-        cover.SetProgress(0f);
+        cover.SetProgress(alreadyCovered ? 0f : 1f);
         yield return null;
+
+        if (!alreadyCovered)
+        {
+            // Che hết màn hình trước khi ngắt mạng làm biến mất các NetworkObject.
+            float closing = 0f;
+            while (closing < .35f)
+            {
+                closing += Time.unscaledDeltaTime;
+                cover.SetProgress(1f - Mathf.SmoothStep(0f, 1f, closing / .35f));
+                yield return null;
+            }
+            cover.SetProgress(0f);
+        }
 
         // Ngắt hoàn toàn phiên cũ trước khi menu tạo NetworkManager mới.
         NetworkManager manager = NetworkManager.Singleton;
@@ -67,6 +90,7 @@ public sealed class ReturnToMenuTransition : MonoBehaviour
             if (manager != null) Destroy(manager.gameObject);
             yield return null;
         }
+        Time.timeScale = 1f;
         AsyncOperation loading = SceneManager.LoadSceneAsync(MenuScene, LoadSceneMode.Single);
         while (!loading.isDone) yield return null;
         yield return null;

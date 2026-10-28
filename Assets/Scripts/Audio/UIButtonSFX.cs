@@ -6,6 +6,7 @@ public class UIButtonSFX : MonoBehaviour
     public AudioClip buttonHover;
     public AudioClip selectSound;
     public AudioClip clickSound;
+    public AudioClip collectCoin;
     void Awake()
     {
         if(Instance != null)
@@ -22,5 +23,11 @@ public class UIButtonSFX : MonoBehaviour
     {
         audio.PlayOneShot(clickSound);
         audio.PlayOneShot(selectSound);
+    }
+
+    public void PlayCollectCoin()
+    {
+        if (audio == null || collectCoin == null) return;
+        audio.PlayOneShot(collectCoin);
     }
 }
