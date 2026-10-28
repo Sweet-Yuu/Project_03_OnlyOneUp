@@ -24,8 +24,22 @@ public sealed class NetworkGameEntryGate :
     public bool IsOpen => IsSpawned && _open.Value;
     public bool HasFailed => IsSpawned && _failed.Value;
 
+    private void Awake()
+    {
+        EnsureNest();
+    }
+
+    // [Kitchen_Map]: Đảm bảo NetworkGameEntryGate luôn có tham chiếu tới NetworkNest (Tổ trứng).
+    // Khi nạp Kitchen_Map, nếu _nest chưa được wire thủ công qua Inspector thì tự động lấy component cùng object hoặc tìm trong scene.
+    private void EnsureNest()
+    {
+        if (_nest == null)
+            _nest = GetComponent<NetworkNest>() ?? FindFirstObjectByType<NetworkNest>();
+    }
+
     public override void OnNetworkSpawn()
     {
+        EnsureNest();
         _startedAt = Time.unscaledTime;
 
         if (IsServer)
@@ -48,6 +62,7 @@ public sealed class NetworkGameEntryGate :
 
         while (IsSpawned && !_open.Value && !_failed.Value)
         {
+            EnsureNest();
             if (IsServer)
             {
                 bool timedOut =
@@ -86,6 +101,7 @@ public sealed class NetworkGameEntryGate :
 
     private bool LocalObjectsReady()
     {
+        EnsureNest();
         if (_nest == null ||
             !_nest.IsPlaying ||
             _nest.EggPhase != NestEggPhase.Intact)
@@ -147,6 +163,7 @@ public sealed class NetworkGameEntryGate :
         InvokePermission = RpcInvokePermission.Everyone)]
     private void ReadyRpc(RpcParams rpcParams = default)
     {
+        EnsureNest();
         ulong sender = rpcParams.Receive.SenderClientId;
 
         if (_failed.Value || _reveal.Value ||

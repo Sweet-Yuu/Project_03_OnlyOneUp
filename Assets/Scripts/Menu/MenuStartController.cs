@@ -16,7 +16,13 @@ public sealed class MenuStartController : MonoBehaviour
 
     public bool IsRoomSelectionOpen => _roomSelectionRoot != null && _roomSelectionRoot.activeSelf;
 
-    private void Start() => ShowMainMenu();
+    private void Start()
+    {
+        // [Kitchen_Map]: Giới hạn FPS ở mức 60 và kích hoạt vSync để tối ưu hóa hiệu năng, chống rách hình (tearing)
+        QualitySettings.vSyncCount = 1;
+        Application.targetFrameRate = 60;
+        ShowMainMenu();
+    }
 
     private void Update()
     {

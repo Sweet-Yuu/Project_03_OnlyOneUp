@@ -20020,6 +20020,18 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -7686647390267089288, guid: f85c02718c8ddd140afa5ffa2047f64d, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -1940500577608629012, guid: f85c02718c8ddd140afa5ffa2047f64d, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -242073946097831952, guid: f85c02718c8ddd140afa5ffa2047f64d, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: f85c02718c8ddd140afa5ffa2047f64d, type: 3}
       propertyPath: m_Name
       value: ModelTree (1)
@@ -22923,6 +22935,18 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: f85c02718c8ddd140afa5ffa2047f64d, type: 3}
       propertyPath: m_ConstrainProportionsScale
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -7686647390267089288, guid: f85c02718c8ddd140afa5ffa2047f64d, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -1940500577608629012, guid: f85c02718c8ddd140afa5ffa2047f64d, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -242073946097831952, guid: f85c02718c8ddd140afa5ffa2047f64d, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: f85c02718c8ddd140afa5ffa2047f64d, type: 3}
       propertyPath: m_Name
@@ -29979,6 +30003,18 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -7686647390267089288, guid: f85c02718c8ddd140afa5ffa2047f64d, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -1940500577608629012, guid: f85c02718c8ddd140afa5ffa2047f64d, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -242073946097831952, guid: f85c02718c8ddd140afa5ffa2047f64d, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: f85c02718c8ddd140afa5ffa2047f64d, type: 3}
       propertyPath: m_Name
       value: ModelTree (2)
@@ -32731,6 +32767,18 @@ PrefabInstance:
     - target: {fileID: 4821237429036607852, guid: dea9d0be98532ac4c9b187309ef71aae, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 2338525742
+      objectReference: {fileID: 0}
+    - target: {fileID: 6280213584103591404, guid: dea9d0be98532ac4c9b187309ef71aae, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8231081446201590528, guid: dea9d0be98532ac4c9b187309ef71aae, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9045816075304332387, guid: dea9d0be98532ac4c9b187309ef71aae, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -44340,7 +44388,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2091203381}
-  - component: {fileID: 2091203380}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -44348,18 +44395,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2091203380
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2091203379}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 93b5364b0e84b86458f3508bf3bc7e3a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameManager
 --- !u!4 &2091203381
 Transform:
   m_ObjectHideFlags: 0

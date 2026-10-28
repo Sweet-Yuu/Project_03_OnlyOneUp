@@ -44,7 +44,8 @@ public sealed class ReturnToMenuTransition : MonoBehaviour
         canvas.sortingOrder = 32767;
         Color color = new Color(1f, .65f, 0f, 1f);
         foreach (CircularRevealGraphic existing in FindObjectsByType<CircularRevealGraphic>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-            if (existing.gameObject.scene.name == "MainMap_Online") { color = existing.color; break; }
+            // [Kitchen_Map]: Lấy màu hiệu ứng CircularReveal Graphic từ Kitchen_Map (hoặc MainMap_Online) khi người chơi thoát về Menu
+            if (existing.gameObject.scene.name == "MainMap_Online" || existing.gameObject.scene.name == "Kitchen_Map") { color = existing.color; break; }
         color.a = 1f;
         var coverObject = new GameObject("Cover", typeof(RectTransform), typeof(CanvasRenderer), typeof(CircularRevealGraphic));
         coverObject.transform.SetParent(root.transform, false);
