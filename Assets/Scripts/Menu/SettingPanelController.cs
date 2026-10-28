@@ -1,12 +1,26 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Audio;
 
 /// <summary>
 /// Quản lý giao diện cài đặt (Setting_Panel) bao gồm chuyển tab và cài đặt âm thanh.
 /// </summary>
 public class SettingPanelController : MonoBehaviour
 {
+    [Header("Audio Mixer")]
+    [SerializeField] private AudioMixer audioMixer;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    private static void ApplySavedSettingsOnLaunch()
+    {
+        // Panel thường tắt lúc vào menu; vẫn áp dụng âm lượng đã lưu trước khi mở settings.
+        foreach (var panel in FindObjectsByType<SettingPanelController>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            panel.LoadSettings();
+            panel.ApplyAudioSettings();
+        }
+    }
     [Header("=== Tabs & Panels ===")]
     [SerializeField] private GameObject _soundPanel;
     [SerializeField] private GameObject _graphicPanel;
@@ -259,25 +273,32 @@ public class SettingPanelController : MonoBehaviour
 
     private void ApplyMasterAudio()
     {
-        AudioListener.volume = _isMasterMuted ? 0f : _masterVolume;
+        SetMixerVolume("MasterVolume", _isMasterMuted ? 0f : _masterVolume);
     }
 
     private void ApplyMusicAudio()
     {
-        float effectiveVol = _isMusicMuted ? 0f : _musicVolume;
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.SetMusicVolume(effectiveVol);
-        }
+        SetMixerVolume("MusicVolume", _isMusicMuted ? 0f : _musicVolume);
     }
 
     private void ApplySfxAudio()
     {
-        float effectiveVol = _isSfxMuted ? 0f : _sfxVolume;
-        if (AudioManager.Instance != null)
+        SetMixerVolume("SFXVolume", _isSfxMuted ? 0f : _sfxVolume);
+    }
+
+    private void SetMixerVolume(string parameter, float volume)
+    {
+        if (audioMixer == null)
         {
-            AudioManager.Instance.SetSFXVolume(effectiveVol);
+            Debug.LogError("Gán Audio Mixer vào SettingPanelController.", this);
+            return;
         }
+        if (float.IsNaN(volume) || float.IsInfinity(volume)) volume = 0f;
+        volume = Mathf.Clamp01(volume);
+        // Mixer dùng decibel; tránh Log10(0) khi slider ở 0 hoặc Mute.
+        float decibels = volume <= 0.0001f ? -80f : 20f * Mathf.Log10(volume);
+        if (!audioMixer.SetFloat(parameter, decibels))
+            Debug.LogError($"AudioMixer chưa expose tham số {parameter}.", this);
     }
     #endregion
 

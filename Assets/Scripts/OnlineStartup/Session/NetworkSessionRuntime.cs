@@ -18,6 +18,7 @@ public sealed class NetworkSessionRuntime : MonoBehaviour
         if (Session != null) return;
 
         _manager = GetComponent<NetworkManager>();
+        _manager.OnClientStopped += OnClientStopped;
 
         Roster = new RelayRoomRoster(_manager);
         Session = new RelaySession(
@@ -30,11 +31,21 @@ public sealed class NetworkSessionRuntime : MonoBehaviour
 
     private void Update() => Session?.Tick();
 
+    private void OnClientStopped(bool wasHost)
+    {
+        // Host đóng phòng thì client không thể tiếp tục trận; thoát qua cùng hiệu ứng UI.
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "MainMap_Online")
+            ReturnToMenuTransition.Begin();
+    }
+
     private void OnDestroy()
     {
         Session?.Dispose();
 
         if (_manager != null)
+        {
+            _manager.OnClientStopped -= OnClientStopped;
             Roster?.Dispose();
+        }
     }
 }

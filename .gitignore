@@ -31,6 +31,9 @@
 # They also could contain extremely sensitive data
 /[Mm]emoryCaptures/
 
+# Local Unity Profiler captures
+/ProfilerCaptures/
+
 # Recordings can get excessive in size
 /[Rr]ecordings/
 

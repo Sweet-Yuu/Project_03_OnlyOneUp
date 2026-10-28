@@ -9,7 +9,9 @@ public class PlayerCoinCollector : MonoBehaviour
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (hit.collider.TryGetComponent(out Coin coin))
-            coin.TryCollect(_controller);
+        if (!hit.collider.TryGetComponent(out Coin coin)) return;
+        coin.TryCollect(_controller);
+        if (UIButtonSFX.Instance != null)
+            UIButtonSFX.Instance.PlayCollectCoin();
     }
 }

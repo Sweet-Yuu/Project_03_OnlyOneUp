@@ -11,7 +11,7 @@
 - **Không bao giờ cắt giảm**: Khâu kiểm tra tính hợp lệ dữ liệu (validation), xử lý lỗi tránh mất mát dữ liệu, và các yêu cầu người dùng chỉ định rõ.
 - **Ghi chú shortcut**: Nếu phải dùng giải pháp tạm thời/rút gọn (shortcut), đánh dấu comment: `// shortcut: <giới hạn>, <khi nào cần nâng cấp>`.
 
-## 2. Nguyên tắc SOLID (bắt buộc tuân thủ)
+## 2. Nguyên tắc SOLID (cần tuân thủ)
 - **S - Single Responsibility**: Mỗi class chỉ làm một việc. Ví dụ: PlayerMovement chỉ lo di chuyển, không xử lý máu hay UI.
 - **O - Open/Closed**: Mở rộng bằng interface hoặc kế thừa, không sửa code cũ đang chạy tốt.
 - **L - Liskov Substitution**: Class con phải thay thế được class cha mà không làm hỏng hành vi.
@@ -24,6 +24,7 @@
 - Không dùng Find / GetComponent trong Update, hãy cache trong Awake hoặc Start.
 - Tách logic ra khỏi MonoBehaviour khi có thể.
 - Không dùng singleton bừa bãi, ưu tiên inject dependency.
+- Tên biến không được có dấu "_" đằng trước
 
 ## 4. Cách làm việc & Báo cáo
 - Trước khi viết code, giải thích ngắn gọn cách thiết kế và phạm vi ảnh hưởng.
