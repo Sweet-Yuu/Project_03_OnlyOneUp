@@ -1,4 +1,5 @@
 using UnityEngine;
+
 public class UIButtonSFX : MonoBehaviour
 {
     public static UIButtonSFX Instance;
@@ -7,9 +8,10 @@ public class UIButtonSFX : MonoBehaviour
     public AudioClip selectSound;
     public AudioClip clickSound;
     public AudioClip collectCoin;
+
     void Awake()
     {
-        if(Instance != null)
+        if (Instance != null)
         {
             Destroy(gameObject);
         }
@@ -23,6 +25,12 @@ public class UIButtonSFX : MonoBehaviour
     {
         audio.PlayOneShot(clickSound);
         audio.PlayOneShot(selectSound);
+    }
+
+    public void PlayHoverSound()
+    {
+        if (audio == null || buttonHover == null) return;
+        audio.PlayOneShot(buttonHover);
     }
 
     public void PlayCollectCoin()

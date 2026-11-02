@@ -49,6 +49,7 @@ public sealed class MenuStartController : MonoBehaviour
         _roomSelectionRoot.SetActive(false);
         _mainMenuRoot.SetActive(true);
         logoImage.gameObject.SetActive(true);
+        shopButton.gameObject.SetActive(true);
         Select(_startButton);
     }
 

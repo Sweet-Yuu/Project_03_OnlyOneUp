@@ -6,7 +6,7 @@ using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using TMPro;
 
-/// <summary>Lắp ghép Relay, dữ liệu phòng và UI; không tải màn chơi.</summary>
+///Lắp ghép Relay, dữ liệu phòng và UI; không tải màn chơi.
 public sealed class MenuRelayController : MonoBehaviour
 {
     [SerializeField] private NetworkManager _networkManager;
