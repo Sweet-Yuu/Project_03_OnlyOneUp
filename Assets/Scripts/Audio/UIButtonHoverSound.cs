@@ -2,10 +2,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-/// <summary>
-/// Phát âm thanh khi người dùng rê chuột vào button (PointerEnter).
-/// Hỗ trợ gọi qua UIButtonSFX.Instance hoặc fallback tự phát clip được gán riêng.
-/// </summary>
 [RequireComponent(typeof(Selectable))]
 public class UIButtonHoverSound : MonoBehaviour, IPointerEnterHandler
 {
