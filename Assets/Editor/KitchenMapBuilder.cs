@@ -113,9 +113,9 @@ public static class KitchenMapBuilder
             new Color(0.15f, 0.35f, 0.25f, 1f), new Color(0.2f, 1f, 0.6f) * 3.5f, 0.8f, 0.8f);
 
         Material gateMetalMat = GetOrCreateMaterial("Assets/Materials/Kitchen_Gate_Metal.mat",
-            new Color(0.22f, 0.24f, 0.27f, 1f), Color.black, 0.85f, 0.45f);
+            new Color(0.75f, 0.78f, 0.82f, 1f), new Color(0.12f, 0.14f, 0.16f), 0.85f, 0.65f);
         Material cryoGateMetalMat = GetOrCreateMaterial("Assets/Materials/Kitchen_CryoGate_Metal.mat",
-            new Color(0.2f, 0.3f, 0.4f, 1f), new Color(0.05f, 0.2f, 0.4f), 0.9f, 0.6f);
+            new Color(0.68f, 0.84f, 0.94f, 1f), new Color(0.1f, 0.3f, 0.5f), 0.9f, 0.75f);
 
         Material lampRedMat = GetOrCreateMaterial("Assets/Materials/Kitchen_Lamp_Red.mat",
             new Color(1f, 0.1f, 0.05f, 1f), new Color(1f, 0.1f, 0.05f) * 3f);
@@ -342,6 +342,40 @@ public static class KitchenMapBuilder
         SpawnKayKit("crate", islandProps.transform, new Vector3(0f, 1f, 38f), Vector3.zero, new Vector3(5f, 6.5f, 5f), true, 6);
         SpawnKayKit("crate_buns", islandProps.transform, new Vector3(0f, 1f, 44f), Vector3.zero, new Vector3(5f, 2f, 5f), true, 6);
 
+        // --- CÂU ĐỐ ZONE 1: ĐÈN LIÊN KẾT ĐẢO SƠ CHẾ (LINKED LIGHTS 3x3) (Z = 49) ---
+        GameObject linkedLightsPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Hoang/Prefabs/Puzzles/LinkedLightsGatePuzzle.prefab");
+        if (linkedLightsPrefab != null)
+        {
+            GameObject puzzleInst = (GameObject)PrefabUtility.InstantiatePrefab(linkedLightsPrefab, zone1Group.transform);
+            Undo.RegisterCreatedObjectUndo(puzzleInst, "Spawn Linked Lights Puzzle");
+            puzzleInst.name = "Kitchen_Puzzle_PrepIsland_LinkedLights";
+            puzzleInst.transform.position = new Vector3(0f, 1f, 49f);
+            puzzleInst.transform.localScale = new Vector3(1.8f, 1.8f, 1.8f);
+
+            var puzzleComp = puzzleInst.GetComponentInChildren<Hoang.Puzzles.LinkedLightsPuzzle>();
+            if (puzzleComp != null)
+            {
+                var soPuzzle = new SerializedObject(puzzleComp);
+                var distProp = soPuzzle.FindProperty("_interactionDistance");
+                if (distProp != null) distProp.floatValue = 14f;
+                soPuzzle.ApplyModifiedProperties();
+            }
+            var gateComp = puzzleInst.GetComponentInChildren<Hoang.Puzzles.PuzzleGate>();
+            if (gateComp != null)
+            {
+                var soGate = new SerializedObject(gateComp);
+                var offsetProp = soGate.FindProperty("_openOffset");
+                if (offsetProp != null) offsetProp.vector3Value = new Vector3(0f, 12f, 0f);
+                var speedProp = soGate.FindProperty("_moveSpeed");
+                if (speedProp != null) speedProp.floatValue = 5.5f;
+                soGate.ApplyModifiedProperties();
+            }
+            ApplyGateWidening(puzzleInst);
+        }
+
+        BuildZone1InvisibleBarriers(zone1Group.transform);
+        BuildZone1SideClutter(zone1Group.transform);
+
         // =========================================================================
         // PHẦN 4: ZONE 2 - BẾP NẤU HỰC LỬA & CỔNG KHÍ GAS CÔNG NGHIỆP (Z = 65 ĐẾN 145)
         // =========================================================================
@@ -462,9 +496,39 @@ public static class KitchenMapBuilder
         catwalk.name = "Pantry_High_Catwalk";
         catwalk.transform.SetParent(zone5Group.transform);
         catwalk.transform.position = new Vector3(0f, 21.5f, 405f);
-        catwalk.transform.localScale = new Vector3(4.5f, 0.4f, 28f);
+        catwalk.transform.localScale = new Vector3(8f, 0.4f, 28f);
         catwalk.layer = 6;
         if (woodMat != null) catwalk.GetComponent<MeshRenderer>().sharedMaterial = woodMat;
+
+        // --- CÂU ĐỐ ZONE 5: MẬT MÃ BIỂU TƯỢNG KHO GIA VỊ (SYMBOL CIPHER) (Z = 412, Y = 21.7) ---
+        GameObject cipherPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Hoang/Prefabs/Puzzles/SymbolCipherGatePuzzle.prefab");
+        if (cipherPrefab != null)
+        {
+            GameObject puzzleInst = (GameObject)PrefabUtility.InstantiatePrefab(cipherPrefab, zone5Group.transform);
+            Undo.RegisterCreatedObjectUndo(puzzleInst, "Spawn Symbol Cipher Puzzle");
+            puzzleInst.name = "Kitchen_Puzzle_Pantry_SymbolCipher";
+            puzzleInst.transform.position = new Vector3(0f, 21.7f, 412f);
+            puzzleInst.transform.localScale = new Vector3(1.6f, 1.6f, 1.6f);
+
+            var puzzleComp = puzzleInst.GetComponentInChildren<Hoang.Puzzles.SymbolCipherPuzzle>();
+            if (puzzleComp != null)
+            {
+                var soPuzzle = new SerializedObject(puzzleComp);
+                var distProp = soPuzzle.FindProperty("_interactionDistance");
+                if (distProp != null) distProp.floatValue = 14f;
+                soPuzzle.ApplyModifiedProperties();
+            }
+            var gateComp = puzzleInst.GetComponentInChildren<Hoang.Puzzles.PuzzleGate>();
+            if (gateComp != null)
+            {
+                var soGate = new SerializedObject(gateComp);
+                var offsetProp = soGate.FindProperty("_openOffset");
+                if (offsetProp != null) offsetProp.vector3Value = new Vector3(0f, 10f, 0f);
+                var speedProp = soGate.FindProperty("_moveSpeed");
+                if (speedProp != null) speedProp.floatValue = 5.5f;
+                soGate.ApplyModifiedProperties();
+            }
+        }
 
         // =========================================================================
         // PHẦN 8: ZONE 6 - SẢNH TIỆC VIP & SÂN VƯỜN NGOÀI TRỜI (WIN AREA) (Z = 420 ĐẾN 510)
@@ -483,10 +547,28 @@ public static class KitchenMapBuilder
         SpawnKayKit("food_burger", zone6Group.transform, new Vector3(-1.8f, 4.8f, 452f), Vector3.zero, new Vector3(4.5f, 4.5f, 4.5f), true);
         SpawnKayKit("food_dinner", zone6Group.transform, new Vector3(1.8f, 4.8f, 452f), Vector3.zero, new Vector3(4.5f, 4.5f, 4.5f), true);
 
-        // Khung cửa lớn dẫn ra khu vườn ngoài trời (Z = 480)
+        // Khung cửa lớn dẫn ra khu vườn ngoài trời (Z = 480) - Cổng vòm rộng mở thông thoáng, không còn bị chặn đen
         GameObject exitDoorFrame = CreateChild(zone6Group, "Exit_Grand_Doorway");
-        SpawnKayKit("wall_doorway", exitDoorFrame.transform, new Vector3(-4f, 1f, 480f), new Vector3(0f, 180f, 0f), new Vector3(4f, 4f, 4f), true, 6);
-        SpawnKayKit("wall_doorway", exitDoorFrame.transform, new Vector3(4f, 1f, 480f), new Vector3(0f, 180f, 0f), new Vector3(4f, 4f, 4f), true, 6);
+        SpawnKayKit("pillar_A", exitDoorFrame.transform, new Vector3(-9.5f, 1f, 480f), Vector3.zero, new Vector3(4f, 8f, 4f), true, 6);
+        SpawnKayKit("pillar_A", exitDoorFrame.transform, new Vector3(9.5f, 1f, 480f), Vector3.zero, new Vector3(4f, 8f, 4f), true, 6);
+
+        GameObject exitLintel = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        Undo.RegisterCreatedObjectUndo(exitLintel, "Create Exit Archway Lintel");
+        exitLintel.name = "Exit_Archway_Lintel";
+        exitLintel.layer = 6;
+        exitLintel.transform.SetParent(exitDoorFrame.transform);
+        exitLintel.transform.position = new Vector3(0f, 15f, 480f);
+        exitLintel.transform.localScale = new Vector3(20f, 3f, 1.5f);
+        if (woodMat != null) exitLintel.GetComponent<MeshRenderer>().sharedMaterial = woodMat;
+
+        GameObject exitLight = new GameObject("Exit_Passage_Light");
+        exitLight.transform.SetParent(exitDoorFrame.transform);
+        exitLight.transform.position = new Vector3(0f, 13f, 480f);
+        Light exitLightComp = exitLight.AddComponent<Light>();
+        exitLightComp.type = LightType.Point;
+        exitLightComp.range = 30f;
+        exitLightComp.intensity = 2.5f;
+        exitLightComp.color = new Color(1f, 0.95f, 0.8f);
 
         GameObject thresholdBridge = GameObject.CreatePrimitive(PrimitiveType.Cube);
         Undo.RegisterCreatedObjectUndo(thresholdBridge, "Create Threshold Bridge");
@@ -519,21 +601,72 @@ public static class KitchenMapBuilder
         SpawnQuangNature("tree_pineDefaultA", gardenGroup.transform, new Vector3(20f, 1f, 510f), Vector3.zero, new Vector3(3.5f, 3.5f, 3.5f), true, 6);
 
         // ĐỐI TƯỢNG CHIẾN THẮNG (WIN AREA - TẠI Z = 504M)
-        GameObject winArea = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        Undo.RegisterCreatedObjectUndo(winArea, "Create WinArea");
-        winArea.name = "Win_Area_Portal";
-        winArea.tag = "Win_Area";
-        winArea.transform.SetParent(gardenGroup.transform);
-        winArea.transform.position = new Vector3(0f, 3.5f, 504f);
-        winArea.transform.localScale = new Vector3(10f, 6f, 3f);
-        var winCol = winArea.GetComponent<BoxCollider>();
-        winCol.isTrigger = false;
-        var winRend = winArea.GetComponent<MeshRenderer>();
-        if (winRend != null) winRend.enabled = false;
-        winArea.AddComponent<KitchenLevelTransition>();
+        GameObject winZone = new GameObject("Win_Game_Zone");
+        Undo.RegisterCreatedObjectUndo(winZone, "Create WinZone");
+        winZone.transform.SetParent(gardenGroup.transform);
+        winZone.transform.position = new Vector3(0f, 1.0f, 504f);
+        winZone.tag = "Win_Area";
 
-        SpawnMedieval("Fence", gardenGroup.transform, new Vector3(-5f, 1f, 504f), Vector3.zero, new Vector3(3f, 4f, 3f), true, 6);
-        SpawnMedieval("Fence", gardenGroup.transform, new Vector3(5f, 1f, 504f), Vector3.zero, new Vector3(3f, 4f, 3f), true, 6);
+        BoxCollider winTriggerCol = winZone.AddComponent<BoxCollider>();
+        winTriggerCol.isTrigger = true;
+        winTriggerCol.center = new Vector3(0f, 2.5f, 0f);
+        winTriggerCol.size = new Vector3(14f, 5f, 14f);
+        winZone.AddComponent<KitchenWinZoneTrigger>();
+
+        // Bục đài chiến thắng (Podium & Victory Rings)
+        GameObject baseDais = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        baseDais.name = "Podium_Base";
+        baseDais.transform.SetParent(winZone.transform, false);
+        baseDais.transform.localPosition = new Vector3(0f, 0.12f, 0f);
+        baseDais.transform.localScale = new Vector3(14f, 0.25f, 14f);
+        if (dirtyRoadMat != null) baseDais.GetComponent<MeshRenderer>().sharedMaterial = dirtyRoadMat;
+
+        GameObject victoryRing = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        victoryRing.name = "Victory_Ring";
+        victoryRing.transform.SetParent(winZone.transform, false);
+        victoryRing.transform.localPosition = new Vector3(0f, 0.26f, 0f);
+        victoryRing.transform.localScale = new Vector3(11f, 0.05f, 11f);
+        if (winMat != null) victoryRing.GetComponent<MeshRenderer>().sharedMaterial = winMat;
+
+        GameObject innerCrest = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        innerCrest.name = "Inner_Crest";
+        innerCrest.transform.SetParent(winZone.transform, false);
+        innerCrest.transform.localPosition = new Vector3(0f, 0.32f, 0f);
+        innerCrest.transform.localScale = new Vector3(6f, 0.1f, 6f);
+        if (winMat != null) innerCrest.GetComponent<MeshRenderer>().sharedMaterial = winMat;
+
+        GameObject flagModel = AssetDatabase.LoadAssetAtPath<GameObject>(QuangModelBase + "Checkpoint_Flag3.fbx");
+        if (flagModel != null)
+        {
+            GameObject flagL = (GameObject)PrefabUtility.InstantiatePrefab(flagModel, winZone.transform);
+            flagL.name = "Victory_Flag_L";
+            flagL.transform.localPosition = new Vector3(-6.2f, 0.25f, 0f);
+            flagL.transform.localRotation = Quaternion.Euler(0f, 45f, 0f);
+            flagL.transform.localScale = new Vector3(0.35f, 0.35f, 0.35f);
+
+            GameObject flagR = (GameObject)PrefabUtility.InstantiatePrefab(flagModel, winZone.transform);
+            flagR.name = "Victory_Flag_R";
+            flagR.transform.localPosition = new Vector3(6.2f, 0.25f, 0f);
+            flagR.transform.localRotation = Quaternion.Euler(0f, -45f, 0f);
+            flagR.transform.localScale = new Vector3(0.35f, 0.35f, 0.35f);
+        }
+
+        GameObject bonfireObj = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Low Poly Medieval Environment Pack (35+ Props)/Prefabs/Bonfire.prefab");
+        if (bonfireObj != null)
+        {
+            GameObject fireL = (GameObject)PrefabUtility.InstantiatePrefab(bonfireObj, winZone.transform);
+            fireL.name = "Victory_Bonfire_L";
+            fireL.transform.localPosition = new Vector3(-7f, 0.1f, -4.5f);
+            fireL.transform.localScale = new Vector3(1.3f, 1.3f, 1.3f);
+
+            GameObject fireR = (GameObject)PrefabUtility.InstantiatePrefab(bonfireObj, winZone.transform);
+            fireR.name = "Victory_Bonfire_R";
+            fireR.transform.localPosition = new Vector3(7f, 0.1f, -4.5f);
+            fireR.transform.localScale = new Vector3(1.3f, 1.3f, 1.3f);
+        }
+
+        SpawnMedieval("Fence", gardenGroup.transform, new Vector3(-10f, 1f, 504f), Vector3.zero, new Vector3(3f, 4f, 3f), true, 6);
+        SpawnMedieval("Fence", gardenGroup.transform, new Vector3(10f, 1f, 504f), Vector3.zero, new Vector3(3f, 4f, 3f), true, 6);
 
         // =========================================================================
         // PHẦN 9: DEAD ZONES TOÀN BẢN ĐỒ
@@ -542,7 +675,7 @@ public static class KitchenMapBuilder
             new Vector3(0f, -12f, 240f), new Vector3(200f, 4f, 580f), deadMat, false);
 
         // =========================================================================
-        // PHẦN 10: CHECKPOINTS THU NHỎ GỌN GÀNG (TỶ LỆ 0.75x) TẠI 6 MỐC TRỌNG YẾU
+        // PHẦN 10: CHECKPOINTS THU NHỎ TỶ LỆ THEO NHÂN VẬT (0.2x) TẠI 6 MỐC TRỌNG YẾU
         // =========================================================================
         GameObject flagPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(QuangModelBase + "Checkpoint_Flag3.fbx");
         if (flagPrefab != null)
@@ -551,7 +684,7 @@ public static class KitchenMapBuilder
             CreateCompactCheckpoint(gameplayGroup.transform, flagPrefab, 2, new Vector3(0f, 1f, 138f), "Checkpoint_2_CooklineExit");
             CreateCompactCheckpoint(gameplayGroup.transform, flagPrefab, 3, new Vector3(0f, 1f, 230f), "Checkpoint_3_DishwashingExit");
             CreateCompactCheckpoint(gameplayGroup.transform, flagPrefab, 4, new Vector3(0f, 1f, 308f), "Checkpoint_4_ColdStorageExit");
-            CreateCompactCheckpoint(gameplayGroup.transform, flagPrefab, 5, new Vector3(0f, 22f, 412f), "Checkpoint_5_PantryCatwalk");
+            CreateCompactCheckpoint(gameplayGroup.transform, flagPrefab, 5, new Vector3(0f, 22f, 398f), "Checkpoint_5_PantryCatwalk");
             CreateCompactCheckpoint(gameplayGroup.transform, flagPrefab, 6, new Vector3(0f, 1f, 465f), "Checkpoint_6_VIPPatioApproach");
         }
 
@@ -721,36 +854,46 @@ public static class KitchenMapBuilder
     private static KitchenPuzzleGate BuildGrandPartitionWallWithGate(Transform parent, float zPos, string gateName,
         Material gateMetalMat, Material lampRedMat, Material lampGreenMat, Material beamMat)
     {
-        // 1. Vách tường trái bịt kín từ X = -48 đến X = -7 (bề ngang 41m)
+        // 1. Vách tường trái bịt kín từ X = -48 đến X = -9.5 (bề ngang 38.5m)
         GameObject leftWall = GameObject.CreatePrimitive(PrimitiveType.Cube);
         leftWall.name = "Partition_Wall_Left";
         leftWall.layer = 6;
         leftWall.transform.SetParent(parent);
-        leftWall.transform.position = new Vector3(-27.5f, 8f, zPos);
-        leftWall.transform.localScale = new Vector3(41f, 16f, 1.2f);
+        leftWall.transform.position = new Vector3(-28.75f, 8f, zPos);
+        leftWall.transform.localScale = new Vector3(38.5f, 16f, 1.2f);
         ApplyWallTexture(leftWall);
 
-        // 2. Vách tường phải bịt kín từ X = +7 đến X = +48 (bề ngang 41m)
+        // 2. Vách tường phải bịt kín từ X = +9.5 đến X = +48 (bề ngang 38.5m)
         GameObject rightWall = GameObject.CreatePrimitive(PrimitiveType.Cube);
         rightWall.name = "Partition_Wall_Right";
         rightWall.layer = 6;
         rightWall.transform.SetParent(parent);
-        rightWall.transform.position = new Vector3(27.5f, 8f, zPos);
-        rightWall.transform.localScale = new Vector3(41f, 16f, 1.2f);
+        rightWall.transform.position = new Vector3(28.75f, 8f, zPos);
+        rightWall.transform.localScale = new Vector3(38.5f, 16f, 1.2f);
         ApplyWallTexture(rightWall);
 
-        // 3. Trụ cổng kiến trúc chịu lực hai bên vòm cửa (X = -7 và X = +7)
-        SpawnKayKit("pillar_A", parent, new Vector3(-7f, 1f, zPos), Vector3.zero, new Vector3(4f, 8f, 4f), true, 6);
-        SpawnKayKit("pillar_A", parent, new Vector3(7f, 1f, zPos), Vector3.zero, new Vector3(4f, 8f, 4f), true, 6);
+        // 3. Trụ cổng kiến trúc chịu lực hai bên vòm cửa mở rộng lên 19m (X = -9.5 và X = +9.5)
+        SpawnKayKit("pillar_A", parent, new Vector3(-9.5f, 1f, zPos), Vector3.zero, new Vector3(4f, 8f, 4f), true, 6);
+        SpawnKayKit("pillar_A", parent, new Vector3(9.5f, 1f, zPos), Vector3.zero, new Vector3(4f, 8f, 4f), true, 6);
 
-        // 4. Xà ngang vòm cửa trên cao từ Y = 14m đến Y = 17m (thông thủy cao 13m)
+        // 4. Xà ngang vòm cửa trên cao mở rộng lên 20m
         GameObject topLintel = GameObject.CreatePrimitive(PrimitiveType.Cube);
         topLintel.name = "Archway_Top_Lintel";
         topLintel.layer = 6;
         topLintel.transform.SetParent(parent);
         topLintel.transform.position = new Vector3(0f, 15f, zPos);
-        topLintel.transform.localScale = new Vector3(15f, 3f, 1.5f);
+        topLintel.transform.localScale = new Vector3(20f, 3f, 1.5f);
         if (beamMat != null) topLintel.GetComponent<MeshRenderer>().sharedMaterial = beamMat;
+
+        // Đèn chiếu sáng thông lộ cổng vòm, đảm bảo lối đi sáng sủa, không bị tối đen
+        GameObject archLight = new GameObject("Archway_Passage_Light");
+        archLight.transform.SetParent(parent);
+        archLight.transform.position = new Vector3(0f, 13f, zPos);
+        Light lightComp = archLight.AddComponent<Light>();
+        lightComp.type = LightType.Point;
+        lightComp.range = 25f;
+        lightComp.intensity = 2f;
+        lightComp.color = gateName.Contains("Cryo") ? new Color(0.6f, 0.9f, 1f) : new Color(1f, 0.9f, 0.7f);
 
         // 5. Cánh cửa sập cơ quan cỡ lớn (Sliding Security Shutter) rộng 13.5m, cao 13.5m
         GameObject gateRoot = new GameObject(gateName);
@@ -762,14 +905,30 @@ public static class KitchenMapBuilder
         shutter.layer = 6;
         shutter.transform.SetParent(gateRoot.transform);
         shutter.transform.localPosition = new Vector3(0f, 6.8f, 0f);
-        shutter.transform.localScale = new Vector3(13.6f, 13.6f, 0.8f);
+        shutter.transform.localScale = new Vector3(17.5f, 13.6f, 0.8f);
         if (gateMetalMat != null) shutter.GetComponent<MeshRenderer>().sharedMaterial = gateMetalMat;
+
+        // Gân nan thép ngang (Horizontal Security Slats) tạo điểm nhấn thẩm mỹ cho cửa cuốn an ninh công nghiệp
+        Material slatMat = GetOrCreateMaterial("Assets/Materials/Kitchen_Gate_Slat.mat",
+            new Color(0.5f, 0.54f, 0.58f, 1f), Color.black, 0.9f, 0.6f);
+        for (int i = 0; i < 4; i++)
+        {
+            GameObject slat = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            slat.name = "Shutter_Slat_" + i;
+            slat.transform.SetParent(shutter.transform);
+            slat.transform.localPosition = new Vector3(0f, -0.35f + i * 0.23f, -0.55f);
+            slat.transform.localScale = new Vector3(0.96f, 0.08f, 0.2f);
+            var slatCol = slat.GetComponent<Collider>();
+            if (slatCol != null) Object.DestroyImmediate(slatCol);
+            var slatRend = slat.GetComponent<MeshRenderer>();
+            if (slatMat != null) slatRend.sharedMaterial = slatMat;
+        }
 
         // 6. Hai quả cầu đèn báo hiệu trạng thái gắn trên hai trụ cổng
         GameObject lampLeft = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         lampLeft.name = "Gate_Status_Lamp_Left";
         lampLeft.transform.SetParent(gateRoot.transform);
-        lampLeft.transform.localPosition = new Vector3(-6.8f, 8f, -0.6f);
+        lampLeft.transform.localPosition = new Vector3(-9.0f, 8f, -0.6f);
         lampLeft.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
         var colL = lampLeft.GetComponent<Collider>();
         if (colL != null) Object.DestroyImmediate(colL);
@@ -779,7 +938,7 @@ public static class KitchenMapBuilder
         GameObject lampRight = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         lampRight.name = "Gate_Status_Lamp_Right";
         lampRight.transform.SetParent(gateRoot.transform);
-        lampRight.transform.localPosition = new Vector3(6.8f, 8f, -0.6f);
+        lampRight.transform.localPosition = new Vector3(9.0f, 8f, -0.6f);
         lampRight.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
         var colR = lampRight.GetComponent<Collider>();
         if (colR != null) Object.DestroyImmediate(colR);
@@ -806,27 +965,27 @@ public static class KitchenMapBuilder
         leftWall.name = "Partition_Wall_Left";
         leftWall.layer = 6;
         leftWall.transform.SetParent(parent);
-        leftWall.transform.position = new Vector3(-27.5f, 8f, zPos);
-        leftWall.transform.localScale = new Vector3(41f, 16f, 1.2f);
+        leftWall.transform.position = new Vector3(-28.75f, 8f, zPos);
+        leftWall.transform.localScale = new Vector3(38.5f, 16f, 1.2f);
         ApplyWallTexture(leftWall);
 
         GameObject rightWall = GameObject.CreatePrimitive(PrimitiveType.Cube);
         rightWall.name = "Partition_Wall_Right";
         rightWall.layer = 6;
         rightWall.transform.SetParent(parent);
-        rightWall.transform.position = new Vector3(27.5f, 8f, zPos);
-        rightWall.transform.localScale = new Vector3(41f, 16f, 1.2f);
+        rightWall.transform.position = new Vector3(28.75f, 8f, zPos);
+        rightWall.transform.localScale = new Vector3(38.5f, 16f, 1.2f);
         ApplyWallTexture(rightWall);
 
-        SpawnKayKit("pillar_A", parent, new Vector3(-7f, 1f, zPos), Vector3.zero, new Vector3(4f, 8f, 4f), true, 6);
-        SpawnKayKit("pillar_A", parent, new Vector3(7f, 1f, zPos), Vector3.zero, new Vector3(4f, 8f, 4f), true, 6);
+        SpawnKayKit("pillar_A", parent, new Vector3(-9.5f, 1f, zPos), Vector3.zero, new Vector3(4f, 8f, 4f), true, 6);
+        SpawnKayKit("pillar_A", parent, new Vector3(9.5f, 1f, zPos), Vector3.zero, new Vector3(4f, 8f, 4f), true, 6);
 
         GameObject topLintel = GameObject.CreatePrimitive(PrimitiveType.Cube);
         topLintel.name = "Archway_Top_Lintel";
         topLintel.layer = 6;
         topLintel.transform.SetParent(parent);
         topLintel.transform.position = new Vector3(0f, 15f, zPos);
-        topLintel.transform.localScale = new Vector3(15f, 3f, 1.5f);
+        topLintel.transform.localScale = new Vector3(20f, 3f, 1.5f);
         if (beamMat != null) topLintel.GetComponent<MeshRenderer>().sharedMaterial = beamMat;
     }
 
@@ -943,8 +1102,8 @@ public static class KitchenMapBuilder
         Undo.RegisterCreatedObjectUndo(flag, "Create " + name);
         flag.name = name;
         flag.transform.position = pos;
-        // Thu nhỏ cột cờ từ 2.0x xuống 0.75x gọn gàng, thanh thoát
-        flag.transform.localScale = new Vector3(0.75f, 0.75f, 0.75f);
+        // Thu nhỏ cột cờ xuống tỉ lệ 0.2x để tương xứng với chiều cao nhân vật (~10-11m)
+        flag.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
 
         var cp = flag.GetComponent<OnlineCheckpoint>();
         if (cp == null) cp = flag.AddComponent<OnlineCheckpoint>();
@@ -953,9 +1112,9 @@ public static class KitchenMapBuilder
 
         var col = flag.GetComponent<BoxCollider>();
         if (col == null) col = flag.AddComponent<BoxCollider>();
-        // Collider vùng nhận diện rộng 5m cao 5m để người chơi đi qua là nhận
-        col.size = new Vector3(6f, 6f, 6f);
-        col.center = new Vector3(0f, 3f, 0f);
+        // Collider vùng nhận diện rộng ~7m cao 7m (35f * 0.2x) để người chơi dễ dàng kích hoạt khi đi qua
+        col.size = new Vector3(35f, 35f, 35f);
+        col.center = new Vector3(0f, 15f, 0f);
         col.isTrigger = true;
     }
 
@@ -1007,15 +1166,6 @@ public static class KitchenMapBuilder
         {
             Shader shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
             mat = new Material(shader);
-            mat.color = color;
-            if (emissionColor != Color.black)
-            {
-                mat.EnableKeyword("_EMISSION");
-                mat.SetColor("_EmissionColor", emissionColor);
-            }
-            if (mat.HasProperty("_Metallic")) mat.SetFloat("_Metallic", metallic);
-            if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", smoothness);
-
             string folder = Path.GetDirectoryName(path).Replace("\\", "/");
             if (!AssetDatabase.IsValidFolder(folder))
             {
@@ -1033,6 +1183,17 @@ public static class KitchenMapBuilder
             }
             AssetDatabase.CreateAsset(mat, path);
         }
+
+        mat.color = color;
+        if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
+        if (emissionColor != Color.black)
+        {
+            mat.EnableKeyword("_EMISSION");
+            mat.SetColor("_EmissionColor", emissionColor);
+        }
+        if (mat.HasProperty("_Metallic")) mat.SetFloat("_Metallic", metallic);
+        if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", smoothness);
+        EditorUtility.SetDirty(mat);
         return mat;
     }
 
@@ -1081,6 +1242,16 @@ public static class KitchenMapBuilder
         inst.transform.rotation = Quaternion.Euler(rot);
         inst.transform.localScale = scale;
         inst.layer = layer;
+
+        // Loại bỏ triệt để các Camera / AudioListener rác xuất khẩu nhầm từ file 3D (Blender)
+        foreach (var cam in inst.GetComponentsInChildren<Camera>(true))
+        {
+            Object.DestroyImmediate(cam.gameObject);
+        }
+        foreach (var listener in inst.GetComponentsInChildren<AudioListener>(true))
+        {
+            Object.DestroyImmediate(listener);
+        }
 
         if (addCollider) EnsureCollider(inst, false);
         return inst;
@@ -1131,6 +1302,611 @@ public static class KitchenMapBuilder
         l.intensity = intensity;
         l.range = range;
         l.shadows = LightShadows.None;
+    }
+
+    [MenuItem("Tools/Apply All Zones Clutter and Wide Gates")]
+    public static void ApplyAllZonesEnhancements()
+    {
+        var scene = UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene();
+        if (scene.name != "Kitchen_Map")
+        {
+            scene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/Scenes/Kitchen_Map.unity", UnityEditor.SceneManagement.OpenSceneMode.Single);
+        }
+
+        // 1. Mở rộng toàn bộ cổng và vòm cửa khắp bản đồ lên 18m
+        var puzzle1 = GameObject.Find("Kitchen_Puzzle_PrepIsland_LinkedLights");
+        if (puzzle1 != null) ApplyGateWidening(puzzle1);
+
+        WidenArchwayAndGate("Cookline_Grand_Archway", 133f, "Cookline_Gate");
+        WidenArchwayOnly("Dishwashing_Grand_Archway", 226f);
+        WidenArchwayAndGate("Cryo_Vault_Grand_Archway", 300f, "Cryo_Gate");
+        WidenCipherGate();
+        WidenExitDoorway();
+
+        // 2. Bố trí rào tàng hình và đồ đạc ngổn ngang 2 bên toàn bộ các khu vực
+        var zone1 = GameObject.Find("Zone1_PrepIsland");
+        if (zone1 != null)
+        {
+            BuildZone1InvisibleBarriers(zone1.transform);
+            BuildZone1SideClutter(zone1.transform);
+        }
+
+        var zone2 = GameObject.Find("Zone2_CooklineStoves");
+        if (zone2 != null)
+        {
+            BuildZone2InvisibleBarriers(zone2.transform);
+            BuildZone2SideClutter(zone2.transform);
+        }
+
+        var zone3 = GameObject.Find("Zone3_DishwashingSeesaw");
+        if (zone3 != null)
+        {
+            BuildZone3InvisibleBarriers(zone3.transform);
+            BuildZone3SideClutter(zone3.transform);
+        }
+
+        var zone4 = GameObject.Find("Zone4_ColdStorageVault");
+        if (zone4 != null)
+        {
+            BuildZone4InvisibleBarriers(zone4.transform);
+            BuildZone4SideClutter(zone4.transform);
+        }
+
+        var zone5 = GameObject.Find("Zone5_HighRisePantry");
+        if (zone5 != null)
+        {
+            BuildZone5InvisibleBarriers(zone5.transform);
+            BuildZone5SideClutter(zone5.transform);
+        }
+
+        var zone6 = GameObject.Find("Zone6_VIPBanquetAndPatio");
+        if (zone6 != null)
+        {
+            BuildZone6InvisibleBarriers(zone6.transform);
+            BuildZone6SideClutter(zone6.transform);
+        }
+
+        UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+        UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene);
+        Debug.Log("[KitchenMapBuilder] Đã nâng cấp toàn bộ các cổng to 18m và bố trí vật thể ngổn ngang cùng rào tàng hình trên toàn bộ map thành công!");
+    }
+
+    [MenuItem("Tools/Apply Zone 1 Clutter and Widen Gate")]
+    public static void ApplyZone1Enhancements()
+    {
+        ApplyAllZonesEnhancements();
+    }
+
+    private static void WidenArchwayAndGate(string archName, float zPos, string gateName)
+    {
+        var arch = GameObject.Find(archName);
+        if (arch == null) return;
+
+        var pLeft = arch.transform.Find("Partition_Wall_Left");
+        if (pLeft != null)
+        {
+            pLeft.position = new Vector3(-28.75f, 8f, zPos);
+            pLeft.localScale = new Vector3(38.5f, 16f, 1.2f);
+        }
+
+        var pRight = arch.transform.Find("Partition_Wall_Right");
+        if (pRight != null)
+        {
+            pRight.position = new Vector3(28.75f, 8f, zPos);
+            pRight.localScale = new Vector3(38.5f, 16f, 1.2f);
+        }
+
+        var lintel = arch.transform.Find("Archway_Top_Lintel");
+        if (lintel != null)
+        {
+            lintel.position = new Vector3(0f, 15f, zPos);
+            lintel.localScale = new Vector3(20f, 3f, 1.5f);
+        }
+
+        // Cập nhật vị trí 2 trụ pillar_A
+        int pillarIdx = 0;
+        for (int i = 0; i < arch.transform.childCount; i++)
+        {
+            var child = arch.transform.GetChild(i);
+            if (child.name.Contains("pillar_A"))
+            {
+                if (pillarIdx == 0) child.position = new Vector3(-9.5f, 1f, zPos);
+                else child.position = new Vector3(9.5f, 1f, zPos);
+                pillarIdx++;
+            }
+        }
+
+        var gate = arch.transform.Find(gateName);
+        if (gate != null)
+        {
+            var shutter = gate.Find("Sliding_Security_Shutter");
+            if (shutter != null)
+            {
+                shutter.localScale = new Vector3(17.5f, 13.6f, 0.8f);
+            }
+
+            var lampL = gate.Find("Gate_Status_Lamp_Left");
+            if (lampL != null) lampL.localPosition = new Vector3(-9.0f, 8f, -0.6f);
+
+            var lampR = gate.Find("Gate_Status_Lamp_Right");
+            if (lampR != null) lampR.localPosition = new Vector3(9.0f, 8f, -0.6f);
+        }
+    }
+
+    private static void WidenArchwayOnly(string archName, float zPos)
+    {
+        var arch = GameObject.Find(archName);
+        if (arch == null) return;
+
+        var pLeft = arch.transform.Find("Partition_Wall_Left");
+        if (pLeft != null)
+        {
+            pLeft.position = new Vector3(-28.75f, 8f, zPos);
+            pLeft.localScale = new Vector3(38.5f, 16f, 1.2f);
+        }
+
+        var pRight = arch.transform.Find("Partition_Wall_Right");
+        if (pRight != null)
+        {
+            pRight.position = new Vector3(28.75f, 8f, zPos);
+            pRight.localScale = new Vector3(38.5f, 16f, 1.2f);
+        }
+
+        var lintel = arch.transform.Find("Archway_Top_Lintel");
+        if (lintel != null)
+        {
+            lintel.position = new Vector3(0f, 15f, zPos);
+            lintel.localScale = new Vector3(20f, 3f, 1.5f);
+        }
+
+        int pillarIdx = 0;
+        for (int i = 0; i < arch.transform.childCount; i++)
+        {
+            var child = arch.transform.GetChild(i);
+            if (child.name.Contains("pillar_A"))
+            {
+                if (pillarIdx == 0) child.position = new Vector3(-9.5f, 1f, zPos);
+                else child.position = new Vector3(9.5f, 1f, zPos);
+                pillarIdx++;
+            }
+        }
+    }
+
+    private static void WidenCipherGate()
+    {
+        var cipherGate = GameObject.Find("CipherGate");
+        if (cipherGate == null) return;
+
+        var lPost = cipherGate.transform.Find("LeftPost");
+        if (lPost != null) lPost.localPosition = new Vector3(-5.0f, 2.0f, 0f);
+
+        var rPost = cipherGate.transform.Find("RightPost");
+        if (rPost != null) rPost.localPosition = new Vector3(5.0f, 2.0f, 0f);
+
+        var mGate = cipherGate.transform.Find("MovingGate");
+        if (mGate != null) mGate.localScale = new Vector3(9.3f, 3.6f, 0.45f);
+
+        var lintel = cipherGate.transform.Find("Lintel");
+        if (lintel != null) lintel.localScale = new Vector3(10.7f, 0.4f, 0.9f);
+    }
+
+    private static void WidenExitDoorway()
+    {
+        var exitDoor = GameObject.Find("Exit_Grand_Doorway");
+        if (exitDoor == null) return;
+
+        int pillarIdx = 0;
+        for (int i = 0; i < exitDoor.transform.childCount; i++)
+        {
+            var child = exitDoor.transform.GetChild(i);
+            if (child.name.Contains("pillar_A"))
+            {
+                if (pillarIdx == 0) child.position = new Vector3(-9.5f, 1f, 480f);
+                else child.position = new Vector3(9.5f, 1f, 480f);
+                pillarIdx++;
+            }
+        }
+
+        var lintel = exitDoor.transform.Find("Exit_Archway_Lintel");
+        if (lintel != null)
+        {
+            lintel.position = new Vector3(0f, 15f, 480f);
+            lintel.localScale = new Vector3(20f, 3f, 1.5f);
+        }
+    }
+
+    private static void BuildZone2InvisibleBarriers(Transform zone2Parent)
+    {
+        var old = GameObject.Find("Zone2_Invisible_Barriers");
+        if (old != null) Object.DestroyImmediate(old);
+
+        GameObject barrierContainer = new GameObject("Zone2_Invisible_Barriers");
+        Undo.RegisterCreatedObjectUndo(barrierContainer, "Create Zone2 Invisible Barriers");
+        barrierContainer.transform.SetParent(zone2Parent);
+        barrierContainer.transform.localPosition = Vector3.zero;
+
+        // Hành lang Zone 2 từ Z = 62 đến Z = 133 (dài 71m)
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone2_Left", new Vector3(-9.2f, 4.0f, 97.5f), new Vector3(0.6f, 8.0f, 71.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone2_Right", new Vector3(9.2f, 4.0f, 97.5f), new Vector3(0.6f, 8.0f, 71.0f));
+    }
+
+    private static void BuildZone2SideClutter(Transform zone2Parent)
+    {
+        var old = GameObject.Find("Zone2_Side_Clutter");
+        if (old != null) Object.DestroyImmediate(old);
+
+        GameObject clutterContainer = new GameObject("Zone2_Side_Clutter");
+        Undo.RegisterCreatedObjectUndo(clutterContainer, "Create Zone2 Side Clutter");
+        clutterContainer.transform.SetParent(zone2Parent);
+        clutterContainer.transform.localPosition = Vector3.zero;
+
+        // Bên trái (X < -11, Z = 65 đến 125): Bếp lò, củi cháy, chảo, nồi, thùng gỗ
+        SpawnKayKit("stove_multi", clutterContainer.transform, new Vector3(-15f, 1f, 68f), new Vector3(0f, 30f, 0f), new Vector3(4.5f, 4f, 4.5f), true, 6);
+        SpawnKayKit("chair_stool", clutterContainer.transform, new Vector3(-12f, 1f, 74f), new Vector3(85f, -20f, 0f), new Vector3(3.5f, 2.5f, 3.5f), true, 6);
+        SpawnKayKit("crate_ham", clutterContainer.transform, new Vector3(-17f, 1f, 78f), new Vector3(0f, 45f, 0f), new Vector3(4.5f, 2.5f, 4.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(-13.5f, 1f, 82f), new Vector3(0f, -15f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(-18f, 1.5f, 86f), new Vector3(90f, 50f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Firewood_01", clutterContainer.transform, new Vector3(-13f, 1f, 90f), new Vector3(0f, 75f, 0f), new Vector3(4f, 3f, 4f), true, 6);
+        SpawnKayKit("pot_large", clutterContainer.transform, new Vector3(-16f, 1f, 95f), new Vector3(0f, 0f, 30f), new Vector3(4f, 4f, 4f), true, 6);
+        SpawnKayKit("crate_potatoes", clutterContainer.transform, new Vector3(-20f, 1f, 98f), new Vector3(15f, 20f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+        SpawnMedieval("Bag_01", clutterContainer.transform, new Vector3(-13f, 1f, 102f), new Vector3(-15f, 40f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("crate", clutterContainer.transform, new Vector3(-17f, 1f, 108f), new Vector3(0f, -30f, 0f), new Vector3(4f, 5f, 4f), true, 6);
+        SpawnMedieval("Firewood_02", clutterContainer.transform, new Vector3(-13.5f, 1f, 114f), new Vector3(0f, 110f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("cuttingboard", clutterContainer.transform, new Vector3(-18f, 1.1f, 118f), new Vector3(0f, 55f, 0f), new Vector3(5f, 1.5f, 5f), true, 6);
+        SpawnKayKit("crate_steak", clutterContainer.transform, new Vector3(-14f, 1f, 124f), new Vector3(0f, 15f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+
+        // Bên phải (X > +11, Z = 65 đến 125): Thùng than củi, chảo lửa, nồi hầm, bao tải
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(14f, 1f, 70f), new Vector3(0f, 25f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("crate_buns", clutterContainer.transform, new Vector3(18f, 1f, 72f), new Vector3(0f, -40f, 0f), new Vector3(4.5f, 2.5f, 4.5f), true, 6);
+        SpawnMedieval("Firewood_01", clutterContainer.transform, new Vector3(13f, 1f, 76f), new Vector3(0f, -80f, 0f), new Vector3(4f, 3f, 4f), true, 6);
+        SpawnKayKit("chair_stool", clutterContainer.transform, new Vector3(17f, 1f, 82f), new Vector3(-80f, 30f, 0f), new Vector3(3.5f, 2.5f, 3.5f), true, 6);
+        SpawnMedieval("Bag_02", clutterContainer.transform, new Vector3(13.5f, 1f, 88f), new Vector3(0f, 65f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(18.5f, 1.5f, 92f), new Vector3(90f, -45f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("crate_tomatoes", clutterContainer.transform, new Vector3(14f, 1f, 96f), new Vector3(20f, 10f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+        SpawnKayKit("pot_large", clutterContainer.transform, new Vector3(19f, 1f, 102f), new Vector3(0f, 0f, -25f), new Vector3(4f, 4f, 4f), true, 6);
+        SpawnMedieval("Firewood_03", clutterContainer.transform, new Vector3(13f, 1f, 106f), new Vector3(0f, 45f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("crate_carrots", clutterContainer.transform, new Vector3(17f, 1f, 112f), new Vector3(0f, -20f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+        SpawnKayKit("crate", clutterContainer.transform, new Vector3(13.5f, 1f, 118f), new Vector3(0f, 35f, 0f), new Vector3(4f, 5f, 4f), true, 6);
+        SpawnKayKit("dishrack", clutterContainer.transform, new Vector3(18f, 1f, 122f), new Vector3(0f, -50f, 0f), new Vector3(4.5f, 3f, 4.5f), true, 6);
+    }
+
+    private static void BuildZone3InvisibleBarriers(Transform zone3Parent)
+    {
+        var old = GameObject.Find("Zone3_Invisible_Barriers");
+        if (old != null) Object.DestroyImmediate(old);
+
+        GameObject barrierContainer = new GameObject("Zone3_Invisible_Barriers");
+        Undo.RegisterCreatedObjectUndo(barrierContainer, "Create Zone3 Invisible Barriers");
+        barrierContainer.transform.SetParent(zone3Parent);
+        barrierContainer.transform.localPosition = Vector3.zero;
+
+        // Hành lang Zone 3 từ Z = 133 đến Z = 226 (dài 93m)
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone3_Left", new Vector3(-9.2f, 4.0f, 179.5f), new Vector3(0.6f, 8.0f, 93.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone3_Right", new Vector3(9.2f, 4.0f, 179.5f), new Vector3(0.6f, 8.0f, 93.0f));
+    }
+
+    private static void BuildZone3SideClutter(Transform zone3Parent)
+    {
+        var old = GameObject.Find("Zone3_Side_Clutter");
+        if (old != null) Object.DestroyImmediate(old);
+
+        GameObject clutterContainer = new GameObject("Zone3_Side_Clutter");
+        Undo.RegisterCreatedObjectUndo(clutterContainer, "Create Zone3 Side Clutter");
+        clutterContainer.transform.SetParent(zone3Parent);
+        clutterContainer.transform.localPosition = Vector3.zero;
+
+        // Rửa bát: Chồng đĩa, xô nước, xà phòng, bàn gỗ, thùng phuy
+        // Bên trái (X < -11, Z = 140 đến 220)
+        SpawnKayKit("dishrack_plates", clutterContainer.transform, new Vector3(-14f, 1f, 142f), new Vector3(0f, 20f, 0f), new Vector3(4f, 4f, 4f), true, 6);
+        SpawnMedieval("Bucket_of_water", clutterContainer.transform, new Vector3(-17f, 1f, 148f), Vector3.zero, new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(-13.5f, 1f, 155f), new Vector3(0f, -30f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("plate", clutterContainer.transform, new Vector3(-18f, 1.1f, 162f), new Vector3(0f, 45f, 0f), new Vector3(6f, 2f, 6f), true, 6);
+        SpawnMedieval("Empty_bucket", clutterContainer.transform, new Vector3(-13f, 1f, 170f), new Vector3(70f, 15f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(-18.5f, 1.5f, 178f), new Vector3(90f, 35f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("chair_stool", clutterContainer.transform, new Vector3(-14f, 1f, 185f), new Vector3(-80f, 20f, 0f), new Vector3(3.5f, 2.5f, 3.5f), true, 6);
+        SpawnKayKit("crate", clutterContainer.transform, new Vector3(-17f, 1f, 192f), new Vector3(0f, -40f, 0f), new Vector3(4f, 5.5f, 4f), true, 6);
+        SpawnMedieval("Bag_01", clutterContainer.transform, new Vector3(-13f, 1f, 200f), new Vector3(15f, 50f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("dishrack", clutterContainer.transform, new Vector3(-18f, 1f, 208f), new Vector3(0f, 10f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+        SpawnMedieval("Bucket_of_water", clutterContainer.transform, new Vector3(-13.5f, 1f, 215f), Vector3.zero, new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+
+        // Bên phải (X > +11, Z = 140 đến 220)
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(14f, 1f, 145f), new Vector3(0f, -15f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("dishrack_plates", clutterContainer.transform, new Vector3(18f, 1f, 150f), new Vector3(0f, 35f, 0f), new Vector3(4f, 4f, 4f), true, 6);
+        SpawnMedieval("Empty_bucket", clutterContainer.transform, new Vector3(13.5f, 1f, 158f), new Vector3(-75f, 25f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("crate_cheese", clutterContainer.transform, new Vector3(17f, 1f, 166f), new Vector3(0f, -20f, 0f), new Vector3(4.5f, 2.5f, 4.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(14f, 1.5f, 175f), new Vector3(90f, -40f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Bucket_of_water", clutterContainer.transform, new Vector3(18.5f, 1f, 182f), Vector3.zero, new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("plate", clutterContainer.transform, new Vector3(13f, 1.1f, 190f), new Vector3(0f, -60f, 0f), new Vector3(6f, 2f, 6f), true, 6);
+        SpawnKayKit("chair_stool", clutterContainer.transform, new Vector3(17.5f, 1f, 198f), new Vector3(85f, -10f, 0f), new Vector3(3.5f, 2.5f, 3.5f), true, 6);
+        SpawnKayKit("crate", clutterContainer.transform, new Vector3(13.5f, 1f, 206f), new Vector3(0f, 45f, 0f), new Vector3(4f, 5.5f, 4f), true, 6);
+        SpawnMedieval("Bag_03", clutterContainer.transform, new Vector3(18f, 1f, 214f), new Vector3(0f, -30f, 0f), new Vector3(3.2f, 3.2f, 3.2f), true, 6);
+    }
+
+    private static void BuildZone4InvisibleBarriers(Transform zone4Parent)
+    {
+        var old = GameObject.Find("Zone4_Invisible_Barriers");
+        if (old != null) Object.DestroyImmediate(old);
+
+        GameObject barrierContainer = new GameObject("Zone4_Invisible_Barriers");
+        Undo.RegisterCreatedObjectUndo(barrierContainer, "Create Zone4 Invisible Barriers");
+        barrierContainer.transform.SetParent(zone4Parent);
+        barrierContainer.transform.localPosition = Vector3.zero;
+
+        // Hành lang Zone 4 từ Z = 226 đến Z = 300 (dài 74m)
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone4_Left", new Vector3(-9.2f, 4.0f, 263.0f), new Vector3(0.6f, 8.0f, 74.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone4_Right", new Vector3(9.2f, 4.0f, 263.0f), new Vector3(0.6f, 8.0f, 74.0f));
+    }
+
+    private static void BuildZone4SideClutter(Transform zone4Parent)
+    {
+        var old = GameObject.Find("Zone4_Side_Clutter");
+        if (old != null) Object.DestroyImmediate(old);
+
+        GameObject clutterContainer = new GameObject("Zone4_Side_Clutter");
+        Undo.RegisterCreatedObjectUndo(clutterContainer, "Create Zone4 Side Clutter");
+        clutterContainer.transform.SetParent(zone4Parent);
+        clutterContainer.transform.localPosition = Vector3.zero;
+
+        // Kho đông: Thùng thịt đông, thùng cá, khối băng, thùng gỗ, bao tải lạnh
+        // Bên trái (X < -11, Z = 232 đến 296)
+        SpawnKayKit("crate_steak", clutterContainer.transform, new Vector3(-14f, 1f, 235f), new Vector3(0f, 30f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(-18f, 1f, 240f), new Vector3(0f, -20f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("crate_ham", clutterContainer.transform, new Vector3(-13.5f, 1f, 248f), new Vector3(15f, 45f, 0f), new Vector3(4.5f, 2.5f, 4.5f), true, 6);
+        SpawnMedieval("Bag_01", clutterContainer.transform, new Vector3(-17.5f, 1f, 255f), new Vector3(-10f, 60f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(-14f, 1.5f, 262f), new Vector3(90f, 25f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("crate_cheese", clutterContainer.transform, new Vector3(-18f, 1f, 270f), new Vector3(0f, -35f, 0f), new Vector3(4.5f, 2.5f, 4.5f), true, 6);
+        SpawnMedieval("Box_01", clutterContainer.transform, new Vector3(-13f, 1f, 278f), new Vector3(0f, 15f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("crate", clutterContainer.transform, new Vector3(-17f, 1f, 285f), new Vector3(0f, 50f, 0f), new Vector3(4f, 5.5f, 4f), true, 6);
+        SpawnKayKit("crate_steak", clutterContainer.transform, new Vector3(-13.5f, 1f, 292f), new Vector3(20f, -15f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+
+        // Bên phải (X > +11, Z = 232 đến 296)
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(14f, 1f, 236f), new Vector3(0f, -10f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("crate_steak", clutterContainer.transform, new Vector3(18f, 1f, 242f), new Vector3(0f, 40f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+        SpawnMedieval("Bag_02", clutterContainer.transform, new Vector3(13.5f, 1f, 250f), new Vector3(0f, -50f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(18.5f, 1.5f, 258f), new Vector3(90f, -35f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("crate_ham", clutterContainer.transform, new Vector3(14f, 1f, 266f), new Vector3(0f, 20f, 0f), new Vector3(4.5f, 2.5f, 4.5f), true, 6);
+        SpawnMedieval("Box_02", clutterContainer.transform, new Vector3(17.5f, 1f, 274f), new Vector3(0f, -60f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("crate", clutterContainer.transform, new Vector3(13.5f, 1f, 282f), new Vector3(0f, 35f, 0f), new Vector3(4f, 5.5f, 4f), true, 6);
+        SpawnKayKit("crate_potatoes", clutterContainer.transform, new Vector3(18f, 1f, 290f), new Vector3(-15f, 10f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+    }
+
+    private static void BuildZone5InvisibleBarriers(Transform zone5Parent)
+    {
+        var old = GameObject.Find("Zone5_Invisible_Barriers");
+        if (old != null) Object.DestroyImmediate(old);
+
+        GameObject barrierContainer = new GameObject("Zone5_Invisible_Barriers");
+        Undo.RegisterCreatedObjectUndo(barrierContainer, "Create Zone5 Invisible Barriers");
+        barrierContainer.transform.SetParent(zone5Parent);
+        barrierContainer.transform.localPosition = Vector3.zero;
+
+        // Hành lang Zone 5 từ Z = 302 đến Z = 420 (dài 118m), cao 24m để chắn kín cả khi người chơi nhảy trên kệ cao
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone5_Left", new Vector3(-9.2f, 12.0f, 361.0f), new Vector3(0.6f, 24.0f, 118.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone5_Right", new Vector3(9.2f, 12.0f, 361.0f), new Vector3(0.6f, 24.0f, 118.0f));
+
+        // Khóa ngang 2 đầu (nối từ mép hành lang ra vách tường ngoài X = ±48m)
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone5_Left_Back", new Vector3(-28.5f, 12.0f, 302.0f), new Vector3(38.0f, 24.0f, 0.6f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone5_Right_Back", new Vector3(28.5f, 12.0f, 302.0f), new Vector3(38.0f, 24.0f, 0.6f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone5_Left_Front", new Vector3(-28.5f, 12.0f, 420.0f), new Vector3(38.0f, 24.0f, 0.6f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone5_Right_Front", new Vector3(28.5f, 12.0f, 420.0f), new Vector3(38.0f, 24.0f, 0.6f));
+    }
+
+    private static void BuildZone5SideClutter(Transform zone5Parent)
+    {
+        var old = GameObject.Find("Zone5_Side_Clutter");
+        if (old != null) Object.DestroyImmediate(old);
+
+        GameObject clutterContainer = new GameObject("Zone5_Side_Clutter");
+        Undo.RegisterCreatedObjectUndo(clutterContainer, "Create Zone5 Side Clutter");
+        clutterContainer.transform.SetParent(zone5Parent);
+        clutterContainer.transform.localPosition = Vector3.zero;
+
+        // --- BÊN TRÁI HÀNH LANG (X < -11, Z = 308 đến 415) ---
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(-14f, 1f, 310f), new Vector3(0f, 25f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(-18f, 1.5f, 314f), new Vector3(90f, 40f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Bag_01", clutterContainer.transform, new Vector3(-13f, 1f, 320f), new Vector3(15f, -30f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("crate_potatoes", clutterContainer.transform, new Vector3(-17f, 1f, 326f), new Vector3(0f, 50f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+        SpawnKayKit("crate_carrots", clutterContainer.transform, new Vector3(-13.5f, 1f, 332f), new Vector3(0f, -20f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+        SpawnKayKit("chair_stool", clutterContainer.transform, new Vector3(-18f, 1f, 338f), new Vector3(80f, 15f, 0f), new Vector3(3.5f, 2.5f, 3.5f), true, 6);
+        SpawnMedieval("Box_01", clutterContainer.transform, new Vector3(-14f, 1f, 345f), new Vector3(0f, 35f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(-18.5f, 1f, 352f), new Vector3(0f, -15f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Bag_02", clutterContainer.transform, new Vector3(-13.5f, 1f, 358f), new Vector3(-10f, 65f, 0f), new Vector3(3.2f, 3.2f, 3.2f), true, 6);
+        SpawnKayKit("crate_onions", clutterContainer.transform, new Vector3(-17f, 1f, 365f), new Vector3(0f, 40f, 0f), new Vector3(4.5f, 2.5f, 4.5f), true, 6);
+        SpawnMedieval("Firewood_01", clutterContainer.transform, new Vector3(-13f, 1f, 372f), new Vector3(0f, -70f, 0f), new Vector3(4f, 3f, 4f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(-18f, 1.5f, 378f), new Vector3(90f, -30f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("crate_buns", clutterContainer.transform, new Vector3(-14f, 1f, 385f), new Vector3(0f, 15f, 0f), new Vector3(4.5f, 2.5f, 4.5f), true, 6);
+        SpawnMedieval("Bag_03", clutterContainer.transform, new Vector3(-17.5f, 1f, 392f), new Vector3(0f, -45f, 0f), new Vector3(3.2f, 3.2f, 3.2f), true, 6);
+        SpawnKayKit("crate_tomatoes", clutterContainer.transform, new Vector3(-13.5f, 1f, 398f), new Vector3(15f, 20f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+        SpawnMedieval("Box_02", clutterContainer.transform, new Vector3(-18f, 1f, 405f), new Vector3(0f, 60f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Empty_bucket", clutterContainer.transform, new Vector3(-13f, 1f, 412f), new Vector3(75f, -20f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+
+        // --- BÊN PHẢI HÀNH LANG (X > +11, Z = 308 đến 415) ---
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(14f, 1f, 312f), new Vector3(0f, -30f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("crate_ham", clutterContainer.transform, new Vector3(18f, 1f, 318f), new Vector3(0f, 20f, 0f), new Vector3(4.5f, 2.5f, 4.5f), true, 6);
+        SpawnMedieval("Bag_01", clutterContainer.transform, new Vector3(13.5f, 1f, 324f), new Vector3(-15f, 45f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(18.5f, 1.5f, 330f), new Vector3(90f, -45f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("crate_cheese", clutterContainer.transform, new Vector3(14f, 1f, 336f), new Vector3(0f, -35f, 0f), new Vector3(4.5f, 2.5f, 4.5f), true, 6);
+        SpawnKayKit("chair_stool", clutterContainer.transform, new Vector3(17.5f, 1f, 342f), new Vector3(-85f, 25f, 0f), new Vector3(3.5f, 2.5f, 3.5f), true, 6);
+        SpawnMedieval("Firewood_01", clutterContainer.transform, new Vector3(13f, 1f, 348f), new Vector3(0f, 85f, 0f), new Vector3(4f, 3f, 4f), true, 6);
+        SpawnMedieval("Box_01", clutterContainer.transform, new Vector3(18f, 1f, 355f), new Vector3(0f, -50f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("crate_potatoes", clutterContainer.transform, new Vector3(13.5f, 1f, 362f), new Vector3(20f, 15f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(18f, 1f, 368f), new Vector3(0f, 30f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Bag_02", clutterContainer.transform, new Vector3(14f, 1f, 375f), new Vector3(10f, -60f, 0f), new Vector3(3.2f, 3.2f, 3.2f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(18.5f, 1.5f, 382f), new Vector3(90f, 50f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("crate_steak", clutterContainer.transform, new Vector3(13.5f, 1f, 388f), new Vector3(0f, -25f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+        SpawnMedieval("Firewood_02", clutterContainer.transform, new Vector3(18f, 1f, 395f), new Vector3(0f, 100f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("crate_carrots", clutterContainer.transform, new Vector3(14f, 1f, 402f), new Vector3(0f, 45f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+        SpawnMedieval("Bucket_of_water", clutterContainer.transform, new Vector3(17.5f, 1f, 408f), Vector3.zero, new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Bag_03", clutterContainer.transform, new Vector3(13.5f, 1f, 414f), new Vector3(0f, -30f, 0f), new Vector3(3.2f, 3.2f, 3.2f), true, 6);
+    }
+
+    private static void BuildZone6InvisibleBarriers(Transform zone6Parent)
+    {
+        var old = GameObject.Find("Zone6_Invisible_Barriers");
+        if (old != null) Object.DestroyImmediate(old);
+
+        GameObject barrierContainer = new GameObject("Zone6_Invisible_Barriers");
+        Undo.RegisterCreatedObjectUndo(barrierContainer, "Create Zone6 Invisible Barriers");
+        barrierContainer.transform.SetParent(zone6Parent);
+        barrierContainer.transform.localPosition = Vector3.zero;
+
+        // Hành lang Zone 6 từ Z = 422 đến Z = 480 (dài 58m)
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone6_Left", new Vector3(-9.2f, 4.0f, 451.0f), new Vector3(0.6f, 8.0f, 58.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone6_Right", new Vector3(9.2f, 4.0f, 451.0f), new Vector3(0.6f, 8.0f, 58.0f));
+
+        // Khóa ngang 2 đầu cửa ra Z = 480
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone6_Left_End", new Vector3(-28.5f, 4.0f, 480.0f), new Vector3(38.0f, 8.0f, 0.6f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone6_Right_End", new Vector3(28.5f, 4.0f, 480.0f), new Vector3(38.0f, 8.0f, 0.6f));
+    }
+
+    private static void BuildZone6SideClutter(Transform zone6Parent)
+    {
+        var old = GameObject.Find("Zone6_Side_Clutter");
+        if (old != null) Object.DestroyImmediate(old);
+
+        GameObject clutterContainer = new GameObject("Zone6_Side_Clutter");
+        Undo.RegisterCreatedObjectUndo(clutterContainer, "Create Zone6 Side Clutter");
+        clutterContainer.transform.SetParent(zone6Parent);
+        clutterContainer.transform.localPosition = Vector3.zero;
+
+        // Sảnh tiệc: Bàn tiệc, ghế ngã, thùng rượu, đĩa đồ ăn tiệc
+        // Bên trái (X < -11, Z = 426 đến 476)
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(-14f, 1f, 428f), new Vector3(0f, 25f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("chair_A", clutterContainer.transform, new Vector3(-17f, 1f, 434f), new Vector3(85f, -30f, 0f), new Vector3(4f, 4f, 4f), true, 6);
+        SpawnKayKit("crate_cheese", clutterContainer.transform, new Vector3(-13.5f, 1f, 440f), new Vector3(0f, -40f, 0f), new Vector3(4.5f, 2.5f, 4.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(-18f, 1.5f, 448f), new Vector3(90f, 45f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("plate", clutterContainer.transform, new Vector3(-13f, 1.1f, 456f), new Vector3(0f, 15f, 0f), new Vector3(6f, 2f, 6f), true, 6);
+        SpawnMedieval("Bag_01", clutterContainer.transform, new Vector3(-17.5f, 1f, 464f), new Vector3(15f, -50f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("chair_B", clutterContainer.transform, new Vector3(-14f, 1f, 472f), new Vector3(-75f, 20f, 0f), new Vector3(4f, 4f, 4f), true, 6);
+
+        // Bên phải (X > +11, Z = 426 đến 476)
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(14f, 1f, 430f), new Vector3(0f, -20f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("chair_B", clutterContainer.transform, new Vector3(18f, 1f, 436f), new Vector3(-80f, 35f, 0f), new Vector3(4f, 4f, 4f), true, 6);
+        SpawnKayKit("crate_buns", clutterContainer.transform, new Vector3(13.5f, 1f, 444f), new Vector3(0f, 50f, 0f), new Vector3(4.5f, 2.5f, 4.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(18.5f, 1.5f, 452f), new Vector3(90f, -30f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("plate", clutterContainer.transform, new Vector3(14f, 1.1f, 460f), new Vector3(0f, -70f, 0f), new Vector3(6f, 2f, 6f), true, 6);
+        SpawnMedieval("Bag_02", clutterContainer.transform, new Vector3(18f, 1f, 468f), new Vector3(-10f, 40f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("chair_A", clutterContainer.transform, new Vector3(13.5f, 1f, 474f), new Vector3(80f, -15f, 0f), new Vector3(4f, 4f, 4f), true, 6);
+    }
+
+    private static void ApplyGateWidening(GameObject puzzleInst)
+    {
+        var puzzle = puzzleInst.transform.Find("Puzzle");
+        if (puzzle == null) return;
+
+        var gate = puzzle.Find("LightsGate");
+        var console = puzzle.Find("LightsConsole");
+
+        if (gate != null)
+        {
+            var leftPost = gate.Find("LeftPost");
+            var rightPost = gate.Find("RightPost");
+            var movingGate = gate.Find("MovingGate");
+            var lintel = gate.Find("Lintel");
+
+            // Mở rộng khoảng cách giữa 2 trụ lên 18m (world) để cả 2 người chơi cùng lúc đi qua thoải mái
+            if (leftPost != null) leftPost.localPosition = new Vector3(-5.0f, 2.0f, 0f);
+            if (rightPost != null) rightPost.localPosition = new Vector3(5.0f, 2.0f, 0f);
+            if (movingGate != null)
+            {
+                movingGate.localPosition = new Vector3(0f, 1.8f, 0f);
+                movingGate.localScale = new Vector3(9.3f, 3.6f, 0.45f);
+            }
+            if (lintel != null)
+            {
+                lintel.localScale = new Vector3(10.7f, 0.4f, 0.9f);
+            }
+        }
+
+        if (console != null)
+        {
+            // Bố trí bàn điều khiển đèn sát mép lối đi để người chơi tương tác dễ dàng
+            console.localPosition = new Vector3(-4.6f, 0f, 0f);
+        }
+    }
+
+    private static void BuildZone1InvisibleBarriers(Transform zone1Parent)
+    {
+        var oldBarriers = GameObject.Find("Zone1_Invisible_Barriers");
+        if (oldBarriers != null) Object.DestroyImmediate(oldBarriers);
+
+        GameObject barrierContainer = new GameObject("Zone1_Invisible_Barriers");
+        Undo.RegisterCreatedObjectUndo(barrierContainer, "Create Zone1 Invisible Barriers");
+        barrierContainer.transform.SetParent(zone1Parent);
+        barrierContainer.transform.localPosition = Vector3.zero;
+
+        // 2 Hàng rào tàng hình dọc 2 bên lối đi (Z = 30 đến 62, X = ±9.2)
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Left_Corridor", new Vector3(-9.2f, 4.0f, 46.0f), new Vector3(0.6f, 8.0f, 32.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Right_Corridor", new Vector3(9.2f, 4.0f, 46.0f), new Vector3(0.6f, 8.0f, 32.0f));
+
+        // Hàng rào chắn ngang bịt kín 2 đầu sau và trước (ngăn người chơi đi vòng vào khu phế liệu)
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Left_Back", new Vector3(-28.5f, 4.0f, 30.0f), new Vector3(38.0f, 8.0f, 0.6f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Right_Back", new Vector3(28.5f, 4.0f, 30.0f), new Vector3(38.0f, 8.0f, 0.6f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Left_Front", new Vector3(-28.5f, 4.0f, 62.0f), new Vector3(38.0f, 8.0f, 0.6f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Right_Front", new Vector3(28.5f, 4.0f, 62.0f), new Vector3(38.0f, 8.0f, 0.6f));
+    }
+
+    private static void CreateInvisibleCollider(Transform parent, string name, Vector3 pos, Vector3 size)
+    {
+        GameObject go = new GameObject(name);
+        Undo.RegisterCreatedObjectUndo(go, "Create " + name);
+        go.transform.SetParent(parent);
+        go.transform.position = pos;
+        var col = go.AddComponent<BoxCollider>();
+        col.size = size;
+        col.isTrigger = false;
+        go.layer = 6; // Obstacle layer ngăn nhân vật bước qua
+    }
+
+    private static void BuildZone1SideClutter(Transform zone1Parent)
+    {
+        var oldClutter = GameObject.Find("Zone1_Side_Clutter");
+        if (oldClutter != null) Object.DestroyImmediate(oldClutter);
+
+        GameObject clutterContainer = new GameObject("Zone1_Side_Clutter");
+        Undo.RegisterCreatedObjectUndo(clutterContainer, "Create Zone1 Side Clutter");
+        clutterContainer.transform.SetParent(zone1Parent);
+        clutterContainer.transform.localPosition = Vector3.zero;
+
+        // --- BÊN TRÁI ĐƯỜNG ĐI (X < -10, Z = 34 đến 58) ---
+        SpawnKayKit("crate", clutterContainer.transform, new Vector3(-13.5f, 1.0f, 35.0f), new Vector3(0f, 25f, 0f), new Vector3(4f, 5.5f, 4f), true, 6);
+        SpawnKayKit("crate_buns", clutterContainer.transform, new Vector3(-16.0f, 1.0f, 36.5f), new Vector3(0f, -40f, 0f), new Vector3(4.5f, 2.5f, 4.5f), true, 6);
+        SpawnKayKit("crate_cheese", clutterContainer.transform, new Vector3(-13.0f, 5.5f, 35.0f), new Vector3(0f, 45f, 0f), new Vector3(3.5f, 2.5f, 3.5f), true, 6);
+        SpawnKayKit("chair_stool", clutterContainer.transform, new Vector3(-11.5f, 1.0f, 39.0f), new Vector3(75f, 20f, 0f), new Vector3(3.5f, 2.5f, 3.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(-14.5f, 1.0f, 42.0f), new Vector3(0f, 15f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(-18.0f, 1.5f, 41.0f), new Vector3(90f, 40f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Bag_01", clutterContainer.transform, new Vector3(-12.5f, 1.0f, 44.5f), new Vector3(15f, -25f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("crate_potatoes", clutterContainer.transform, new Vector3(-21.0f, 1.0f, 38.0f), new Vector3(0f, 60f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+        SpawnKayKit("crate_carrots", clutterContainer.transform, new Vector3(-15.5f, 1.0f, 47.5f), new Vector3(0f, -15f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+        SpawnKayKit("cuttingboard", clutterContainer.transform, new Vector3(-12.0f, 1.05f, 49.5f), new Vector3(0f, 35f, 0f), new Vector3(5f, 1.5f, 5f), true, 6);
+        SpawnKayKit("pot_large", clutterContainer.transform, new Vector3(-18.0f, 1.0f, 47.0f), new Vector3(0f, 0f, 25f), new Vector3(4f, 4f, 4f), true, 6);
+        SpawnMedieval("Firewood_01", clutterContainer.transform, new Vector3(-22.0f, 1.0f, 46.0f), new Vector3(0f, 85f, 0f), new Vector3(4f, 3f, 4f), true, 6);
+        SpawnMedieval("Bag_02", clutterContainer.transform, new Vector3(-14.0f, 1.0f, 52.5f), new Vector3(0f, 70f, 0f), new Vector3(3.2f, 3.2f, 3.2f), true, 6);
+        SpawnKayKit("crate_tomatoes", clutterContainer.transform, new Vector3(-17.5f, 1.0f, 53.5f), new Vector3(15f, 30f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+        SpawnKayKit("crate_lettuce", clutterContainer.transform, new Vector3(-23.0f, 1.0f, 52.0f), new Vector3(0f, -50f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(-26.0f, 1.0f, 42.0f), Vector3.zero, new Vector3(3.8f, 3.8f, 3.8f), true, 6);
+        SpawnKayKit("dishrack_plates", clutterContainer.transform, new Vector3(-13.5f, 1.0f, 56.5f), new Vector3(0f, 10f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Empty_bucket", clutterContainer.transform, new Vector3(-19.0f, 1.0f, 57.0f), new Vector3(80f, 15f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+
+        // --- BÊN PHẢI ĐƯỜNG ĐI (X > +10, Z = 34 đến 58) ---
+        SpawnKayKit("crate", clutterContainer.transform, new Vector3(13.5f, 1.0f, 35.5f), new Vector3(0f, -30f, 0f), new Vector3(4f, 5.5f, 4f), true, 6);
+        SpawnKayKit("crate_ham", clutterContainer.transform, new Vector3(16.5f, 1.0f, 36.5f), new Vector3(0f, 20f, 0f), new Vector3(4.5f, 2.5f, 4.5f), true, 6);
+        SpawnKayKit("crate_onions", clutterContainer.transform, new Vector3(13.0f, 5.5f, 35.5f), new Vector3(0f, -15f, 0f), new Vector3(3.5f, 2.5f, 3.5f), true, 6);
+        SpawnKayKit("chair_stool", clutterContainer.transform, new Vector3(11.5f, 1.0f, 39.5f), new Vector3(-70f, 40f, 0f), new Vector3(3.5f, 2.5f, 3.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(14.5f, 1.0f, 42.5f), new Vector3(0f, -10f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(18.5f, 1.5f, 41.5f), new Vector3(90f, -30f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnMedieval("Bag_01", clutterContainer.transform, new Vector3(12.5f, 1.0f, 45.0f), new Vector3(-10f, 45f, 0f), new Vector3(3.5f, 3.5f, 3.5f), true, 6);
+        SpawnKayKit("crate_carrots", clutterContainer.transform, new Vector3(21.5f, 1.0f, 38.5f), new Vector3(0f, -45f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+        SpawnKayKit("crate_potatoes", clutterContainer.transform, new Vector3(15.0f, 1.2f, 47.0f), new Vector3(20f, 30f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+        SpawnKayKit("pot_large", clutterContainer.transform, new Vector3(19.0f, 1.0f, 46.5f), new Vector3(0f, 0f, -20f), new Vector3(4f, 4f, 4f), true, 6);
+        SpawnMedieval("Firewood_01", clutterContainer.transform, new Vector3(13.0f, 1.0f, 50.0f), new Vector3(0f, -65f, 0f), new Vector3(4f, 3f, 4f), true, 6);
+        SpawnKayKit("cuttingboard", clutterContainer.transform, new Vector3(22.0f, 1.05f, 47.5f), new Vector3(0f, 80f, 0f), new Vector3(5f, 1.5f, 5f), true, 6);
+        SpawnMedieval("Bag_03", clutterContainer.transform, new Vector3(14.5f, 1.0f, 53.0f), new Vector3(0f, -25f, 0f), new Vector3(3.2f, 3.2f, 3.2f), true, 6);
+        SpawnKayKit("crate_steak", clutterContainer.transform, new Vector3(18.0f, 1.0f, 52.5f), new Vector3(0f, 55f, 0f), new Vector3(4.5f, 3.5f, 4.5f), true, 6);
+        SpawnKayKit("crate_buns", clutterContainer.transform, new Vector3(24.0f, 1.0f, 51.0f), new Vector3(0f, -10f, 0f), new Vector3(4.5f, 2.5f, 4.5f), true, 6);
+        SpawnMedieval("Barrel", clutterContainer.transform, new Vector3(26.5f, 1.0f, 43.0f), new Vector3(0f, 15f, 0f), new Vector3(3.8f, 3.8f, 3.8f), true, 6);
+        SpawnKayKit("dishrack", clutterContainer.transform, new Vector3(13.5f, 1.0f, 56.5f), new Vector3(0f, -40f, 0f), new Vector3(4f, 3f, 4f), true, 6);
+        SpawnMedieval("Bucket_of_water", clutterContainer.transform, new Vector3(18.5f, 1.0f, 57.0f), Vector3.zero, new Vector3(3.5f, 3.5f, 3.5f), true, 6);
     }
 }
 #endif

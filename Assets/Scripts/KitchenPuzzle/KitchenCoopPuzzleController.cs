@@ -1,50 +1,66 @@
 using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// Bộ điều phối câu đố phối hợp nhà bếp (Co-op Kitchen Burner Puzzle).
 /// Yêu cầu 2 người chơi mang tổ trứng phối hợp giẫm lên 2 bàn đạp cảm ứng bếp nhiệt cùng lúc
 /// (hoặc lần lượt trong khoảng thời gian cho phép khi test solo),
 /// sau đó dập tắt hàng rào lửa và mở cửa sập vào kho thực phẩm.
+/// Đồng bộ trạng thái giải đố toàn mạng bằng NetworkVariable và ServerRpc.
 /// </summary>
-public sealed class KitchenCoopPuzzleController : MonoBehaviour
+[RequireComponent(typeof(NetworkObject))]
+public sealed class KitchenCoopPuzzleController : NetworkBehaviour
 {
     [Header("Puzzle Components")]
-    [SerializeField] private KitchenPressurePlate[] _plates;
-    [SerializeField] private KitchenPuzzleGate _gate;
+    [FormerlySerializedAs("_plates")]
+    [SerializeField] private KitchenPressurePlate[] plates;
+
+    [FormerlySerializedAs("_gate")]
+    [SerializeField] private KitchenPuzzleGate gate;
 
     [Header("Hazard Obstacle")]
-    [Tooltip("Hàng rào lửa/bẫy cháy chắn trước cửa sẽ bị vô hiệu hóa khi giải đố thành công")]
-    [SerializeField] private GameObject _fireHazardBarrier;
+    [Tooltip("Hàng rào lửa/băng chắn trước cửa sẽ bị vô hiệu hóa khi giải đố thành công")]
+    [FormerlySerializedAs("_fireHazardBarrier")]
+    [SerializeField] private GameObject fireHazardBarrier;
 
     [Header("Co-op Rules")]
     [Tooltip("Thời gian ân hạn (giây) giữ trạng thái kích hoạt giúp việc chơi solo test hoặc phối hợp mượt mà hơn")]
-    [SerializeField] private float _gracePeriod = 4.0f;
+    [FormerlySerializedAs("_gracePeriod")]
+    [SerializeField] private float gracePeriod = 4.0f;
 
-    private readonly float[] _lastPressedTimes = new float[2];
-    private bool _isSolved;
+    // Biến mạng đồng bộ trạng thái giải đố tới toàn bộ Client và Host
+    private readonly NetworkVariable<bool> isSolvedNet = new NetworkVariable<bool>(
+        false,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+    );
 
-    public bool IsSolved => _isSolved;
+    private readonly float[] lastPressedTimes = new float[2];
+    private bool isSolvedLocal;
+
+    public bool IsSolved => IsSpawned ? isSolvedNet.Value : isSolvedLocal;
 
     /// <summary>
     /// Gán tham chiếu tự động từ KitchenMapBuilder.
     /// </summary>
-    public void SetupForEditor(KitchenPressurePlate[] plates, KitchenPuzzleGate gate, GameObject fireHazard)
+    public void SetupForEditor(KitchenPressurePlate[] newPlates, KitchenPuzzleGate newGate, GameObject fireHazard)
     {
-        _plates = plates;
-        _gate = gate;
-        _fireHazardBarrier = fireHazard;
+        plates = newPlates;
+        gate = newGate;
+        fireHazardBarrier = fireHazard;
     }
 
     private void OnEnable()
     {
-        if (_plates != null)
+        if (plates != null)
         {
-            for (int i = 0; i < _plates.Length; i++)
+            for (int i = 0; i < plates.Length; i++)
             {
-                if (_plates[i] != null)
+                if (plates[i] != null)
                 {
-                    _plates[i].OnPlateStateChanged += HandlePlateStateChanged;
+                    plates[i].OnPlateStateChanged += HandlePlateStateChanged;
                 }
             }
         }
@@ -52,33 +68,98 @@ public sealed class KitchenCoopPuzzleController : MonoBehaviour
 
     private void OnDisable()
     {
-        if (_plates != null)
+        if (plates != null)
         {
-            for (int i = 0; i < _plates.Length; i++)
+            for (int i = 0; i < plates.Length; i++)
             {
-                if (_plates[i] != null)
+                if (plates[i] != null)
                 {
-                    _plates[i].OnPlateStateChanged -= HandlePlateStateChanged;
+                    plates[i].OnPlateStateChanged -= HandlePlateStateChanged;
                 }
             }
         }
     }
 
+    public override void OnNetworkSpawn()
+    {
+        isSolvedNet.OnValueChanged += HandleNetSolvedChanged;
+        // Nếu câu đố đã được giải trước khi Client này spawn vào mạng, áp dụng ngay tức thì
+        if (isSolvedNet.Value)
+        {
+            ApplySolvedState(true);
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        isSolvedNet.OnValueChanged -= HandleNetSolvedChanged;
+    }
+
+    private void HandleNetSolvedChanged(bool previous, bool current)
+    {
+        if (current)
+        {
+            ApplySolvedState(false);
+        }
+    }
+
     private void HandlePlateStateChanged(KitchenPressurePlate plate, bool isPressed)
     {
-        if (_isSolved) return;
+        if (IsSolved) return;
+        if (!isPressed) return;
 
-        // Cập nhật mốc thời gian kích hoạt của bàn đạp
-        for (int i = 0; i < _plates.Length; i++)
+        int plateIndex = -1;
+        if (plates != null)
         {
-            if (_plates[i] == plate && isPressed)
+            for (int i = 0; i < plates.Length; i++)
             {
-                if (i < _lastPressedTimes.Length)
+                if (plates[i] == plate)
                 {
-                    _lastPressedTimes[i] = Time.time;
+                    plateIndex = i;
+                    break;
                 }
-                break;
             }
+        }
+
+        if (plateIndex < 0) return;
+
+        // Nếu đang ở trong phiên mạng và là Client: gửi RPC báo cho Server biết bàn đạp đã được giẫm
+        if (IsSpawned && !IsServer)
+        {
+            ReportPlatePressedServerRpc(plateIndex);
+            return;
+        }
+
+        // Nếu là Server (hoặc phiên offline không kết nối mạng)
+        if (plateIndex < lastPressedTimes.Length)
+        {
+            lastPressedTimes[plateIndex] = Time.time;
+        }
+
+        EvaluatePuzzleState();
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void ReportPlatePressedServerRpc(int plateIndex, RpcParams rpcParams = default)
+    {
+        if (isSolvedNet.Value || plates == null || plateIndex < 0 || plateIndex >= plates.Length) return;
+
+        // Xác thực người chơi gửi RPC có đứng gần bàn đạp không (chống gian lận / gửi lệnh từ xa)
+        ulong senderId = rpcParams.Receive.SenderClientId;
+        if (NetworkManager != null && NetworkManager.ConnectedClients.TryGetValue(senderId, out NetworkClient client))
+        {
+            NetworkObject player = client.PlayerObject;
+            if (player != null && plates[plateIndex] != null)
+            {
+                float sqrDist = (player.transform.position - plates[plateIndex].transform.position).sqrMagnitude;
+                // Bàn đạp đường kính ~3m, cho phép khoảng cách mở rộng tới 12m để bù trễ mạng
+                if (sqrDist > 12f * 12f) return;
+            }
+        }
+
+        if (plateIndex < lastPressedTimes.Length)
+        {
+            lastPressedTimes[plateIndex] = Time.time;
         }
 
         EvaluatePuzzleState();
@@ -86,44 +167,55 @@ public sealed class KitchenCoopPuzzleController : MonoBehaviour
 
     private void EvaluatePuzzleState()
     {
-        if (_isSolved || _plates == null || _plates.Length < 2) return;
+        if (IsSolved || plates == null || plates.Length < 2) return;
+        if (IsSpawned && !IsServer) return;
 
-        bool plate0Active = _plates[0] != null && (_plates[0].IsPressed || (Time.time - _lastPressedTimes[0] <= _gracePeriod));
-        bool plate1Active = _plates[1] != null && (_plates[1].IsPressed || (Time.time - _lastPressedTimes[1] <= _gracePeriod));
+        bool plate0Active = plates[0] != null && (plates[0].IsPressed || (Time.time - lastPressedTimes[0] <= gracePeriod));
+        bool plate1Active = plates[1] != null && (plates[1].IsPressed || (Time.time - lastPressedTimes[1] <= gracePeriod));
 
-        // Cả 2 bàn đạp đều được kích hoạt đồng thời
+        // Cả 2 bàn đạp đều được kích hoạt đồng thời (hoặc trong gracePeriod)
         if (plate0Active && plate1Active)
         {
-            SolvePuzzle();
+            if (IsSpawned && IsServer)
+            {
+                isSolvedNet.Value = true;
+            }
+            else if (!IsSpawned)
+            {
+                ApplySolvedState(false);
+            }
         }
     }
 
-    private void SolvePuzzle()
+    private void ApplySolvedState(bool instant)
     {
-        if (_isSolved) return;
-        _isSolved = true;
+        if (isSolvedLocal) return;
+        isSolvedLocal = true;
 
-        // Khóa các bàn đạp ở vị trí thành công
-        for (int i = 0; i < _plates.Length; i++)
+        // Khóa các bàn đạp ở vị trí thành công (màu xanh lá)
+        if (plates != null)
         {
-            if (_plates[i] != null)
+            for (int i = 0; i < plates.Length; i++)
             {
-                _plates[i].LockSolved();
+                if (plates[i] != null)
+                {
+                    plates[i].LockSolved();
+                }
             }
         }
 
-        // Tắt hàng rào lửa hazard chắn trước cửa
-        if (_fireHazardBarrier != null)
+        // Tắt hàng rào lửa / băng chắn trước cửa
+        if (fireHazardBarrier != null)
         {
-            _fireHazardBarrier.SetActive(false);
+            fireHazardBarrier.SetActive(false);
         }
 
-        // Mở cửa sập vào kho Pantry
-        if (_gate != null)
+        // Mở cửa sập
+        if (gate != null)
         {
-            _gate.OpenGate();
+            gate.OpenGate(instant);
         }
 
-        Debug.Log("[KitchenPuzzle] Câu đố bếp đã giải thành công! Cửa kho đã mở.");
+        Debug.Log($"[KitchenPuzzle] {gameObject.name}: Đã mở cửa và đồng bộ thành công!");
     }
 }

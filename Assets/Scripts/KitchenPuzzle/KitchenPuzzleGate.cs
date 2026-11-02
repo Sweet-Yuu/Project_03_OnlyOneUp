@@ -50,21 +50,30 @@ public sealed class KitchenPuzzleGate : MonoBehaviour
     /// <summary>
     /// Kích hoạt mở cửa sập và nâng dần lên trần nhà.
     /// </summary>
-    public void OpenGate()
+    public void OpenGate(bool instant = false)
     {
         if (_isOpen) return;
         _isOpen = true;
-
-        if (_audioSource != null && _openClip != null)
-        {
-            _audioSource.PlayOneShot(_openClip);
-        }
 
         UpdateLampVisuals(true);
 
         if (_slidingShutter != null)
         {
-            StartCoroutine(SlideOpenRoutine());
+            if (_initialLocalPos == Vector3.zero)
+                _initialLocalPos = _slidingShutter.localPosition;
+
+            if (instant)
+            {
+                _slidingShutter.localPosition = _initialLocalPos + _openOffset;
+            }
+            else
+            {
+                if (_audioSource != null && _openClip != null)
+                {
+                    _audioSource.PlayOneShot(_openClip);
+                }
+                StartCoroutine(SlideOpenRoutine());
+            }
         }
     }
 

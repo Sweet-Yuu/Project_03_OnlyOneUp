@@ -96,8 +96,11 @@ public sealed class KitchenPressurePlate : MonoBehaviour
 
     private bool IsValidOccupant(Collider col)
     {
-        // Chấp nhận người chơi (Tag Player / Layer 7) hoặc tổ trứng (Layer 8 / Tag Nest)
-        return col.CompareTag("Player") || col.gameObject.layer == 7 || col.gameObject.layer == 8 || col.CompareTag("Nest");
+        if (col == null) return false;
+        if (col.CompareTag("Player") || col.gameObject.layer == 7 || col.gameObject.layer == 8 || col.CompareTag("Nest")) return true;
+        if (col.GetComponentInParent<CharacterController>() != null) return true;
+        var netObj = col.GetComponentInParent<Unity.Netcode.NetworkObject>();
+        return netObj != null && netObj.IsPlayerObject;
     }
 
     private void SetPressed(bool pressed)
