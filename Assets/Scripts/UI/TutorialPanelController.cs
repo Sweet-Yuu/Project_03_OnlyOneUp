@@ -10,7 +10,9 @@ using UnityEngine.UI;
 public sealed class TutorialPanelController : MonoBehaviour
 {
     [Header("=== Giao diện chính ===")]
+    [Tooltip("GameObject con chứa toàn bộ UI hiển thị (overlay, window). Nếu để trống, script sẽ tự tìm Content hoặc dùng CanvasGroup để tránh tắt nhầm root GameObject.")]
     [SerializeField] private GameObject _panelRoot;
+    [SerializeField] private CanvasGroup _canvasGroup;
     [SerializeField] private Button _closeButton;
     [SerializeField] private Button _nextButton;
     [SerializeField] private Button _prevButton;
@@ -40,9 +42,25 @@ public sealed class TutorialPanelController : MonoBehaviour
 
     private void Awake()
     {
-        if (_panelRoot == null)
+        // Nếu _panelRoot trỏ vào chính gameObject này thì ưu tiên dùng CanvasGroup để không làm dừng Update/Coroutine của root
+        if (_panelRoot == gameObject)
         {
-            _panelRoot = gameObject;
+            if (_canvasGroup == null)
+            {
+                _canvasGroup = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
+            }
+        }
+        else if (_panelRoot == null)
+        {
+            Transform content = transform.Find("PanelContent") ?? transform.Find("Content");
+            if (content != null)
+            {
+                _panelRoot = content.gameObject;
+            }
+            else
+            {
+                _canvasGroup = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
+            }
         }
 
         if (_closeButton != null)
@@ -63,12 +81,9 @@ public sealed class TutorialPanelController : MonoBehaviour
 
     private void Start()
     {
-        // Ẩn panel lúc khởi tạo scene nếu đang hiển thị
-        if (_panelRoot != null && _panelRoot.activeSelf)
-        {
-            _panelRoot.SetActive(false);
-            _isOpen = false;
-        }
+        // Đảm bảo ban đầu ẩn giao diện nhưng root GameObject vẫn hoạt động
+        SetDisplayVisible(false);
+        _isOpen = false;
     }
 
     private void Update()
@@ -127,11 +142,7 @@ public sealed class TutorialPanelController : MonoBehaviour
     public void Show()
     {
         _isOpen = true;
-
-        if (_panelRoot != null)
-        {
-            _panelRoot.SetActive(true);
-        }
+        SetDisplayVisible(true);
 
         // Mở khóa chuột để người chơi bấm nút chuyển trang hoặc đóng
         Cursor.lockState = CursorLockMode.None;
@@ -147,11 +158,7 @@ public sealed class TutorialPanelController : MonoBehaviour
     public void Close()
     {
         _isOpen = false;
-
-        if (_panelRoot != null)
-        {
-            _panelRoot.SetActive(false);
-        }
+        SetDisplayVisible(false);
 
         // Khôi phục con trỏ chuột nếu cần thiết cho góc nhìn camera gameplay
         if (_lockCursorOnClose)
@@ -161,6 +168,28 @@ public sealed class TutorialPanelController : MonoBehaviour
         }
 
         Closed?.Invoke();
+    }
+
+    private void SetDisplayVisible(bool visible)
+    {
+        if (_panelRoot != null && _panelRoot != gameObject)
+        {
+            _panelRoot.SetActive(visible);
+        }
+        else if (_canvasGroup != null)
+        {
+            _canvasGroup.alpha = visible ? 1f : 0f;
+            _canvasGroup.interactable = visible;
+            _canvasGroup.blocksRaycasts = visible;
+        }
+        else
+        {
+            // Fallback nếu không có con riêng hay CanvasGroup
+            foreach (Transform child in transform)
+            {
+                child.gameObject.SetActive(visible);
+            }
+        }
     }
 
     /// <summary>

@@ -25,7 +25,7 @@ public static class TutorialPanelBuilder
 
         TMP_FontAsset fontAsset = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontPath);
 
-        // 1. Root Panel
+        // 1. Root Panel (Luôn Active trong Scene để Coroutine và Update nhận phím H hoạt động)
         GameObject root = new GameObject("TutorialPanel", typeof(RectTransform));
         root.transform.SetParent(canvas.transform, false);
 
@@ -35,9 +35,18 @@ public static class TutorialPanelBuilder
         rootRect.offsetMin = Vector2.zero;
         rootRect.offsetMax = Vector2.zero;
 
+        // Container con chứa toàn bộ UI hiển thị (Content)
+        GameObject contentRoot = new GameObject("PanelContent", typeof(RectTransform));
+        contentRoot.transform.SetParent(root.transform, false);
+        RectTransform contentRootRect = contentRoot.GetComponent<RectTransform>();
+        contentRootRect.anchorMin = Vector2.zero;
+        contentRootRect.anchorMax = Vector2.one;
+        contentRootRect.offsetMin = Vector2.zero;
+        contentRootRect.offsetMax = Vector2.zero;
+
         // 2. Dim Background (Overlay)
         GameObject dimOverlay = new GameObject("DimOverlay", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-        dimOverlay.transform.SetParent(root.transform, false);
+        dimOverlay.transform.SetParent(contentRoot.transform, false);
         RectTransform dimRect = dimOverlay.GetComponent<RectTransform>();
         dimRect.anchorMin = Vector2.zero;
         dimRect.anchorMax = Vector2.one;
@@ -48,7 +57,7 @@ public static class TutorialPanelBuilder
 
         // 3. Main Window Box
         GameObject window = new GameObject("Window", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-        window.transform.SetParent(root.transform, false);
+        window.transform.SetParent(contentRoot.transform, false);
         RectTransform winRect = window.GetComponent<RectTransform>();
         winRect.anchorMin = new Vector2(0.5f, 0.5f);
         winRect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -185,7 +194,7 @@ public static class TutorialPanelBuilder
         // 6. Hook up TutorialPanelController & Trigger
         TutorialPanelController controller = root.AddComponent<TutorialPanelController>();
         SerializedObject serializedController = new SerializedObject(controller);
-        serializedController.FindProperty("_panelRoot").objectReferenceValue = root;
+        serializedController.FindProperty("_panelRoot").objectReferenceValue = contentRoot;
         serializedController.FindProperty("_closeButton").objectReferenceValue = closeBtnObj.GetComponent<Button>();
         serializedController.FindProperty("_nextButton").objectReferenceValue = nextBtnObj.GetComponent<Button>();
         serializedController.FindProperty("_prevButton").objectReferenceValue = prevBtnObj.GetComponent<Button>();
@@ -203,11 +212,12 @@ public static class TutorialPanelBuilder
         serializedTrigger.FindProperty("_tutorialController").objectReferenceValue = controller;
         serializedTrigger.ApplyModifiedProperties();
 
+        // Ẩn nội dung đồ họa ban đầu, giữ root luôn Active để đón phím H và chờ bắt đầu game
+        contentRoot.SetActive(false);
+        root.SetActive(true);
+
         // 7. Save as Prefab
         PrefabUtility.SaveAsPrefabAssetAndConnect(root, PrefabPath, InteractionMode.UserAction);
-
-        // Hide root in scene by default
-        root.SetActive(false);
 
         Undo.RegisterCreatedObjectUndo(root, "Create Tutorial Panel");
         Selection.activeGameObject = root;
