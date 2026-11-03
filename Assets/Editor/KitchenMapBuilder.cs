@@ -523,7 +523,7 @@ public static class KitchenMapBuilder
             {
                 var soGate = new SerializedObject(gateComp);
                 var offsetProp = soGate.FindProperty("_openOffset");
-                if (offsetProp != null) offsetProp.vector3Value = new Vector3(0f, 10f, 0f);
+                if (offsetProp != null) offsetProp.vector3Value = new Vector3(0f, 11f, 0f);
                 var speedProp = soGate.FindProperty("_moveSpeed");
                 if (speedProp != null) speedProp.floatValue = 5.5f;
                 soGate.ApplyModifiedProperties();
@@ -859,8 +859,8 @@ public static class KitchenMapBuilder
         leftWall.name = "Partition_Wall_Left";
         leftWall.layer = 6;
         leftWall.transform.SetParent(parent);
-        leftWall.transform.position = new Vector3(-28.75f, 8f, zPos);
-        leftWall.transform.localScale = new Vector3(38.5f, 16f, 1.2f);
+        leftWall.transform.position = new Vector3(-28.75f, 20f, zPos);
+        leftWall.transform.localScale = new Vector3(38.5f, 40f, 1.2f);
         ApplyWallTexture(leftWall);
 
         // 2. Vách tường phải bịt kín từ X = +9.5 đến X = +48 (bề ngang 38.5m)
@@ -868,8 +868,8 @@ public static class KitchenMapBuilder
         rightWall.name = "Partition_Wall_Right";
         rightWall.layer = 6;
         rightWall.transform.SetParent(parent);
-        rightWall.transform.position = new Vector3(28.75f, 8f, zPos);
-        rightWall.transform.localScale = new Vector3(38.5f, 16f, 1.2f);
+        rightWall.transform.position = new Vector3(28.75f, 20f, zPos);
+        rightWall.transform.localScale = new Vector3(38.5f, 40f, 1.2f);
         ApplyWallTexture(rightWall);
 
         // 3. Trụ cổng kiến trúc chịu lực hai bên vòm cửa mở rộng lên 19m (X = -9.5 và X = +9.5)
@@ -881,8 +881,8 @@ public static class KitchenMapBuilder
         topLintel.name = "Archway_Top_Lintel";
         topLintel.layer = 6;
         topLintel.transform.SetParent(parent);
-        topLintel.transform.position = new Vector3(0f, 15f, zPos);
-        topLintel.transform.localScale = new Vector3(20f, 3f, 1.5f);
+        topLintel.transform.position = new Vector3(0f, 27f, zPos);
+        topLintel.transform.localScale = new Vector3(20f, 26f, 1.5f);
         if (beamMat != null) topLintel.GetComponent<MeshRenderer>().sharedMaterial = beamMat;
 
         // Đèn chiếu sáng thông lộ cổng vòm, đảm bảo lối đi sáng sủa, không bị tối đen
@@ -904,8 +904,8 @@ public static class KitchenMapBuilder
         shutter.name = "Sliding_Security_Shutter";
         shutter.layer = 6;
         shutter.transform.SetParent(gateRoot.transform);
-        shutter.transform.localPosition = new Vector3(0f, 6.8f, 0f);
-        shutter.transform.localScale = new Vector3(17.5f, 13.6f, 0.8f);
+        shutter.transform.localPosition = new Vector3(0f, 7.5f, 0f);
+        shutter.transform.localScale = new Vector3(18f, 15f, 0.8f);
         if (gateMetalMat != null) shutter.GetComponent<MeshRenderer>().sharedMaterial = gateMetalMat;
 
         // Gân nan thép ngang (Horizontal Security Slats) tạo điểm nhấn thẩm mỹ cho cửa cuốn an ninh công nghiệp
@@ -965,16 +965,16 @@ public static class KitchenMapBuilder
         leftWall.name = "Partition_Wall_Left";
         leftWall.layer = 6;
         leftWall.transform.SetParent(parent);
-        leftWall.transform.position = new Vector3(-28.75f, 8f, zPos);
-        leftWall.transform.localScale = new Vector3(38.5f, 16f, 1.2f);
+        leftWall.transform.position = new Vector3(-28.75f, 20f, zPos);
+        leftWall.transform.localScale = new Vector3(38.5f, 40f, 1.2f);
         ApplyWallTexture(leftWall);
 
         GameObject rightWall = GameObject.CreatePrimitive(PrimitiveType.Cube);
         rightWall.name = "Partition_Wall_Right";
         rightWall.layer = 6;
         rightWall.transform.SetParent(parent);
-        rightWall.transform.position = new Vector3(28.75f, 8f, zPos);
-        rightWall.transform.localScale = new Vector3(38.5f, 16f, 1.2f);
+        rightWall.transform.position = new Vector3(28.75f, 20f, zPos);
+        rightWall.transform.localScale = new Vector3(38.5f, 40f, 1.2f);
         ApplyWallTexture(rightWall);
 
         SpawnKayKit("pillar_A", parent, new Vector3(-9.5f, 1f, zPos), Vector3.zero, new Vector3(4f, 8f, 4f), true, 6);
@@ -984,8 +984,8 @@ public static class KitchenMapBuilder
         topLintel.name = "Archway_Top_Lintel";
         topLintel.layer = 6;
         topLintel.transform.SetParent(parent);
-        topLintel.transform.position = new Vector3(0f, 15f, zPos);
-        topLintel.transform.localScale = new Vector3(20f, 3f, 1.5f);
+        topLintel.transform.position = new Vector3(0f, 27f, zPos);
+        topLintel.transform.localScale = new Vector3(20f, 26f, 1.5f);
         if (beamMat != null) topLintel.GetComponent<MeshRenderer>().sharedMaterial = beamMat;
     }
 
@@ -1253,7 +1253,7 @@ public static class KitchenMapBuilder
             Object.DestroyImmediate(listener);
         }
 
-        if (addCollider) EnsureCollider(inst, false);
+        if (addCollider) EnsureCollider(inst, true);
         return inst;
     }
 
@@ -1525,9 +1525,9 @@ public static class KitchenMapBuilder
         barrierContainer.transform.SetParent(zone2Parent);
         barrierContainer.transform.localPosition = Vector3.zero;
 
-        // Hành lang Zone 2 từ Z = 62 đến Z = 133 (dài 71m)
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone2_Left", new Vector3(-9.2f, 4.0f, 97.5f), new Vector3(0.6f, 8.0f, 71.0f));
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone2_Right", new Vector3(9.2f, 4.0f, 97.5f), new Vector3(0.6f, 8.0f, 71.0f));
+        // Khối rào đặc dày 38m, cao 30m phủ kín 2 bên hành lang Zone 2 (Z = 61.5 đến 133.5)
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone2_Left", new Vector3(-28.5f, 15.0f, 97.5f), new Vector3(38.0f, 30.0f, 72.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone2_Right", new Vector3(28.5f, 15.0f, 97.5f), new Vector3(38.0f, 30.0f, 72.0f));
     }
 
     private static void BuildZone2SideClutter(Transform zone2Parent)
@@ -1580,9 +1580,9 @@ public static class KitchenMapBuilder
         barrierContainer.transform.SetParent(zone3Parent);
         barrierContainer.transform.localPosition = Vector3.zero;
 
-        // Hành lang Zone 3 từ Z = 133 đến Z = 226 (dài 93m)
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone3_Left", new Vector3(-9.2f, 4.0f, 179.5f), new Vector3(0.6f, 8.0f, 93.0f));
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone3_Right", new Vector3(9.2f, 4.0f, 179.5f), new Vector3(0.6f, 8.0f, 93.0f));
+        // Khối rào đặc dày 38m, cao 30m phủ kín 2 bên hành lang Zone 3 (Z = 132 đến 227)
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone3_Left", new Vector3(-28.5f, 15.0f, 179.5f), new Vector3(38.0f, 30.0f, 95.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone3_Right", new Vector3(28.5f, 15.0f, 179.5f), new Vector3(38.0f, 30.0f, 95.0f));
     }
 
     private static void BuildZone3SideClutter(Transform zone3Parent)
@@ -1632,9 +1632,9 @@ public static class KitchenMapBuilder
         barrierContainer.transform.SetParent(zone4Parent);
         barrierContainer.transform.localPosition = Vector3.zero;
 
-        // Hành lang Zone 4 từ Z = 226 đến Z = 300 (dài 74m)
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone4_Left", new Vector3(-9.2f, 4.0f, 263.0f), new Vector3(0.6f, 8.0f, 74.0f));
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone4_Right", new Vector3(9.2f, 4.0f, 263.0f), new Vector3(0.6f, 8.0f, 74.0f));
+        // Khối rào đặc dày 38m, cao 30m phủ kín 2 bên hành lang Zone 4 (Z = 226 đến 302)
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone4_Left", new Vector3(-28.5f, 15.0f, 264.0f), new Vector3(38.0f, 30.0f, 76.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone4_Right", new Vector3(28.5f, 15.0f, 264.0f), new Vector3(38.0f, 30.0f, 76.0f));
     }
 
     private static void BuildZone4SideClutter(Transform zone4Parent)
@@ -1680,15 +1680,14 @@ public static class KitchenMapBuilder
         barrierContainer.transform.SetParent(zone5Parent);
         barrierContainer.transform.localPosition = Vector3.zero;
 
-        // Hành lang Zone 5 từ Z = 302 đến Z = 420 (dài 118m), cao 24m để chắn kín cả khi người chơi nhảy trên kệ cao
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone5_Left", new Vector3(-9.2f, 12.0f, 361.0f), new Vector3(0.6f, 24.0f, 118.0f));
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone5_Right", new Vector3(9.2f, 12.0f, 361.0f), new Vector3(0.6f, 24.0f, 118.0f));
+        // Khối rào đặc dày 38m, cao 40m phủ kín 2 bên kho cao tầng (Z = 301 đến 421)
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone5_Left", new Vector3(-28.5f, 20.0f, 361.0f), new Vector3(38.0f, 40.0f, 120.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone5_Right", new Vector3(28.5f, 20.0f, 361.0f), new Vector3(38.0f, 40.0f, 120.0f));
 
-        // Khóa ngang 2 đầu (nối từ mép hành lang ra vách tường ngoài X = ±48m)
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone5_Left_Back", new Vector3(-28.5f, 12.0f, 302.0f), new Vector3(38.0f, 24.0f, 0.6f));
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone5_Right_Back", new Vector3(28.5f, 12.0f, 302.0f), new Vector3(38.0f, 24.0f, 0.6f));
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone5_Left_Front", new Vector3(-28.5f, 12.0f, 420.0f), new Vector3(38.0f, 24.0f, 0.6f));
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone5_Right_Front", new Vector3(28.5f, 12.0f, 420.0f), new Vector3(38.0f, 24.0f, 0.6f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone5_Left_Back", new Vector3(-28.5f, 20.0f, 301.0f), new Vector3(38.0f, 40.0f, 4.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone5_Right_Back", new Vector3(28.5f, 20.0f, 301.0f), new Vector3(38.0f, 40.0f, 4.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone5_Left_Front", new Vector3(-28.5f, 20.0f, 421.0f), new Vector3(38.0f, 40.0f, 4.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone5_Right_Front", new Vector3(28.5f, 20.0f, 421.0f), new Vector3(38.0f, 40.0f, 4.0f));
     }
 
     private static void BuildZone5SideClutter(Transform zone5Parent)
@@ -1750,13 +1749,12 @@ public static class KitchenMapBuilder
         barrierContainer.transform.SetParent(zone6Parent);
         barrierContainer.transform.localPosition = Vector3.zero;
 
-        // Hành lang Zone 6 từ Z = 422 đến Z = 480 (dài 58m)
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone6_Left", new Vector3(-9.2f, 4.0f, 451.0f), new Vector3(0.6f, 8.0f, 58.0f));
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone6_Right", new Vector3(9.2f, 4.0f, 451.0f), new Vector3(0.6f, 8.0f, 58.0f));
+        // Khối rào đặc dày 38m, cao 30m phủ kín 2 bên hành lang Zone 6 (Z = 420 đến 482)
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone6_Left", new Vector3(-28.5f, 15.0f, 451.0f), new Vector3(38.0f, 30.0f, 62.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone6_Right", new Vector3(28.5f, 15.0f, 451.0f), new Vector3(38.0f, 30.0f, 62.0f));
 
-        // Khóa ngang 2 đầu cửa ra Z = 480
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone6_Left_End", new Vector3(-28.5f, 4.0f, 480.0f), new Vector3(38.0f, 8.0f, 0.6f));
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone6_Right_End", new Vector3(28.5f, 4.0f, 480.0f), new Vector3(38.0f, 8.0f, 0.6f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone6_Left_End", new Vector3(-28.5f, 15.0f, 481.0f), new Vector3(38.0f, 30.0f, 4.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Zone6_Right_End", new Vector3(28.5f, 15.0f, 481.0f), new Vector3(38.0f, 30.0f, 4.0f));
     }
 
     private static void BuildZone6SideClutter(Transform zone6Parent)
@@ -1804,17 +1802,37 @@ public static class KitchenMapBuilder
             var movingGate = gate.Find("MovingGate");
             var lintel = gate.Find("Lintel");
 
-            // Mở rộng khoảng cách giữa 2 trụ lên 18m (world) để cả 2 người chơi cùng lúc đi qua thoải mái
-            if (leftPost != null) leftPost.localPosition = new Vector3(-5.0f, 2.0f, 0f);
-            if (rightPost != null) rightPost.localPosition = new Vector3(5.0f, 2.0f, 0f);
+            // Mở rộng khẩu độ cổng lên 19m (world) và tăng chiều cao lên 17.2m (world) để người chơi không thể nhảy/bước qua
+            if (leftPost != null)
+            {
+                leftPost.localPosition = new Vector3(-5.3f, 4.25f, 0f);
+                leftPost.localScale = new Vector3(0.8f, 8.5f, 1.2f);
+            }
+            if (rightPost != null)
+            {
+                rightPost.localPosition = new Vector3(5.3f, 4.25f, 0f);
+                rightPost.localScale = new Vector3(0.8f, 8.5f, 1.2f);
+            }
             if (movingGate != null)
             {
-                movingGate.localPosition = new Vector3(0f, 1.8f, 0f);
-                movingGate.localScale = new Vector3(9.3f, 3.6f, 0.45f);
+                movingGate.localPosition = new Vector3(0f, 4.25f, 0f);
+                movingGate.localScale = new Vector3(10.5f, 8.5f, 0.8f);
             }
             if (lintel != null)
             {
-                lintel.localScale = new Vector3(10.7f, 0.4f, 0.9f);
+                lintel.localPosition = new Vector3(0f, 8.5f, 0f);
+                lintel.localScale = new Vector3(11.4f, 0.8f, 1.4f);
+            }
+
+            var gateComp = gate.GetComponent<Hoang.Puzzles.PuzzleGate>();
+            if (gateComp != null)
+            {
+                var soGate = new SerializedObject(gateComp);
+                var offsetProp = soGate.FindProperty("_openOffset");
+                if (offsetProp != null) offsetProp.vector3Value = new Vector3(0f, 11f, 0f);
+                var speedProp = soGate.FindProperty("_moveSpeed");
+                if (speedProp != null) speedProp.floatValue = 6f;
+                soGate.ApplyModifiedProperties();
             }
         }
 
@@ -1835,15 +1853,14 @@ public static class KitchenMapBuilder
         barrierContainer.transform.SetParent(zone1Parent);
         barrierContainer.transform.localPosition = Vector3.zero;
 
-        // 2 Hàng rào tàng hình dọc 2 bên lối đi (Z = 30 đến 62, X = ±9.2)
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Left_Corridor", new Vector3(-9.2f, 4.0f, 46.0f), new Vector3(0.6f, 8.0f, 32.0f));
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Right_Corridor", new Vector3(9.2f, 4.0f, 46.0f), new Vector3(0.6f, 8.0f, 32.0f));
+        // Khối rào chắn tàng hình đặc dày 38m, cao 30m phủ kín toàn bộ 2 bên lề (ngăn tuyệt đối chui qua/nhảy qua)
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Left_Corridor", new Vector3(-28.5f, 15.0f, 46.0f), new Vector3(38.0f, 30.0f, 36.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Right_Corridor", new Vector3(28.5f, 15.0f, 46.0f), new Vector3(38.0f, 30.0f, 36.0f));
 
-        // Hàng rào chắn ngang bịt kín 2 đầu sau và trước (ngăn người chơi đi vòng vào khu phế liệu)
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Left_Back", new Vector3(-28.5f, 4.0f, 30.0f), new Vector3(38.0f, 8.0f, 0.6f));
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Right_Back", new Vector3(28.5f, 4.0f, 30.0f), new Vector3(38.0f, 8.0f, 0.6f));
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Left_Front", new Vector3(-28.5f, 4.0f, 62.0f), new Vector3(38.0f, 8.0f, 0.6f));
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Right_Front", new Vector3(28.5f, 4.0f, 62.0f), new Vector3(38.0f, 8.0f, 0.6f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Left_Back", new Vector3(-28.5f, 15.0f, 27.0f), new Vector3(38.0f, 30.0f, 4.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Right_Back", new Vector3(28.5f, 15.0f, 27.0f), new Vector3(38.0f, 30.0f, 4.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Left_Front", new Vector3(-28.5f, 15.0f, 63.0f), new Vector3(38.0f, 30.0f, 4.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Right_Front", new Vector3(28.5f, 15.0f, 63.0f), new Vector3(38.0f, 30.0f, 4.0f));
     }
 
     private static void CreateInvisibleCollider(Transform parent, string name, Vector3 pos, Vector3 size)

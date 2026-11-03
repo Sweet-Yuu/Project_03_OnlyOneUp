@@ -581,7 +581,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u2715"
+  m_text: "X"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
   m_sharedMaterial: {fileID: -5956804898211954380, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
@@ -869,7 +869,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\U0001F4A1 M\u1EB9o: B\u1EA1n c\xF3 th\u1EC3 nh\u1EA5n ph\xEDm [H] ho\u1EB7c
+  m_text: "[*] M\u1EB9o: B\u1EA1n c\xF3 th\u1EC3 nh\u1EA5n ph\xEDm [H] ho\u1EB7c
     [F1] \u0111\u1EC3 xem l\u1EA1i h\u01B0\u1EDBng d\u1EABn b\u1EA5t k\u1EF3 l\xFAc
     n\xE0o."
   m_isRightToLeft: 0

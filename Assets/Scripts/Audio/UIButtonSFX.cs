@@ -3,7 +3,7 @@ using UnityEngine;
 public class UIButtonSFX : MonoBehaviour
 {
     public static UIButtonSFX Instance;
-    public AudioSource audio;
+    public new AudioSource audio;
     public AudioClip buttonHover;
     public AudioClip selectSound;
     public AudioClip clickSound;
