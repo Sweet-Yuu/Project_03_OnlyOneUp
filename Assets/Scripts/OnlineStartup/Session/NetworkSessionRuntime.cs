@@ -34,7 +34,8 @@ public sealed class NetworkSessionRuntime : MonoBehaviour
     private void OnClientStopped(bool wasHost)
     {
         // Host đóng phòng thì client không thể tiếp tục trận; thoát qua cùng hiệu ứng UI.
-        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "MainMap_Online")
+        string activeSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        if (activeSceneName == "MainMap_Online" || activeSceneName == "Kitchen_Map")
             ReturnToMenuTransition.Begin();
     }
 

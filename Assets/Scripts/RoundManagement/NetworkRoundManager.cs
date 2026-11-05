@@ -12,6 +12,35 @@ public sealed class NetworkRoundManager : NetworkBehaviour, IRoundSession, IOnli
     private OnlineRoundTransition _transition;
     public void RequestPlayAgain() => RequestActionRpc(false);
     public void RequestMainMenu() => RequestActionRpc(true);
+    public void RequestNextStage() => RequestNextStageRpc();
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void RequestNextStageRpc(RpcParams rpcParams = default)
+    {
+        if (_actionPending || !NetworkManager.ConnectedClients.ContainsKey(rpcParams.Receive.SenderClientId)) return;
+        _actionPending = true;
+        StartCoroutine(PerformNextStage());
+    }
+
+    private System.Collections.IEnumerator PerformNextStage()
+    {
+        _coveredClients.Clear();
+        CoverRpc();
+        float deadline = Time.realtimeSinceStartup + 10f;
+        while (_coveredClients.Count < NetworkManager.ConnectedClientsIds.Count &&
+            Time.realtimeSinceStartup < deadline) yield return null;
+
+        // Chuyển sang màn 2 (MainMap_Online) đồng bộ cho toàn bộ người chơi qua Netcode
+        NetworkManager networkManager = NetworkManager.Singleton;
+        if (networkManager != null && networkManager.IsServer && networkManager.SceneManager != null)
+        {
+            networkManager.SceneManager.LoadScene("MainMap_Online", UnityEngine.SceneManagement.LoadSceneMode.Single);
+        }
+        else
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMap_Online");
+        }
+    }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void RequestActionRpc(bool menu, RpcParams rpcParams = default)

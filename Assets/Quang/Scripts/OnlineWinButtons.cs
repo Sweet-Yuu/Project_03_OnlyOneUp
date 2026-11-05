@@ -16,6 +16,8 @@ public sealed class OnlineWinButtons : MonoBehaviour
     public void Bind(IOnlineRoundActions actions)
     {
         _actions = actions;
+        bool isKitchen = gameObject.scene.name == "Kitchen_Map";
+
         foreach (Button button in GetComponentsInChildren<Button>(true))
         {
             if (button.name == "RetryButton") _retry = button;
@@ -25,12 +27,47 @@ public sealed class OnlineWinButtons : MonoBehaviour
                 var oldSound = button.GetComponent<UIButtonSound>();
                 if (oldSound != null) oldSound.enabled = false;
             }
+            // Màn 1 chỉ hiển thị 2 nút: Chuyển sang màn 2 và Trở về lobby (ẩn nút Quit)
+            if (isKitchen && button.name == "QuitButton")
+            {
+                button.gameObject.SetActive(false);
+            }
         }
+
+        // Tùy biến tiêu đề và nhãn nút cho Màn 1 Kitchen_Map
+        if (isKitchen)
+        {
+            foreach (TMPro.TMP_Text tmp in GetComponentsInChildren<TMPro.TMP_Text>(true))
+            {
+                if (tmp.gameObject.name == "GameWinTitle") tmp.text = "CHIẾN THẮNG MÀN 1";
+                else if (tmp.gameObject.name == "GameWinSubtitle") tmp.text = "BẠN ĐÃ VƯỢT QUA NHÀ BẾP THÀNH CÔNG!";
+            }
+
+            if (_retry != null)
+            {
+                TMPro.TMP_Text retryText = _retry.GetComponentInChildren<TMPro.TMP_Text>(true);
+                if (retryText != null) retryText.text = "CHUYỂN SANG MÀN 2";
+            }
+
+            if (_menu != null)
+            {
+                TMPro.TMP_Text menuText = _menu.GetComponentInChildren<TMPro.TMP_Text>(true);
+                if (menuText != null) menuText.text = "TRỞ VỀ LOBBY";
+            }
+        }
+
         // Thay event trên instance runtime, không sửa prefab gốc của thành viên khác.
         if (_retry != null)
         {
             _retry.onClick = new Button.ButtonClickedEvent();
-            _retry.onClick.AddListener(PlayAgain);
+            if (isKitchen)
+            {
+                _retry.onClick.AddListener(NextStage);
+            }
+            else
+            {
+                _retry.onClick.AddListener(PlayAgain);
+            }
         }
         if (_menu != null)
         {
@@ -39,6 +76,7 @@ public sealed class OnlineWinButtons : MonoBehaviour
         }
     }
 
+    public void NextStage() { if (AcceptClick()) _actions.RequestNextStage(); }
     public void PlayAgain() { if (AcceptClick()) _actions.RequestPlayAgain(); }
     public void MainMenu() { if (AcceptClick()) _actions.RequestMainMenu(); }
 

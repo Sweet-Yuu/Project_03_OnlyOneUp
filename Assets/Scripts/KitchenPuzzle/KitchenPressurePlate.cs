@@ -32,15 +32,15 @@ public sealed class KitchenPressurePlate : MonoBehaviour
     [SerializeField] private AudioSource _audioSource;
     [SerializeField] private AudioClip _pressClip;
 
-    private readonly HashSet<Collider> _occupants = new HashSet<Collider>();
-    private Vector3 _unpressedLocalPos;
-    private Vector3 _pressedLocalPos;
-    private Coroutine _motionRoutine;
-    private bool _isPressed;
-    private bool _isLocked;
+    private readonly HashSet<Collider> occupants = new HashSet<Collider>();
+    private Vector3 unpressedLocalPos;
+    private Vector3 pressedLocalPos;
+    private Coroutine motionRoutine;
+    private bool isPressed;
+    private bool isLocked;
 
-    public bool IsPressed => _isPressed || _isLocked;
-    public bool IsLocked => _isLocked;
+    public bool IsPressed => isPressed || isLocked;
+    public bool IsLocked => isLocked;
 
     /// <summary>
     /// Gán tham chiếu và thông số tự động từ KitchenMapBuilder.
@@ -60,8 +60,8 @@ public sealed class KitchenPressurePlate : MonoBehaviour
     {
         if (_movingPlate != null)
         {
-            _unpressedLocalPos = _movingPlate.localPosition;
-            _pressedLocalPos = _unpressedLocalPos - new Vector3(0f, _pressDepth, 0f);
+            unpressedLocalPos = _movingPlate.localPosition;
+            pressedLocalPos = unpressedLocalPos - new Vector3(0f, _pressDepth, 0f);
         }
 
         UpdateVisuals(PlateVisualState.Idle);
@@ -69,11 +69,11 @@ public sealed class KitchenPressurePlate : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (_isLocked) return;
+        if (isLocked) return;
         if (!IsValidOccupant(other)) return;
 
-        bool wasEmpty = _occupants.Count == 0;
-        _occupants.Add(other);
+        bool wasEmpty = occupants.Count == 0;
+        occupants.Add(other);
 
         if (wasEmpty)
         {
@@ -83,12 +83,12 @@ public sealed class KitchenPressurePlate : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (_isLocked) return;
+        if (isLocked) return;
         if (!IsValidOccupant(other)) return;
 
-        _occupants.Remove(other);
+        occupants.Remove(other);
 
-        if (_occupants.Count == 0)
+        if (occupants.Count == 0)
         {
             SetPressed(false);
         }
@@ -96,24 +96,48 @@ public sealed class KitchenPressurePlate : MonoBehaviour
 
     private bool IsValidOccupant(Collider col)
     {
-        // Chấp nhận người chơi (Tag Player / Layer 7) hoặc tổ trứng (Layer 8 / Tag Nest)
-        return col.CompareTag("Player") || col.gameObject.layer == 7 || col.gameObject.layer == 8 || col.CompareTag("Nest");
+        if (col == null) return false;
+        if (col.CompareTag("Player") || col.gameObject.layer == 7 || col.gameObject.layer == 8 || col.CompareTag("Nest")) return true;
+        if (col.GetComponentInParent<CharacterController>() != null) return true;
+        var netObj = col.GetComponentInParent<Unity.Netcode.NetworkObject>();
+        return netObj != null && netObj.IsPlayerObject;
     }
 
     private void SetPressed(bool pressed)
     {
-        if (_isPressed == pressed) return;
-        _isPressed = pressed;
+        if (isPressed == pressed) return;
+        isPressed = pressed;
 
         if (pressed && _audioSource != null && _pressClip != null)
         {
             _audioSource.PlayOneShot(_pressClip);
         }
 
-        AnimatePosition(pressed ? _pressedLocalPos : _unpressedLocalPos);
+        AnimatePosition(pressed ? pressedLocalPos : unpressedLocalPos);
         UpdateVisuals(pressed ? PlateVisualState.Active : PlateVisualState.Idle);
 
         OnPlateStateChanged?.Invoke(this, pressed);
+    }
+
+    /// <summary>
+    /// Đồng bộ trạng thái trực quan (chìm xuống / đổi màu) và âm thanh từ mạng.
+    /// Giúp Host và Client luôn nhìn thấy đối phương khi bước lên hoặc rời khỏi bàn đạp.
+    /// </summary>
+    public void SetVisualState(bool pressed, bool playSound)
+    {
+        if (isLocked) return;
+
+        // Nếu vị trí hiển thị hiện tại đã khớp thì không phát lặp âm thanh hoặc chạy đè Coroutine
+        bool wasVisualPressed = _movingPlate != null && Vector3.Distance(_movingPlate.localPosition, pressedLocalPos) < 0.02f;
+        if (wasVisualPressed == pressed) return;
+
+        if (playSound && pressed && _audioSource != null && _pressClip != null)
+        {
+            _audioSource.PlayOneShot(_pressClip);
+        }
+
+        AnimatePosition(pressed ? pressedLocalPos : unpressedLocalPos);
+        UpdateVisuals(pressed ? PlateVisualState.Active : PlateVisualState.Idle);
     }
 
     /// <summary>
@@ -121,19 +145,19 @@ public sealed class KitchenPressurePlate : MonoBehaviour
     /// </summary>
     public void LockSolved()
     {
-        _isLocked = true;
-        _isPressed = true;
-        _occupants.Clear();
+        isLocked = true;
+        isPressed = true;
+        occupants.Clear();
 
-        AnimatePosition(_pressedLocalPos);
+        AnimatePosition(pressedLocalPos);
         UpdateVisuals(PlateVisualState.Solved);
     }
 
     private void AnimatePosition(Vector3 targetLocalPos)
     {
         if (_movingPlate == null) return;
-        if (_motionRoutine != null) StopCoroutine(_motionRoutine);
-        _motionRoutine = StartCoroutine(MoveRoutine(targetLocalPos));
+        if (motionRoutine != null) StopCoroutine(motionRoutine);
+        motionRoutine = StartCoroutine(MoveRoutine(targetLocalPos));
     }
 
     private IEnumerator MoveRoutine(Vector3 target)

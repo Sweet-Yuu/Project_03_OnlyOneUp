@@ -6,11 +6,12 @@ using UnityEngine.UI;
 
 /// <summary>
 /// Quản lý hiển thị và chuyển trang cho Panel Hướng Dẫn chơi (Tutorial Panel).
+/// Sử dụng CanvasGroup để ẩn/hiện mượt mà mà không làm vô hiệu hoá GameObject chứa Controller,
+/// đảm bảo phím tắt (H, F1) và bộ đếm thời gian bắt đầu luôn luôn hoạt động.
 /// </summary>
 public sealed class TutorialPanelController : MonoBehaviour
 {
     [Header("=== Giao diện chính ===")]
-    [Tooltip("GameObject con chứa toàn bộ UI hiển thị (overlay, window). Nếu để trống, script sẽ tự tìm Content hoặc dùng CanvasGroup để tránh tắt nhầm root GameObject.")]
     [SerializeField] private GameObject _panelRoot;
     [SerializeField] private CanvasGroup _canvasGroup;
     [SerializeField] private Button _closeButton;
@@ -42,24 +43,22 @@ public sealed class TutorialPanelController : MonoBehaviour
 
     private void Awake()
     {
-        // Nếu _panelRoot trỏ vào chính gameObject này thì ưu tiên dùng CanvasGroup để không làm dừng Update/Coroutine của root
-        if (_panelRoot == gameObject)
+        if (_panelRoot == null)
         {
+            _panelRoot = gameObject;
+        }
+
+        // Tự động tìm hoặc gắn CanvasGroup để điều khiển hiển thị
+        if (_canvasGroup == null)
+        {
+            _canvasGroup = GetComponent<CanvasGroup>();
+            if (_canvasGroup == null && _panelRoot != null && _panelRoot != gameObject)
+            {
+                _canvasGroup = _panelRoot.GetComponent<CanvasGroup>();
+            }
             if (_canvasGroup == null)
             {
-                _canvasGroup = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
-            }
-        }
-        else if (_panelRoot == null)
-        {
-            Transform content = transform.Find("PanelContent") ?? transform.Find("Content");
-            if (content != null)
-            {
-                _panelRoot = content.gameObject;
-            }
-            else
-            {
-                _canvasGroup = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
+                _canvasGroup = gameObject.AddComponent<CanvasGroup>();
             }
         }
 
@@ -81,9 +80,8 @@ public sealed class TutorialPanelController : MonoBehaviour
 
     private void Start()
     {
-        // Đảm bảo ban đầu ẩn giao diện nhưng root GameObject vẫn hoạt động
-        SetDisplayVisible(false);
-        _isOpen = false;
+        // Khởi tạo ở trạng thái ẩn bảng hướng dẫn thông qua CanvasGroup
+        SetPanelVisibility(false);
     }
 
     private void Update()
@@ -141,8 +139,7 @@ public sealed class TutorialPanelController : MonoBehaviour
     /// </summary>
     public void Show()
     {
-        _isOpen = true;
-        SetDisplayVisible(true);
+        SetPanelVisibility(true);
 
         // Mở khóa chuột để người chơi bấm nút chuyển trang hoặc đóng
         Cursor.lockState = CursorLockMode.None;
@@ -157,8 +154,7 @@ public sealed class TutorialPanelController : MonoBehaviour
     /// </summary>
     public void Close()
     {
-        _isOpen = false;
-        SetDisplayVisible(false);
+        SetPanelVisibility(false);
 
         // Khôi phục con trỏ chuột nếu cần thiết cho góc nhìn camera gameplay
         if (_lockCursorOnClose)
@@ -168,28 +164,6 @@ public sealed class TutorialPanelController : MonoBehaviour
         }
 
         Closed?.Invoke();
-    }
-
-    private void SetDisplayVisible(bool visible)
-    {
-        if (_panelRoot != null && _panelRoot != gameObject)
-        {
-            _panelRoot.SetActive(visible);
-        }
-        else if (_canvasGroup != null)
-        {
-            _canvasGroup.alpha = visible ? 1f : 0f;
-            _canvasGroup.interactable = visible;
-            _canvasGroup.blocksRaycasts = visible;
-        }
-        else
-        {
-            // Fallback nếu không có con riêng hay CanvasGroup
-            foreach (Transform child in transform)
-            {
-                child.gameObject.SetActive(visible);
-            }
-        }
     }
 
     /// <summary>
@@ -208,7 +182,7 @@ public sealed class TutorialPanelController : MonoBehaviour
         }
         else
         {
-            // Nếu đang ở trang cuối và ấn tiếp thì đóng panel để bắt đầu chơi
+            // Nếu ở trang cuối mà bấm Tiếp thì đóng luôn panel
             Close();
         }
     }
@@ -230,7 +204,7 @@ public sealed class TutorialPanelController : MonoBehaviour
     }
 
     /// <summary>
-    /// Thiết lập trang hiển thị cụ thể theo index (0-based).
+    /// Chuyển tới một trang hướng dẫn cụ thể theo chỉ mục (0-based).
     /// </summary>
     public void SetPage(int pageIndex)
     {
@@ -249,18 +223,36 @@ public sealed class TutorialPanelController : MonoBehaviour
             }
         }
 
-        UpdateNavigationUI();
+        UpdateNavigationButtons();
+        UpdatePageIndicator();
+
         PageChanged?.Invoke(_currentPageIndex);
     }
 
-    private void UpdateNavigationUI()
+    private void SetPanelVisibility(bool visible)
     {
-        int total = _pages != null ? _pages.Length : 0;
-        int currentDisplay = total > 0 ? _currentPageIndex + 1 : 0;
+        _isOpen = visible;
 
-        if (_pageIndicatorText != null)
+        if (_canvasGroup != null)
         {
-            _pageIndicatorText.text = $"Trang {currentDisplay} / {total}";
+            _canvasGroup.alpha = visible ? 1f : 0f;
+            _canvasGroup.blocksRaycasts = visible;
+            _canvasGroup.interactable = visible;
+        }
+
+        // Nếu _panelRoot là một GameObject con riêng biệt thì mới gọi SetActive
+        // để tránh vô hiệu hoá chính GameObject chứa Controller và Trigger
+        if (_panelRoot != null && _panelRoot != gameObject)
+        {
+            _panelRoot.SetActive(visible);
+        }
+    }
+
+    private void UpdateNavigationButtons()
+    {
+        if (_pages == null || _pages.Length == 0)
+        {
+            return;
         }
 
         if (_prevButton != null)
@@ -270,31 +262,20 @@ public sealed class TutorialPanelController : MonoBehaviour
 
         if (_nextButton != null)
         {
-            // Ở trang cuối, có thể đổi text hoặc vẫn để nút bấm để người chơi bấm xong đóng panel
-            _nextButton.interactable = true;
+            // Trang cuối có thể đổi text thành "BẮT ĐẦU CHƠI" hoặc giữ nút đóng
             TMP_Text nextText = _nextButton.GetComponentInChildren<TMP_Text>();
             if (nextText != null)
             {
-                nextText.text = _currentPageIndex == total - 1 ? "Bắt đầu chơi >" : "Trang sau >";
+                nextText.text = (_currentPageIndex >= _pages.Length - 1) ? "Bắt đầu chơi ➔" : "Trang tiếp ➔";
             }
         }
     }
 
-    private void OnDestroy()
+    private void UpdatePageIndicator()
     {
-        if (_closeButton != null)
+        if (_pageIndicatorText != null)
         {
-            _closeButton.onClick.RemoveListener(Close);
-        }
-
-        if (_nextButton != null)
-        {
-            _nextButton.onClick.RemoveListener(NextPage);
-        }
-
-        if (_prevButton != null)
-        {
-            _prevButton.onClick.RemoveListener(PreviousPage);
+            _pageIndicatorText.text = $"Trang {_currentPageIndex + 1} / {TotalPages}";
         }
     }
 }

@@ -466,13 +466,21 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
         return true;
     }
 
-    private void CheckWinOnServer()
+    // Kích hoạt trạng thái chiến thắng từ server (dành cho trigger khu vực chiến thắng)
+    public void TriggerWin()
     {
-        if (!IsServer || !IsPlaying || IsRoundSuspended || _winContact == null || !_winContact.IsTouching()) return;
-        // Dừng sát thương trước khi thông báo UI, tránh trứng tiếp tục nứt sau khi thắng.
+        if (!IsServer || !IsPlaying || IsRoundSuspended) return;
         egg?.FinishRound();
         _hasWon.Value = true;
         PublishFrame();
+    }
+
+    private void CheckWinOnServer()
+    {
+        if (_winContact != null && _winContact.IsTouching())
+        {
+            TriggerWin();
+        }
     }
 
     // Capture after physics; both bodies share the same network timestamp.

@@ -59,12 +59,24 @@ public sealed class LocalPlayerCamera
         int count = 0;
         foreach (var candidate in Object.FindObjectsByType<CinemachineCamera>(FindObjectsSortMode.None))
         {
-            if (!candidate.isActiveAndEnabled || candidate.gameObject.scene != gameObject.scene) continue;
+            if (!candidate.isActiveAndEnabled) continue;
+            if (localCamera != null && candidate.gameObject.scene != localCamera.gameObject.scene && candidate.gameObject.scene != gameObject.scene) continue;
             count++;
             onlyCamera = candidate;
             if (candidate.name == "FreeLook Camera") followCamera = candidate;
         }
         if (followCamera == null && count == 1) followCamera = onlyCamera;
+        if (followCamera == null)
+        {
+            foreach (var candidate in Object.FindObjectsByType<CinemachineCamera>(FindObjectsSortMode.None))
+            {
+                if (candidate.isActiveAndEnabled && candidate.name == "FreeLook Camera")
+                {
+                    followCamera = candidate;
+                    break;
+                }
+            }
+        }
         if (followCamera == null)
         {
             Debug.LogWarning("Local player: enable the scene's FreeLook Camera and Cinemachine Brain. Camera target was not changed.", transform);

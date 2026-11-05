@@ -56,8 +56,9 @@ namespace Hoang.Puzzles
             }
         }
 
-        private void OnDestroy()
+        public override void OnDestroy()
         {
+            base.OnDestroy();
             if (_plateA != null) _plateA.StateChanged -= HandlePlateStateChanged;
             if (_plateB != null) _plateB.StateChanged -= HandlePlateStateChanged;
         }
