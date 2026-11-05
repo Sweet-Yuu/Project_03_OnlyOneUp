@@ -1802,25 +1802,25 @@ public static class KitchenMapBuilder
             var movingGate = gate.Find("MovingGate");
             var lintel = gate.Find("Lintel");
 
-            // Mở rộng khẩu độ cổng lên 19m (world) và tăng chiều cao lên 17.2m (world) để người chơi không thể nhảy/bước qua
+            // Mở rộng khẩu độ cổng lên 19m (world) và tăng chiều cao lên 21.6m (world) để người chơi không thể nhảy/bước qua
             if (leftPost != null)
             {
-                leftPost.localPosition = new Vector3(-5.3f, 4.25f, 0f);
-                leftPost.localScale = new Vector3(0.8f, 8.5f, 1.2f);
+                leftPost.localPosition = new Vector3(-5.3f, 6.0f, 0f);
+                leftPost.localScale = new Vector3(0.8f, 12.0f, 1.2f);
             }
             if (rightPost != null)
             {
-                rightPost.localPosition = new Vector3(5.3f, 4.25f, 0f);
-                rightPost.localScale = new Vector3(0.8f, 8.5f, 1.2f);
+                rightPost.localPosition = new Vector3(5.3f, 6.0f, 0f);
+                rightPost.localScale = new Vector3(0.8f, 12.0f, 1.2f);
             }
             if (movingGate != null)
             {
-                movingGate.localPosition = new Vector3(0f, 4.25f, 0f);
-                movingGate.localScale = new Vector3(10.5f, 8.5f, 0.8f);
+                movingGate.localPosition = new Vector3(0f, 6.0f, 0f);
+                movingGate.localScale = new Vector3(10.5f, 12.0f, 0.8f);
             }
             if (lintel != null)
             {
-                lintel.localPosition = new Vector3(0f, 8.5f, 0f);
+                lintel.localPosition = new Vector3(0f, 12.2f, 0f);
                 lintel.localScale = new Vector3(11.4f, 0.8f, 1.4f);
             }
 
@@ -1829,9 +1829,9 @@ public static class KitchenMapBuilder
             {
                 var soGate = new SerializedObject(gateComp);
                 var offsetProp = soGate.FindProperty("_openOffset");
-                if (offsetProp != null) offsetProp.vector3Value = new Vector3(0f, 11f, 0f);
+                if (offsetProp != null) offsetProp.vector3Value = new Vector3(0f, 14f, 0f);
                 var speedProp = soGate.FindProperty("_moveSpeed");
-                if (speedProp != null) speedProp.floatValue = 6f;
+                if (speedProp != null) speedProp.floatValue = 7f;
                 soGate.ApplyModifiedProperties();
             }
         }

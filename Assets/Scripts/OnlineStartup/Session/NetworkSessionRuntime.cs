@@ -19,6 +19,7 @@ public sealed class NetworkSessionRuntime : MonoBehaviour
 
         _manager = GetComponent<NetworkManager>();
         _manager.OnClientStopped += OnClientStopped;
+        _manager.OnClientDisconnectCallback += OnClientDisconnected;
 
         Roster = new RelayRoomRoster(_manager);
         Session = new RelaySession(
@@ -39,6 +40,19 @@ public sealed class NetworkSessionRuntime : MonoBehaviour
             ReturnToMenuTransition.Begin();
     }
 
+    private void OnClientDisconnected(ulong clientId)
+    {
+        // Client rời trận không làm host dừng mạng, nên host cần tự kết thúc
+        // lượt chơi hai người qua hiệu ứng chuyển cảnh trước khi Shutdown.
+        if (_manager == null || !_manager.IsHost || _manager.ShutdownInProgress ||
+            clientId == _manager.LocalClientId)
+            return;
+
+        string activeSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        if (activeSceneName == "MainMap_Online" || activeSceneName == "Kitchen_Map")
+            ReturnToMenuTransition.Begin();
+    }
+
     private void OnDestroy()
     {
         Session?.Dispose();
@@ -46,6 +60,7 @@ public sealed class NetworkSessionRuntime : MonoBehaviour
         if (_manager != null)
         {
             _manager.OnClientStopped -= OnClientStopped;
+            _manager.OnClientDisconnectCallback -= OnClientDisconnected;
             Roster?.Dispose();
         }
     }
