@@ -43,9 +43,12 @@ public sealed class PlayerCharacterMotor
         // no extra frame hanging at zero velocity, and jump height is frame-rate independent.
         float riseTime = verticalSpeed > 0f
             ? Mathf.Min(deltaTime, verticalSpeed / -riseGravity) : 0f;
+
         float verticalMove = verticalSpeed * riseTime + 0.5f * riseGravity * riseTime * riseTime;
         verticalSpeed += riseGravity * riseTime;
+
         float fallTime = deltaTime - riseTime;
+        
         verticalMove += verticalSpeed * fallTime + 0.5f * fallGravity * fallTime * fallTime;
         verticalSpeed += fallGravity * fallTime;
 

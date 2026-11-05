@@ -122,8 +122,6 @@ public sealed class NetworkGameStarter : MonoBehaviour
             player.GetComponent<NetworkPlayerIdentity>()
                 .SetNameOnServer(member.Name);
         }
-
-        // Giữ IsStarting = true để không bắt đầu trận lần thứ hai.
     }
 
     private void OnDestroy()
