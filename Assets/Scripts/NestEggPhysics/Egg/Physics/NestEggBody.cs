@@ -36,10 +36,9 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
     private float ignoreImpactUntil;
     private bool presentationInitialized;
 
+    /// Cấu hình Rigidbody/collider, tạo model và điều chỉnh kích thước model
     public void Initialize(Transform nestRoot, GameObject visualPrefab)
     {
-        // This wraps a native Unity object: create it on the main thread after
-        // AddComponent has completed, never in a MonoBehaviour field initializer.
         properties = new MaterialPropertyBlock();
         nest = nestRoot;
         Body = GetComponent<Rigidbody>();
@@ -94,6 +93,7 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
         SetPresentation(NestEggPhase.Waiting);
     }
 
+    // Bật cơ chế nứt theo từng lần và chuẩn bị hình ảnh trứng nứt/vỡ
     public void ConfigureProgressiveDamage(GameObject brokenVisual)
     {
         _progressiveDamage = true;
@@ -102,6 +102,7 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
         _damageVisual.Show(phase, DamageCount);
     }
 
+    //Xác định máy này có quyền mô phỏng vật lý trứng hay không
     public void SetAuthority(bool server)
     {
         authority = server;
@@ -109,6 +110,7 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
         Freeze();
     }
 
+    //Dừng chuyển động, chuyển sang kinematic, tắt trọng lực và collider
     private void Freeze()
     {
         _carried = false;
@@ -125,19 +127,21 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
         Body.useGravity = false;
         shell.enabled = false;
     }
-
+    //Đóng băng và ẩn trứng trong trạng thái chờ
     public void WaitForPlayers()
     {
         Freeze();
         SetPresentation(NestEggPhase.Waiting);
     }
 
+    //Dừng vật lý và sát thương khi trận kết thúc, giữ hình ảnh hiện tại
     public void FinishRound()
     {
         _roundFinished = true;
         Freeze(); // Giữ nguyên hình ảnh/vết nứt hiện có, chỉ ngừng vật lý và sát thương.
     }
 
+    //Đặt lại vị trí, góc quay, mức hư hại và bật lại mô phỏng trên host
     public void ResetOnServer(Vector3 position, Quaternion rotation)
     {
         if (!authority) return;
@@ -157,6 +161,7 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
         Body.WakeUp();
     }
 
+    //Bỏ qua va chạm giữa collider trứng và collider người chơi
     public void IgnorePlayer(GameObject player)
     {
         foreach (Collider c in player.GetComponentsInChildren<Collider>(true))
@@ -166,6 +171,7 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
         }
     }
 
+    //Chuyển trứng sang chế độ được điều khiển vị trí trong tổ, tắt trọng lực tự do
     public void BeginCarry(Pose pose)
     {
         if (!IsSimulating) return;
@@ -179,6 +185,7 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
         _carried = true;
     }
 
+    //Di chuyển trứng theo tư thế được tính; chủ động quét collider môi trường vì trứng đang kinematic
     public void MoveCarried(Pose pose)
     {
         if (!IsSimulating || !_carried) return;
@@ -208,6 +215,7 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
         _environmentContacts.IntersectWith(_currentContacts);
     }
 
+    //Trả trứng về Rigidbody động, bật trọng lực và gán vận tốc rơi/quay
     public void ReleaseCarry(Vector3 velocity, Vector3 angularVelocity)
     {
         if (!IsSimulating || !_carried) return;
@@ -254,6 +262,7 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
         return false;
     }
 
+    // Xử lý va chạm mới; tránh tính sát thương liên tục khi trứng đang tì vào cùng vật
     private void TouchEnvironment(Collider other)
     {
         if (!IsSimulating || Time.time < ignoreImpactUntil || !IsEnvironment(other)) return;
@@ -294,6 +303,7 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
         }
     }
 
+    //Tăng mức nứt hoặc làm vỡ khi tổ va chạm
     public void DamageFromNestImpact()
     {
         if (!IsSimulating) return;
@@ -301,6 +311,7 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
         else SetPresentation(NestEggPhase.Intact, (byte)(DamageCount + 1));
     }
 
+    //Cho trứng rơi do tổ va chạm, giữ nguyên số vết nứt đang có
     public void FallFromNestImpact(Vector3 velocity)
     {
         if (!IsSimulating) return;

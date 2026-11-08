@@ -1,0 +1,3301 @@
+[
+  {
+    "paragraph": 1,
+    "before": "[COURSE CODE] – [SEMESTER YEAR]",
+    "after": "Project report • Updated to the implementation reviewed on 8 November 2026"
+  },
+  {
+    "paragraph": 8,
+    "before": "The project is organised in nine weekly iterations. Early weeks validate the risky part of the design (the shared-egg physics) before any networking or content work starts.",
+    "after": "The nine-week plan below groups development work by milestone. It describes the implementation scope and intended sequence; it is not a verified record of completion dates."
+  },
+  {
+    "paragraph": 11,
+    "before": "Each member owns one area of the game and documents the matching report sections. Cross-review is mandatory: every merge request is reviewed by at least one other member.",
+    "after": "The responsibility table retains the team assignments from the original report. Technical tasks have been updated to match the current modules."
+  },
+  {
+    "paragraph": 14,
+    "before": "Note: the roles above are a proposal and can be adjusted to the actual team size; shared tasks (testing, report writing, presentation) are done by everyone.",
+    "after": "Team membership and student identifiers are retained from the supplied report. Shared work includes integration, testing, report writing and the presentation."
+  },
+  {
+    "paragraph": 26,
+    "before": "Inside a giant farmhouse kitchen, the last egg of the season is about to be taken away for breakfast. Two young chicks, Yolkie and Shelly, decide to rescue their unborn sibling and carry it all the way to the safe nest in the garden. The egg is far too big and too fragile for one chick, so they invent the Egg Press: each chick presses one side of the egg with its wing and the two carry it together.",
+    "after": "Egg Press 3D is a cooperative journey in which two ducks carry a nest containing a fragile egg through a large kitchen and an outdoor obstacle course. Each player controls one duck. Their relative positions determine how the shared nest moves and tilts, so progress depends on communication and careful movement."
+  },
+  {
+    "paragraph": 27,
+    "before": "The journey crosses two worlds. In The Giant Kitchen the chicks must survive slippery butter, a gust from the extractor fan, a launching toaster and a glowing hotplate. In The Garden Hazard they face loose pebbles, swinging branches, a rotating sprinkler and a small stream. A single careless step or a hard knock can crack the shell, so both chicks have to move, jump and brake as one.",
+    "after": "The first playable map is Kitchen_Map, with preparation counters, stove hazards, a seesaw crossing, cold storage, a pantry and a final patio. It combines traversal with pressure plates, a linked-lights puzzle and a symbol-code lock. The second map, MainMap_Online, uses outdoor platforms, bridges, obstacles, checkpoints and a finish area."
+  },
+  {
+    "paragraph": 29,
+    "before": "Two players connect online. Both play the same kind of character (a chick) with the same abilities; there is no “leader”. The experience is built on communication: one player often has to slow down so the other can catch up, and the player who sees a hazard first has to warn the partner.",
+    "after": "Two players connect as a host and a client. Both use the same duck player prefab and movement abilities. Each has a player name and an independently selected cosmetic item. The host starts the match and resolves shared gameplay state, but both players participate in carrying the nest."
+  },
+  {
+    "paragraph": 31,
+    "before": "Bright, humorous and slightly dramatic. Cartoon visuals and silly sound effects keep the mood light, while the creaking shell and the growing cracks create real tension. A shared success (reaching the next checkpoint with a healthy egg) is the main emotional reward.",
+    "after": "The game uses cartoon ducks, colourful scenery and a warm orange interface. Cracks, egg-break visuals, screen feedback and the movement of the nest communicate danger. Reaching a checkpoint gives the pair a shorter recovery route after failure."
+  },
+  {
+    "paragraph": 36,
+    "before": "A 3D physics co-op platformer in which two players carry one fragile egg across dangerous obstacle courses. The egg breaks if the pair moves too fast, accelerates too abruptly, squeezes too hard or suffers a strong impact. The core challenge is synchronisation, not reflexes.",
+    "after": "A 3D online co-op platformer for two players carrying one nest and egg. Relative movement, height differences, collisions and jump timing can destabilise the egg. Players must navigate the route, solve environmental puzzles and reach the level goal together."
+  },
+  {
+    "paragraph": 38,
+    "before": "Start level → move together and keep the egg stable → jump over / pass hazards → reach a checkpoint (collect score) → reach the goal (or the egg breaks and the pair restarts from the last checkpoint).",
+    "after": "Menu and equipment selection → create or join a Relay room → host starts with two players → loading and preparation → carry the nest, solve puzzles and collect coins → checkpoint recovery after failure → level victory → next level, replay or return to menu."
+  },
+  {
+    "paragraph": 40,
+    "before": "Physics-driven cooperation: the yolk’s moving centre of mass, shell friction and the spring-damper grip make the egg feel alive and force both players to read the same forces.",
+    "after": "Shared carrying: the nest is positioned from both players’ carrying points. Distance constraints and the duck rig keep the pair visually connected to it."
+  },
+  {
+    "paragraph": 41,
+    "before": "High stakes, high reward: one mistake can crack the shell, but crossing a narrow board with a perfect partner is very satisfying.",
+    "after": "Recoverable failure: egg breakage or a player entering a death zone restarts both players and the egg at the current checkpoint, or at the start if no checkpoint has been reached."
+  },
+  {
+    "paragraph": 42,
+    "before": "Readable feedback: every kind of stress (speed, acceleration, squeeze, impact) is visible and audible, so players know why the egg is in danger.",
+    "after": "Readable feedback: the egg has discrete damage stages, with cracks and local screen feedback. Falling out of the nest is a separate risk from accumulating damage."
+  },
+  {
+    "paragraph": 43,
+    "before": "Distinct visual identity: bright, humorous low-poly style that stays dramatic when the egg cracks.",
+    "after": "Personal expression: players buy cosmetic head items with coins, preview them in the menu and display their own selected item during online play."
+  },
+  {
+    "paragraph": 50,
+    "before": "The egg is the shared object and effectively the third “character”. It has two physical states and one health value:",
+    "after": "The egg is a shared object created and managed by NetworkNest. Its lifecycle uses Waiting, Intact and Broken. DamageCount is separate from the lifecycle phase; an egg with one or two damage increments is still in the Intact simulation phase."
+  },
+  {
+    "paragraph": 53,
+    "before": "Table 7: Shell integrity levels",
+    "after": "Table 7: Egg damage stages"
+  },
+  {
+    "paragraph": 56,
+    "before": "Hazards are not enemies but physical “characters” of the level. Each one pushes, slows, launches or heats the egg (full table in section 2.1).",
+    "after": "The current levels combine collision geometry, death zones and cooperative puzzles. The following table describes implemented mechanisms rather than the earlier proposed butter, toaster, fan and cooking systems."
+  },
+  {
+    "paragraph": 60,
+    "before": "The game is organised as five scenes plus several UI panels. Scenes are loaded asynchronously through SceneLoader; the host triggers the transition and Fusion loads the same scene on both machines.",
+    "after": "Four scenes are enabled in the build: Menu_Scene, Kitchen_Map, MainMap_Online and Credit. Room creation, the lobby and shop are panels in Menu_Scene. Gameplay scene changes use Netcode’s NetworkSceneManager. Victory is presented as a panel within the gameplay scene."
+  },
+  {
+    "paragraph": 63,
+    "before": "",
+    "after": "Menu_Scene: name entry → Create / Join → room roster → host Start\n↓\nKitchen_Map: loading → carry and solve puzzles → victory panel\n↓ Select Next Stage\nMainMap_Online: loading → outdoor traversal → victory panel\n\nFailure in either map → restart at the active checkpoint.\nQuit or partner disconnect → circular transition → Menu_Scene."
+  },
+  {
+    "paragraph": 67,
+    "before": "Figure 2: Main Menu screen",
+    "after": "Figure 2: Main menu from the earlier build"
+  },
+  {
+    "paragraph": 70,
+    "before": "Figure 3: Lobby screen",
+    "after": "Figure 3: Earlier Relay debug UI, replaced in the main flow by menu lobby panels"
+  },
+  {
+    "paragraph": 77,
+    "before": "The egg loses integrity when the pair moves faster than the safe speed, accelerates too sharply, squeezes too hard or hits something hard. Integrity never regenerates during a run.",
+    "after": "The egg does not have a 100-point health bar or continuous speed, acceleration or squeeze damage. With progressive damage enabled, eligible damage events increment a counter. Nest collisions can either damage the egg or eject it, as decided by the host."
+  },
+  {
+    "paragraph": 78,
+    "before": "If the egg is destroyed (or the pair falls into a kill zone), both players restart from the last checkpoint with a fresh egg. Each restart costs score.",
+    "after": "When the egg breaks, both players and the nest restart at the saved checkpoint with a reset egg. Entering a configured Dead zone also restarts the pair. There is no score deduction or limited-life counter in the current round logic."
+  },
+  {
+    "paragraph": 79,
+    "before": "Checkpoints are saved for both players; the run ends successfully when both chicks and the egg enter the goal zone.",
+    "after": "A checkpoint can be reported by one player; the server validates the contact and safe respawn positions for both. In Kitchen_Map, a player or the nest entering the final trigger can activate victory. In MainMap_Online, NetworkNest checks whether the nest touches Win_Area. The code does not require both ducks and the egg to enter the goal simultaneously."
+  },
+  {
+    "paragraph": 80,
+    "before": "Scoring",
+    "after": "Coins and progression"
+  },
+  {
+    "paragraph": 81,
+    "before": "Score = time bonus + integrity bonus + collectible “seeds” − restart penalty. Final stars (1–3) are given from the total score. Scores are shown on the Result screen and compared between the two players’ runs.",
+    "after": "Coins are the implemented reward currency. A valid online pickup is approved by the server, despawns the shared coin and adds one coin to each connected player’s local wallet. Coins buy cosmetic items in the menu shop. A time score, seed score, restart penalty, star rating and competitive leaderboard are not implemented."
+  },
+  {
+    "paragraph": 83,
+    "before": "Walk at the same speed – decide who leads and call out “slow”, “stop”, “jump” with the ping key or voice chat.",
+    "after": "Agree on a route and communicate before changing direction or stepping onto a narrow platform. Movement is relative to the local camera."
+  },
+  {
+    "paragraph": 84,
+    "before": "Lean against the direction in which the yolk sways to stabilise it.",
+    "after": "Keep the players at compatible heights and avoid extreme nest tilt. The egg can roll toward the lower edge and leave the nest when the release angle is exceeded."
+  },
+  {
+    "paragraph": 85,
+    "before": "On butter, release the grip and move in tiny steps; on the toaster, jump together.",
+    "after": "Use jump timing deliberately. The cooperative jump detector pairs timestamps from different players; a matched pair releases the egg from assisted carrying. In the current maps this can push it sideways out of the nest."
+  },
+  {
+    "paragraph": 86,
+    "before": "Do not stand on the hotplate: the egg slowly boils (heavier, lower jump) – sometimes useful, but not for the high jumps.",
+    "after": "At puzzle consoles, read the prompt and use E to enter or leave input mode. Solve the lights or symbol code before crossing the opened gate. Esc opens settings; H or F1 toggles the tutorial."
+  },
+  {
+    "paragraph": 87,
+    "before": "[ Insert screenshot: Gameplay screenshot showing the egg, both chicks, egg health bar and speed indicator ]",
+    "after": "The gameplay interface includes a coin display, player nameplates, tutorial and settings controls, loading transitions and the victory panel. Egg damage is communicated through the model and screen effects."
+  },
+  {
+    "paragraph": 89,
+    "before": "Figure 4: In-game HUD",
+    "after": ""
+  },
+  {
+    "paragraph": 92,
+    "before": "Both worlds follow the same design rule, teach – test – twist: a hazard is first introduced in a safe area, then tested with a small risk, then combined with another hazard. Path width shrinks and hazards become more frequent from the beginning to the end of each world, which gives a smooth difficulty curve. Every level has 4–6 checkpoints so a failure never costs more than about one minute.",
+    "after": "Kitchen_Map is arranged into six named zones and contains checkpoint IDs 1–6. MainMap_Online is an outdoor platforming course with an active checkpoint configuration. Route length and completion time depend on player coordination; this report does not assign an unmeasured one-minute maximum loss or fixed completion time."
+  },
+  {
+    "paragraph": 93,
+    "before": "World 1 – The Giant Kitchen",
+    "after": "World 1 — Kitchen_Map"
+  },
+  {
+    "paragraph": 96,
+    "before": "[ Insert screenshot: Top-down map or greybox screenshot of World 1 with sections 1–7 and checkpoint positions ]",
+    "after": "The kitchen route progresses from the preparation island through the cookline, dishwashing area, cold-storage vault and high pantry to the VIP banquet and patio."
+  },
+  {
+    "paragraph": 98,
+    "before": "Figure 5: World 1 level layout (top view)",
+    "after": ""
+  },
+  {
+    "paragraph": 99,
+    "before": "[ Insert screenshot: Final art screenshot of World 1 ]",
+    "after": "The map combines static kitchen props with interactive gates, death zones and a tilting plank. Decorative props should not be interpreted as functional cooking or launch-pad mechanics."
+  },
+  {
+    "paragraph": 101,
+    "before": "Figure 6: World 1 – Giant Kitchen in-game",
+    "after": ""
+  },
+  {
+    "paragraph": 102,
+    "before": "World 2 – The Garden Hazard",
+    "after": "World 2 — MainMap_Online"
+  },
+  {
+    "paragraph": 105,
+    "before": "[ Insert screenshot: Screenshot of World 2 (sprinkler field or stepping stones) ]",
+    "after": "The outdoor route uses raised platforms, wooden bridge sections, collision obstacles and a death zone. Players must carry the nest through the route and bring it into contact with the finish area."
+  },
+  {
+    "paragraph": 107,
+    "before": "Figure 7: World 2 – Garden Hazard in-game",
+    "after": ""
+  },
+  {
+    "paragraph": 109,
+    "before": "All numeric values below are initial design values stored in ScriptableObjects (HazardConfig) so that designers can tune them without changing code. Final values are adjusted during playtesting.",
+    "after": "Gameplay parameters are stored in component fields, prefab values and scene overrides. The table below distinguishes the current mechanisms from values proposed in the original design. ShopData is the ScriptableObject catalogue for cosmetics; no shared HazardConfig asset drives all obstacles."
+  },
+  {
+    "paragraph": 113,
+    "before": "Lighting: baked lightmaps for static geometry (kitchen, garden), one realtime directional light, light probes around moving objects; warm colours in the kitchen, bright green/blue in the garden.",
+    "after": "The project uses URP 17.3.0 with scene lights, materials, shadows and environment assets. Lighting and shadow cost must be assessed per scene and camera view; a fully baked lighting setup is not assumed."
+  },
+  {
+    "paragraph": 114,
+    "before": "Camera: Cinemachine FreeLook/virtual camera with a Target Group (both chicks + egg) so that both players stay in view; collision avoidance prevents clipping through walls.",
+    "after": "LocalPlayerCamera binds the active Cinemachine camera to the local player’s tracking target and preserves the scene camera’s lens and input configuration. It is not a single camera shared by both computers or a mandatory Cinemachine Target Group containing both ducks and the egg."
+  },
+  {
+    "paragraph": 115,
+    "before": "Audio: one looping BGM per world, SFX for footsteps, crack, break, toaster, sizzle; a heartbeat-like creak when the egg is Critical.",
+    "after": "Audio is organised through scene background music, UI hover/click sounds and the existing audio services. Settings expose Master, Music and SFX volume/mute controls and save these preferences. Audio assigned to puzzle gates and the seesaw provides interaction feedback."
+  },
+  {
+    "paragraph": 120,
+    "before": "The Egg – components and parameters",
+    "after": "The egg — runtime components"
+  },
+  {
+    "paragraph": 123,
+    "before": "The stress model",
+    "after": "Damage and release rules"
+  },
+  {
+    "paragraph": 124,
+    "before": "Egg health (integrity) starts at 100 and only decreases. Every physics step the EggStressSystem asks each registered stress source how much damage it produces; impacts are handled in OnCollisionEnter. With e the egg, v its speed, a its acceleration, F the total grip force of both players and J the collision impulse:",
+    "after": "The server owns the egg simulation and decides damage. Progressive damage is enabled by overrides on the nest instances in both gameplay scenes. Each accepted damage event changes DamageCount; the implementation uses discrete contact events rather than continuous stress formulas."
+  },
+  {
+    "paragraph": 125,
+    "before": "Speed stress: D_speed = k_v · max(0, |v| − v_safe) · Δt",
+    "after": "First and second damage events: DamageCount increases to 1 and then 2; the visual shows increasing cracks while the phase remains Intact."
+  },
+  {
+    "paragraph": 126,
+    "before": "Acceleration stress: D_acc = k_a · max(0, |a| − a_safe) · Δt  (sudden starts/stops, hard turns)",
+    "after": "Third damage event: the egg enters Broken and raises the round-failure event. Duplicate contacts on the same object and contacts in the same physics step are filtered."
+  },
+  {
+    "paragraph": 127,
+    "before": "Grip stress: D_grip = k_g · max(0, F − F_safe) · Δt  (over-squeezing or stretching because the players drift apart)",
+    "after": "Nest impact: after preparation and cooldown checks, the host chooses between applying a damage increment and ejecting the egg. The shared nest prefab currently sets a 0.5 crack probability and a 0.75-second cooldown."
+  },
+  {
+    "paragraph": 128,
+    "before": "Impact: if J ≥ J_break → integrity = 0; else if J ≥ J_crack → D_impact = k_i · (J − J_crack)",
+    "after": "Release and landing: ReleaseCarry marks the egg to break at its next eligible environment collision, even if it has fewer than two prior damage increments. Nest and player colliders, triggers and Win_Area are excluded from ordinary environment damage checks."
+  },
+  {
+    "paragraph": 129,
+    "before": "Multiplier: while the egg is Cracked all damage is multiplied by 1.5.",
+    "after": "Recovery: NetworkRoundManager responds to egg failure with a checkpoint restart. The egg lifecycle also breaks an actively simulated egg below world Y = −50 as a safety fallback."
+  },
+  {
+    "paragraph": 130,
+    "before": "Table 16: Initial stress parameters (EggConfig)",
+    "after": "Table 16: Current carrying and damage parameters"
+  },
+  {
+    "paragraph": 132,
+    "before": "The values come from the first design iteration and are expected to change during prototyping (week 3–4). They are tuned in EggConfig (a ScriptableObject), never hard-coded.",
+    "after": "Values above were read from the current scripts, NetWorkPlayer/Nest prefabs and gameplay scene overrides. Scene overrides take precedence over prefab defaults; for example, the current jump-pair window is 0.694 seconds in both maps rather than the 0.2-second prefab default."
+  },
+  {
+    "paragraph": 133,
+    "before": "Yolk simulation (raw egg)",
+    "after": "Assisted carrying and free flight"
+  },
+  {
+    "paragraph": 134,
+    "before": "For a raw egg a lightweight spring-damper simulates the yolk: the yolk offset follows the opposite of the egg’s local acceleration, is pulled back to the centre by a spring and damped by friction. The offset is then written to Rigidbody.centerOfMass (scaled by a small influence factor). The result is a wobble that grows when players accelerate abruptly and that can be damped with the Q/E lean – the physics-driven balance pillar without simulating a second rigid body.",
+    "after": "NestEggCarryPhysics simulates a bounded egg offset on the nest floor using gravity, a small inertial contribution and damping. While carried, the body is moved in the nest coordinate system. Excessive tilt or paired jump events release it to server-side Rigidbody motion. There is no simulated internal yolk, raw-to-boiled conversion, player-controlled squeeze or Q/E balancing mechanic."
+  },
+  {
+    "paragraph": 136,
+    "before": "EggStateMachine contains five states. Idle and Rolling describe the motion on the ground, Jumping describes airtime, Cracked is entered once integrity falls below 60 and Destroyed is the terminal state. In CrackedState the motion checks still run (the egg can still roll or jump), but the stability and damage multipliers change.",
+    "after": "NestEggPhase defines Waiting, Intact and Broken. Waiting covers setup; reset activates Intact; breaking activates Broken; a round restart creates the next intact simulation state. DamageCount 1 and 2 do not create separate Cracked or Critical states. Player movement separately uses an Idle/Walk state machine, with jump handled by the motor."
+  },
+  {
+    "paragraph": 137,
+    "before": "",
+    "after": "Waiting → preparation/reset → Intact → break condition → Broken\nBroken → checkpoint restart/reset → Intact\nAny active phase → stop/wait for preparation → Waiting\n\nDamageCount within Intact: 0 → 1 → 2.\nThe next accepted damage event, or an eligible landing after release, produces Broken."
+  },
+  {
+    "paragraph": 138,
+    "before": "Figure 8: Egg state machine",
+    "after": "Figure 8: Egg lifecycle and separate damage counter"
+  },
+  {
+    "paragraph": 144,
+    "before": "The egg is held by two custom spring-damper forces instead of Unity joints. This is more tunable, it exposes the exact force magnitude to the stress system and it is easier to replicate: the only authority needed is the host’s physics step.",
+    "after": "The pair carries the nest through carrying anchors, geometry calculations and distance constraints. The player motor uses CharacterController. The nest follows the shared carry pose, while the egg uses assisted carrying or free Rigidbody motion. The current system does not apply two player-controlled spring grips directly to the eggshell."
+  },
+  {
+    "paragraph": 149,
+    "before": "3D models / textures: low-poly kitchen and garden props (free or purchased packs such as Kenney, Quaternius, Unity Asset Store – licences recorded in the asset list) plus custom egg and chick models.",
+    "after": "The project contains a rigged duck, nest and egg visuals, kitchen/outdoor environment assets and cosmetic item prefabs. Imported models and decorative assets are distinct from the gameplay scripts that make an object interactive. Exact asset provenance and licences remain in the team’s asset records."
+  },
+  {
+    "paragraph": 150,
+    "before": "Audio: BGM per world and SFX (footsteps, crack, break, toaster, sizzle, water); stored in AudioMixer groups (Master, Music, SFX, UI) with adjustable volume.",
+    "after": "The existing audio assets support background music, UI actions and configured gameplay interactions. Master, Music and SFX settings are applied through the audio mixer and stored locally."
+  },
+  {
+    "paragraph": 151,
+    "before": "UI: buttons, panels, health bar, icons, fonts (TextMeshPro); created as sprites and 9-slice images.",
+    "after": "The UI uses Unity UI and TextMeshPro for menu/lobby panels, the shop, coin display, settings, tutorial pages, loading and victory feedback."
+  },
+  {
+    "paragraph": 152,
+    "before": "VFX: shard particles (pooled), steam, water splash, dust.",
+    "after": "Egg feedback uses crack/broken visuals, camera shake and a screen flash. The current report does not claim pooled shell shards, steam or a boiling effect."
+  },
+  {
+    "paragraph": 154,
+    "before": "This section explains how SOLID principles and design patterns are applied in the project. For each item, insert a screenshot of the relevant code and write 2–3 sentences below it explaining what the code does and why the principle or pattern was used.",
+    "after": "The following examples refer to implemented classes. Interfaces separate input, movement constraints, wallet access, Relay service calls and puzzle interactions. The project also retains direct references and singleton services, so these examples describe specific applications of SOLID rather than claiming that every class follows every principle."
+  },
+  {
+    "paragraph": 156,
+    "before": "S – Single Responsibility Principle",
+    "after": "S — Single Responsibility: KeyboardPlayerInput reads movement/jump input; PlayerCharacterMotor applies movement; PlayerAnimationPresenter controls animation. These responsibilities are separated from session setup and UI."
+  },
+  {
+    "paragraph": 158,
+    "before": "O – Open/Closed Principle",
+    "after": "O — Open/Closed: PlayerCharacterMotor accepts IPlayerMovementConstraint. The motor can use a different constraint implementation without changing its movement calculation."
+  },
+  {
+    "paragraph": 160,
+    "before": "L – Liskov Substitution Principle",
+    "after": "L — Liskov Substitution: OnlineIdleState and OnlineWalkState implement OnlinePlayerState. OnlinePlayerStateMachine calls the same Enter, Tick and Exit contract regardless of the active state."
+  },
+  {
+    "paragraph": 162,
+    "before": "I – Interface Segregation Principle",
+    "after": "I — Interface Segregation: ICoinWallet exposes the wallet operations needed by coin collection; IPlayerMovementConstraint exposes movement limiting; IPuzzleInteractable exposes puzzle activation. Consumers do not depend on a large all-purpose game manager."
+  },
+  {
+    "paragraph": 163,
+    "before": "",
+    "after": "Example: Coin receives an ICoinWallet through Initialize; it calls AddCoin after collection. Puzzle controllers reference IPuzzleInteractable to activate their gate."
+  },
+  {
+    "paragraph": 164,
+    "before": "D – Dependency Inversion Principle",
+    "after": "D — Dependency Inversion: RelaySession receives IRelayRoomService in its constructor, and coin collection receives ICoinWallet. Unity-facing installers connect concrete implementations to those contracts."
+  },
+  {
+    "paragraph": 167,
+    "before": "State pattern",
+    "after": "State pattern: OnlinePlayerStateMachine changes between OnlineIdleState and OnlineWalkState. Jump input is passed separately to the motor; the egg uses an enum lifecycle rather than the five-state class hierarchy proposed in the original report."
+  },
+  {
+    "paragraph": 168,
+    "before": "NOTE FOR TEAM – Insert code screenshot: EggStateMachine (ChangeState) + one concrete state (e.g. RollingState) and, if you want, GameManager states (Menu, Lobby, Playing, Result). Optionally add the egg state diagram (Figure “Egg state machine”) next to it.",
+    "after": "The state-machine example is Assets/Scripts/Player/Movement/OnlinePlayerStateMachine.cs. ChangeState calls Exit on the previous state and Enter on the next state, while Tick delegates movement decisions to the current state."
+  },
+  {
+    "paragraph": 170,
+    "before": "Strategy pattern",
+    "after": "Strategy-style composition: IPlayerMovementConstraint lets PlayerCharacterMotor delegate movement limits. CarryDistanceConstraint supplies the current carrying constraint. This separates movement integration from the rule that keeps two carriers within reach."
+  },
+  {
+    "paragraph": 171,
+    "before": "Observer pattern (C# events / EventBus)",
+    "after": "Observer pattern: CurrencyManager raises OnCoinChanged after AddCoin or a successful SpendCoin. CoinUI subscribes, updates its TextMeshPro label and unsubscribes when destroyed. RoomLobbyView similarly listens to roster changes; equipment visuals listen to the equipped-ID NetworkVariable."
+  },
+  {
+    "paragraph": 172,
+    "before": "Object Pool",
+    "after": "Singleton usage: SaveSystem, CurrencyManager, PlayerInventory and CharacterEquipment provide shared access in the existing implementation. They simplify access but require correct scene lifetime and initialisation. No Object Pool or HazardBase Template Method is claimed for the current gameplay."
+  },
+  {
+    "paragraph": 173,
+    "before": "Template Method (hazards)",
+    "after": "Network synchronisation: player movement is owner-authoritative; shared nest/egg state, checkpoint decisions and round outcomes are server-controlled. NetworkVariables carry persistent state and RPCs carry requests/events. Nest snapshots include both nest and egg data, and the client uses prediction, reconciliation and presentation smoothing."
+  },
+  {
+    "paragraph": 174,
+    "before": "Facade / Singleton / Command (optional – keep only those you really implement)",
+    "after": "Interface-based puzzle design: LinkedLightsPuzzle and SymbolCipherPuzzle use IPuzzleInteractable for the gate. Their plain C# rule classes can be tested without running a scene. EditMode test sources exist for LinkedLightsBoard and SymbolCipherLock."
+  },
+  {
+    "paragraph": 175,
+    "before": "2.4 Profiler Tools for Performance Analysis ",
+    "after": "2.4 Performance Analysis"
+  },
+  {
+    "paragraph": 178,
+    "before": "1.Lobby and matchmaking",
+    "after": "2.5 Online Session Flow"
+  },
+  {
+    "paragraph": 179,
+    "before": "Create room: the host generates a 4-character room code; NetworkRunnerHandler starts a Fusion session with that name (max 2 players).",
+    "after": "Create room: RelayRoomService signs in anonymously, allocates room for one joining client and obtains a Relay join code. RelaySession configures UnityTransport and starts the NGO host. The join code is returned by Relay; the project does not generate a fixed four-character Fusion room name."
+  },
+  {
+    "paragraph": 180,
+    "before": "Join room: the second player types the code and joins; invalid or full rooms show an error message.",
+    "after": "Join room: the other player enters the shared Relay code. The session joins through Unity Transport, and RelayRoomRoster maintains the two-player list and names. Invalid or unavailable rooms report an error through the session UI."
+  },
+  {
+    "paragraph": 181,
+    "before": "Quick match: joins any open session or creates one if none exists.",
+    "after": "The current menu supports Create and Join by code. Automatic quick matching and skill-based matchmaking are not part of this implementation."
+  },
+  {
+    "paragraph": 182,
+    "before": "Ready and start: both players press Ready; the host loads the selected world through the Runner scene manager so that both clients load the same scene.",
+    "after": "Start: only the host sees an enabled Start action when both connected players and roster entries are present. There is no separate Ready button required from each player. NetworkGameStarter synchronises the first map load and then spawns each player object with its owner and display name."
+  },
+  {
+    "paragraph": 183,
+    "before": "Disconnect: if one player leaves, the other is shown a message and returned to the lobby. Reconnection is out of scope for this version.",
+    "after": "Disconnect or Quit: leaving gameplay ends the two-player session for the other participant as well. ReturnToMenuTransition performs the circular cover/loading effect and returns to Menu_Scene. Reconnection and host migration are not implemented."
+  },
+  {
+    "paragraph": 184,
+    "before": "1.2. Test environment",
+    "after": "2.4.1 Test Environment"
+  },
+  {
+    "paragraph": 187,
+    "before": "2. Performance goals",
+    "after": "2.4.2 Performance Targets"
+  },
+  {
+    "paragraph": 190,
+    "before": "3. Testing methodology",
+    "after": "2.4.3 Measurement Method"
+  },
+  {
+    "paragraph": 191,
+    "before": "3.1. Tools used",
+    "after": "Tools"
+  },
+  {
+    "paragraph": 194,
+    "before": "3.2. Test scenarios",
+    "after": "Capture Scenarios"
+  },
+  {
+    "paragraph": 195,
+    "before": "",
+    "after": "The screenshots and numerical results retained below belong to the earlier report. They document a historical capture, not a benchmark of the current scripts and levels. A new comparison must use the same hardware, resolution, quality settings, build type and capture duration for host and client."
+  },
+  {
+    "paragraph": 199,
+    "before": "4. Initial measurement results (baseline)",
+    "after": "2.4.4 Historical Baseline"
+  },
+  {
+    "paragraph": 202,
+    "before": "5. CPU Bounds",
+    "after": "2.4.5 CPU and Presentation Waits"
+  },
+  {
+    "paragraph": 206,
+    "before": "6. Issues Analysis",
+    "after": "2.4.6 Issues and Proposed Optimisation"
+  },
+  {
+    "paragraph": 207,
+    "before": "1. Excessive Draw Calls (Batches: 4725)",
+    "after": "Draw Calls"
+  },
+  {
+    "paragraph": 208,
+    "before": "Observation: The Profiler recorded a massive number of Batches (4725) with the Saved by batching metric at 0. For a standard 3D game, especially on mobile platforms, this number should ideally be maintained under 500–1000 batches.",
+    "after": "The earlier report records 4,725 batches for a gameplay capture. This is a useful optimisation lead, but the count depends on the scene, camera and render passes. It is not a universal limit or a current-build measurement."
+  },
+  {
+    "paragraph": 209,
+    "before": "Technical Cause: In Unity's rendering pipeline, each Batch typically represents a Draw Call—a set of instructions the CPU must prepare and send to the GPU to render an object. With nearly 5000 individual draw calls, the CPU spends an excessive amount of time packaging data (material states, shaders, meshes) to send across the system bus. The fact that batching is saving zero draw calls indicates that the engine is rendering every single object entirely independently without grouping them.",
+    "after": "A high batch count can increase render-thread submission cost. A zero “Saved by batching” statistic alone does not prove that every batching path is disabled; SRP Batcher behaviour must be inspected separately in the Frame Debugger."
+  },
+  {
+    "paragraph": 211,
+    "before": "Enable Static Batching: Mark all static environmental objects (buildings, roads, terrain) with the Static flag in the Inspector. Unity will automatically combine their meshes, drastically reducing the number of draw calls.",
+    "after": "Evaluate static batching for suitable non-moving environment meshes, checking the memory cost and the render-pipeline configuration."
+  },
+  {
+    "paragraph": 212,
+    "before": "Utilize GPU Instancing: Apply this technique for objects that share the same Mesh and Material but appear in large quantities (e.g., coins, trees, repeating obstacles). This allows the GPU to render thousands of identical objects using only a single draw call.",
+    "after": "Evaluate GPU instancing for repeated compatible mesh/material combinations, and compare frame time before and after. Do not assume every repeated object can be reduced to a single draw call."
+  },
+  {
+    "paragraph": 213,
+    "before": "2. Massive Polygon Count (Tris: 9.4M / Verts: 9.8M)",
+    "after": "Geometry Workload"
+  },
+  {
+    "paragraph": 214,
+    "before": "Observation: The game is forcing the GPU to render 9.4 million Triangles and 9.8 million Vertices per frame. This is an extraordinarily heavy workload, typically only seen in high-end AAA PC or Console titles.",
+    "after": "The earlier capture reports approximately 9.4 million triangles and 9.8 million vertices. These are recorded rendering statistics and should be remeasured with the current content and camera views."
+  },
+  {
+    "paragraph": 215,
+    "before": "Technical Cause: Processing nearly 10 million polygons per frame overloads both the vertex and pixel shaders. The GPU consumes massive memory bandwidth and computing power (FLOPS) just to calculate spatial positions and colors for geometric details that likely do not contribute significantly to the visual experience. This sheer volume of geometry is the primary driver of the GPU Bound state (FPS dropping to 23.7).",
+    "after": "High visible geometry can add GPU work. To establish the bottleneck, compare GPU timing and controlled changes to resolution, shadows and geometry. The FPS value and polygon count alone do not prove a GPU-bound frame."
+  },
+  {
+    "paragraph": 217,
+    "before": "Asset Optimization (Low-Poly): Review and replace the current 3D models with decimated, low-poly versions. Rely on Textures and Normal Maps to fake surface details instead of using dense geometry.",
+    "after": "Review dense models and reduce detail that is not visible at gameplay distance. Preserve the silhouette and important visual features."
+  },
+  {
+    "paragraph": 218,
+    "before": "Implement Level of Detail (LOD): Configure LOD Groups so that Unity automatically swaps to lower-polygon models when objects are further away from the camera, only rendering high-poly meshes when the player is close.",
+    "after": "Evaluate LOD Groups for distant environment assets and verify transitions during actual camera movement."
+  },
+  {
+    "paragraph": 219,
+    "before": "Apply Occlusion Culling: Set up Occlusion Culling so the engine completely stops rendering objects that are hidden behind larger foreground elements, immediately reducing the number of rendered polygons.",
+    "after": "Evaluate occlusion culling where level geometry can hide substantial content; measure its benefit against the cost and bake requirements."
+  },
+  {
+    "paragraph": 220,
+    "before": "3. Expensive Real-Time Shadow Calculation (Shadow Casters: 2333)",
+    "after": "Shadow Workload"
+  },
+  {
+    "paragraph": 221,
+    "before": "Observation: There are currently 2333 objects simultaneously casting shadows within the scene.",
+    "after": "The earlier report records 2,333 shadow casters in the captured view. The number is historical and varies with scene visibility and shadow settings."
+  },
+  {
+    "paragraph": 222,
+    "before": "Technical Cause: To generate real-time shadows, Unity uses a technique called Shadow Mapping. This requires the engine to render the scene multiple times from the perspective of the light source (Directional Light) into a depth map before determining which pixels are in shadow. Calculating this for over 2300 objects drains a massive amount of the GPU's fillrate and system bandwidth, severely impacting frame rates.",
+    "after": "Shadow passes render additional geometry from the light’s view. Shadow distance, cascades and the number of visible casters should be measured alongside GPU timing before selecting a change."
+  },
+  {
+    "paragraph": 224,
+    "before": "Disable Shadows for Minor Objects: Select all minor, decorative, or distant objects (such as grass, small rocks, or background props) and disable the Cast Shadows option in their Mesh Renderer components.",
+    "after": "Disable shadow casting on minor or distant decorative objects where it does not affect readability."
+  },
+  {
+    "paragraph": 225,
+    "before": "Bake Lighting: Transition the static environment to pre-calculated Lightmaps. Change the Directional Light mode to Mixed so that expensive real-time shadows are only calculated for dynamic, moving objects (like the player and enemies), while the environment uses baked shadows.",
+    "after": "Evaluate baked or mixed lighting for static scenery while retaining suitable dynamic shadows for ducks, the nest and moving objects. Compare quality and performance rather than assuming this conversion is already complete."
+  },
+  {
+    "paragraph": 226,
+    "before": "7. Frame Debugger",
+    "after": "2.4.7 Frame Debugger Observations"
+  },
+  {
+    "paragraph": 234,
+    "before": "The demo shows a complete co-op run of World 1 by two players on two computers and a short part of World 2. The video follows the storyboard below.",
+    "after": "The proposed demo follows the current two-player flow from menu customisation and Relay connection through the kitchen and outdoor maps. The sequence below is a recording plan, not evidence that every test has passed."
+  },
+  {
+    "paragraph": 237,
+    "before": "Demo video: [link]      Source code repository: [link]      Playable build: [link]",
+    "after": "Demo video, repository and playable-build links should be supplied by the team with the final submission."
+  },
+  {
+    "paragraph": 238,
+    "before": "[ screenshot: Two chicks carrying the egg over the cutting board ]",
+    "after": "Demo capture 1 should show both ducks carrying the nest through a kitchen puzzle, with names and coin UI visible."
+  },
+  {
+    "paragraph": 240,
+    "before": "Figure 13: Demo – gameplay screenshot 1",
+    "after": ""
+  },
+  {
+    "paragraph": 241,
+    "before": "[ screenshot: Egg cracked, red warning HUD ]",
+    "after": "Demo capture 2 should show egg damage or a fall, followed by both players returning to the active checkpoint."
+  },
+  {
+    "paragraph": 243,
+    "before": "Figure 14: Demo – gameplay screenshot 2",
+    "after": ""
+  },
+  {
+    "paragraph": 244,
+    "before": "[ screenshot: Result screen with stars ]",
+    "after": "Demo capture 3 should show the victory panel and the selected next-stage, replay or menu action on both machines."
+  },
+  {
+    "paragraph": 246,
+    "before": "Figure 15: Demo – gameplay screenshot 3",
+    "after": ""
+  },
+  {
+    "paragraph": 247,
+    "before": "3.2 Build and Deployment",
+    "after": "3.2 Build and Deployment"
+  },
+  {
+    "paragraph": 254,
+    "before": "Disable debug scripting symbols and make a release build (File → Build Settings).",
+    "after": "Create a Windows build from Unity Build Profiles using the enabled scene list. Enable Development Build for profiling; create a separate release build after verification."
+  },
+  {
+    "paragraph": 262,
+    "before": "The test cases cover the lobby, the egg physics, the hazards and the build. The last column is filled in by the team after executing each case on the final build (Passed / Failed + notes).",
+    "after": "The checklist below covers the implemented controls, shared egg behaviour, puzzles, coins, cosmetics and session flow. Results are marked Pending until the team runs each case on the final build. Source review confirms implementation paths, not multiplayer runtime correctness."
+  },
+  {
+    "paragraph": 275,
+    "before": "Data-driven design (ScriptableObjects) allows quick tuning of the stress model and the hazards.",
+    "after": "The project separates input, motor, animation, carrying and session concerns, and stores cosmetic catalogue data in ShopData."
+  },
+  {
+    "paragraph": 276,
+    "before": "Clean architecture (SOLID, State/Strategy/Observer) makes it simple to add hazards, states or stress rules.",
+    "after": "Plain C# puzzle rules and small interfaces support focused testing; C# events and network state-change callbacks update the UI and replicated visuals."
+  },
+  {
+    "paragraph": 278,
+    "before": "Networked physics with a shared object is sensitive to latency; the game is tuned for RTT below about 100–150 ms.",
+    "after": "Shared carrying remains sensitive to latency, jitter and packet loss. Prediction and smoothing are implemented, but no verified latency threshold is claimed without controlled multiplayer tests."
+  },
+  {
+    "paragraph": 279,
+    "before": "Host-authoritative design means the host has a small advantage and cheating is possible.",
+    "after": "Authority is mixed: players drive their own movement, while the host resolves the nest/egg and shared outcomes. Cosmetic ownership and currency are stored locally, so this is not a server-secured economy."
+  },
+  {
+    "paragraph": 280,
+    "before": "Content is limited to two worlds; no reconnection, matchmaking by skill or voice chat.",
+    "after": "Content consists of two gameplay maps. There is no reconnect/host-migration flow, automatic matchmaking, built-in voice chat, timed leaderboard or star scoring."
+  },
+  {
+    "paragraph": 288,
+    "before": "Voice chat and emotes with Photon Voice to improve communication.",
+    "after": "Optional future work: add built-in voice chat or emotes and evaluate a compatible service for the existing Unity networking stack."
+  },
+  {
+    "paragraph": 289,
+    "before": "Leaderboards and ghost runs to compare times and integrity with friends.",
+    "after": "Optional future work: introduce a timer, explicit scoring rules and leaderboards after designing and validating the score model."
+  },
+  {
+    "paragraph": 290,
+    "before": "Cosmetics and unlockables: chick skins, egg patterns and hats.",
+    "after": "Extend the existing cosmetic shop with additional items, stronger purchase validation and cloud/account persistence if needed. Hats and equipment selection already exist."
+  },
+  {
+    "paragraph": 291,
+    "before": "Accessibility: colour-blind mode, adjustable difficulty (safe speed multiplier), full gamepad support.",
+    "after": "Accessibility work could include colour-independent puzzle cues, control remapping and full gamepad coverage. Current online movement reads keyboard input."
+  },
+  {
+    "paragraph": 295,
+    "before": "[2] Exit Games. Photon Fusion 2 documentation. https://doc.photonengine.com/fusion/current/",
+    "after": "[2] Unity Technologies. Netcode for GameObjects 2.13 documentation: NetworkVariables and RPCs. https://docs.unity.cn/Packages/com.unity.netcode.gameobjects@2.13/manual/basics/networkvariable.html"
+  },
+  {
+    "paragraph": 298,
+    "before": "[5] Unity Technologies. Profile Analyzer and Memory Profiler packages. https://docs.unity3d.com/Packages/",
+    "after": "[5] Unity Technologies. Relay allocating, binding and joining. https://docs.unity.com/relay/allocating-binding-joining"
+  },
+  {
+    "paragraph": 299,
+    "before": "[6] ParrelSync – Unity editor clone tool. https://github.com/VeriorPies/ParrelSync",
+    "after": "[6] Unity Technologies. Unity Profiler documentation. https://docs.unity3d.com/Manual/Profiler.html"
+  },
+  {
+    "paragraph": 302,
+    "before": "[9] Asset sources: Kenney (kenney.nl), Quaternius (quaternius.com), Unity Asset Store – [list the exact assets and licences used].",
+    "after": "[9] Project asset folders and their supplied licence files. Asset credits should list the exact imported packages used in the submitted build."
+  },
+  {
+    "paragraph": 303,
+    "before": "[10] Team Egg Press 3D game design document (Egg Press 3D.md).",
+    "after": "[10] Egg Press 3D project source, scenes and configuration reviewed on 8 November 2026. Key implementation paths are listed in the appendix."
+  },
+  {
+    "table": 1,
+    "before": [
+      [
+        "Week",
+        "Main tasks",
+        "Deliverables"
+      ],
+      [
+        "1",
+        "Form the team, choose the topic\nDefine the high concept and design pillars",
+        "Team charter, topic approval"
+      ],
+      [
+        "2",
+        "Analyse the idea, write the Game Design Document\nDecide the co-op mechanic (2 players carry 1 egg)",
+        "GDD v1, task breakdown"
+      ],
+      [
+        "3",
+        "Research Unity physics (Rigidbody, PhysicMaterial, centre of mass)\nOffline prototype: one egg, one player, basic stress values",
+        "Physics prototype scene"
+      ],
+      [
+        "4",
+        "Two-player carrying (spring-damper grip) in local mode\nEgg stress system, integrity, state machine\nResearch Photon Fusion 2 and set up the project",
+        "Local co-op build, Fusion hello-world"
+      ],
+      [
+        "5",
+        "Main menu, lobby (create / join by code / quick match)\nPlayer spawning and input replication\nGreybox of World 1",
+        "Lobby with 2 connected players"
+      ],
+      [
+        "6",
+        "Replicate the egg (state authority = host)\nWorld 1 hazards: oil/butter, fan, toaster pad, hotplate\nHUD, egg health bar, crack shader",
+        "World 1 playable online"
+      ],
+      [
+        "7",
+        "World 2 (Garden Hazard) and its hazards\nCheckpoints, finish zone, score system\nAudio (BGM, SFX), VFX (shards, steam)",
+        "World 2 playable, scoring"
+      ],
+      [
+        "8",
+        "Profiling and optimisation, debug tools\nLatency / packet-loss testing, bug fixing\nExecute test cases",
+        "Profiler report, test results"
+      ],
+      [
+        "9",
+        "Polish and balancing, build and deploy\nFinish the report, demo video\nRehearse the final presentation",
+        "Release build, final report, demo"
+      ]
+    ],
+    "after": [
+      [
+        "Week",
+        "Main tasks",
+        "Deliverables"
+      ],
+      [
+        "1",
+        "Form the team; define two-player carrying and the report scope.",
+        "Project concept and responsibilities"
+      ],
+      [
+        "2",
+        "Define the nest/egg interaction, routes and recovery loop.",
+        "Gameplay plan and task breakdown"
+      ],
+      [
+        "3",
+        "Prototype duck movement, carrying geometry and egg motion.",
+        "Movement and carrying prototype"
+      ],
+      [
+        "4",
+        "Integrate NGO, Unity Transport and Relay; create/join rooms.",
+        "Two-player connection and spawning"
+      ],
+      [
+        "5",
+        "Add owner movement, shared nest snapshots and round preparation.",
+        "Online carrying and player presentation"
+      ],
+      [
+        "6",
+        "Build Kitchen_Map, its puzzles, hazards and checkpoints.",
+        "First gameplay map"
+      ],
+      [
+        "7",
+        "Build outdoor traversal; add round flow, coins and cosmetics.",
+        "Second map, recovery and progression"
+      ],
+      [
+        "8",
+        "Exercise test cases; profile host/client; improve stability.",
+        "Test checklist and performance captures"
+      ],
+      [
+        "9",
+        "Polish UI/audio; verify builds; record demo and finalise report.",
+        "Submission build and report"
+      ]
+    ]
+  },
+  {
+    "table": 2,
+    "before": [
+      [
+        "No",
+        "Member",
+        "Role",
+        "Detailed tasks"
+      ],
+      [
+        "1",
+        "Dương\nHE191504",
+        "Team Leader – Gameplay & UI/UX, Audio, VFX",
+        "Own the GDD and task board; integrate all branches\nUI: main menu, settings, guide, lobby UI, HUD, pause, result screen\nCrack shader / shell material, particles (shards, steam), AudioManager (BGM, SFX)\nProfiler measurements and optimisation report (section 2.4)"
+      ],
+      [
+        "2",
+        "Quang\nHE194563",
+        "Network & Lobby Programmer  & Physics Programmer",
+        "Photon Fusion 2 integration: NetworkRunnerHandler, session create/join, quick match\nLobbyManager, PlayerSpawner, input struct (INetworkInput) and replication\nEggNetwork: networked integrity/state, RPC events for crack and break\nDisconnect handling, latency and packet-loss tests (ParrelSync, clumsy)\nDocument section 2.6 and network test cases\nEggController, EggStateMachine (Idle, Rolling, Jumping, Cracked, Destroyed)\nEggStressSystem and stress sources (speed, acceleration, grip, impact), YolkSimulator\nPlayerMotor and PlayerGrip (spring-damper carry); tune EggConfig and PhysicMaterials\nUnit tests for stress formulas (EditMode tests)"
+      ],
+      [
+        "3",
+        "Vũ\nHE191675",
+        "Level Designer & Hazard Programmer",
+        "Design and build World 1 (Giant Kitchen) and World 2 (Garden Hazard)\nHazard scripts: OilSlick, WindFan, ToasterLauncher, HotPlate, Sprinkler, Faucet drip\nCheckpoint, FinishZone, KillZone, LevelProgressTracker, ScoreManager\nLighting (baked), colliders and collision-layer matrix\nDocument sections 1.3 and 2.1"
+      ]
+    ],
+    "after": [
+      [
+        "No",
+        "Member",
+        "Role",
+        "Detailed tasks"
+      ],
+      [
+        "1",
+        "Dương\nHE191504",
+        "Team Leader; UI/UX, Audio and VFX",
+        "Menu, settings, tutorial, lobby and result UI; audio integration; presentation feedback; profiling and report integration."
+      ],
+      [
+        "2",
+        "Quang\nHE194563",
+        "Network and Gameplay Physics",
+        "NGO/Relay sessions, player spawning, nest/egg simulation and synchronisation; checkpoint/round flow; coins, equipment and session tests."
+      ],
+      [
+        "3",
+        "Vũ\nHE191675",
+        "Level Design and Hazards",
+        "Level routes, environment setup, collisions, checkpoints and puzzle/hazard integration; level-design documentation."
+      ]
+    ]
+  },
+  {
+    "table": 3,
+    "before": [
+      [
+        "Item",
+        "Description"
+      ],
+      [
+        "Title",
+        "Egg Press 3D"
+      ],
+      [
+        "Genre",
+        "3D physics-based co-op platformer (online multiplayer)"
+      ],
+      [
+        "Players",
+        "2 players, online (host + client)"
+      ],
+      [
+        "Platform",
+        "Windows PC (keyboard + mouse, gamepad optional)"
+      ],
+      [
+        "Engine / language",
+        "Unity 6.0 LTS, C#"
+      ],
+      [
+        "Networking",
+        "Photon Fusion 2 (Host Mode) with Photon Cloud"
+      ],
+      [
+        "Camera",
+        "Third-person, shared target between the two chicks and the egg (Cinemachine)"
+      ],
+      [
+        "Session length",
+        "8–12 minutes per world"
+      ],
+      [
+        "Target audience",
+        "Casual and mid-core players who enjoy co-op games with funny physics"
+      ]
+    ],
+    "after": [
+      [
+        "Item",
+        "Description"
+      ],
+      [
+        "Title",
+        "Egg Press 3D"
+      ],
+      [
+        "Genre",
+        "3D cooperative physics platformer"
+      ],
+      [
+        "Players",
+        "Exactly two in the normal online session: host and client"
+      ],
+      [
+        "Platform",
+        "Windows PC; keyboard and mouse"
+      ],
+      [
+        "Engine / language",
+        "Unity 6000.3.15f1; C#; URP 17.3.0"
+      ],
+      [
+        "Networking",
+        "Netcode for GameObjects 2.13.3, Unity Transport and Unity Relay"
+      ],
+      [
+        "Camera",
+        "Local Cinemachine camera bound to the local player’s tracking target"
+      ],
+      [
+        "Progression",
+        "Kitchen_Map → MainMap_Online; checkpoint recovery; coins and cosmetic equipment"
+      ],
+      [
+        "Audience",
+        "Players who enjoy communication, traversal and cooperative puzzles"
+      ]
+    ]
+  },
+  {
+    "table": 4,
+    "before": [
+      [
+        "Character",
+        "Role",
+        "Abilities",
+        "Notes"
+      ],
+      [
+        "Yolkie (Player 1, yellow chick)",
+        "Left carrier. Normally the host.",
+        "Walk (max 5 m/s, acceleration limited)\nJump\nLean left/right (Q/E)\nGrip (hold mouse button)",
+        "Same capabilities as Shelly; only the colour and the side of the egg differ."
+      ],
+      [
+        "Shelly (Player 2, blue chick)",
+        "Right carrier. Normally the client.",
+        "Walk, jump, lean, grip (same as Yolkie)",
+        "Spawned by the host through PlayerSpawner."
+      ]
+    ],
+    "after": [
+      [
+        "Character",
+        "Role",
+        "Abilities",
+        "Notes"
+      ],
+      [
+        "Host duck",
+        "One carrier; starts the room",
+        "Move and jump; interact with puzzle consoles; collect coins",
+        "Same movement abilities as client; own name and equipment."
+      ],
+      [
+        "Client duck",
+        "Second carrier; joins by code",
+        "Move and jump; interact with puzzle consoles; collect coins",
+        "Owns its player input and movement; sees shared nest/egg state."
+      ]
+    ]
+  },
+  {
+    "table": 5,
+    "before": [
+      [
+        "Property",
+        "Raw egg",
+        "Boiled egg"
+      ],
+      [
+        "How it is obtained",
+        "Default state at the start of each world",
+        "Becomes boiled when the cook progress on a hotplate reaches 100 %"
+      ],
+      [
+        "Inner behaviour",
+        "Yolk moves inside the shell, shifting the centre of mass and creating wobble",
+        "Solid inside, centre of mass fixed"
+      ],
+      [
+        "Mass / bounce",
+        "Lighter, bounces well",
+        "Heavier, bounces less"
+      ],
+      [
+        "Balance",
+        "Harder to keep stable",
+        "Easier to keep stable"
+      ],
+      [
+        "Jump",
+        "Higher",
+        "Lower"
+      ]
+    ],
+    "after": [
+      [
+        "Property",
+        "Assisted carry",
+        "Released egg"
+      ],
+      [
+        "How it starts",
+        "Round preparation resets the egg on the nest.",
+        "Tilt, paired jumps or an ejection event ends assistance."
+      ],
+      [
+        "Motion",
+        "Bounded rolling offset in nest coordinates.",
+        "Host simulates free Rigidbody motion."
+      ],
+      [
+        "Physics body",
+        "Kinematic during assisted movement.",
+        "Dynamic while freely simulating."
+      ],
+      [
+        "Damage",
+        "Eligible nest-impact branch can add damage.",
+        "Eligible landing after release breaks the egg."
+      ],
+      [
+        "Network view",
+        "Nest and egg are sent together in snapshots.",
+        "Same shared snapshot/presentation path."
+      ]
+    ]
+  },
+  {
+    "table": 6,
+    "before": [
+      [
+        "Integrity",
+        "Level",
+        "Effect"
+      ],
+      [
+        "100 – 60",
+        "Intact",
+        "Normal behaviour"
+      ],
+      [
+        "60 – 25",
+        "Cracked",
+        "Visible cracks, stress is multiplied (×1.5), yolk wobble increases"
+      ],
+      [
+        "25 – 0",
+        "Critical",
+        "Warning sound and red HUD; any hit is dangerous"
+      ],
+      [
+        "0 or a very strong impact",
+        "Destroyed",
+        "Egg shatters; the pair respawns at the last checkpoint"
+      ]
+    ],
+    "after": [
+      [
+        "Damage / phase",
+        "Visual state",
+        "Effect"
+      ],
+      [
+        "0 / Intact",
+        "Undamaged shell",
+        "Normal carrying simulation."
+      ],
+      [
+        "1 / Intact",
+        "First crack stage",
+        "One accumulated damage event."
+      ],
+      [
+        "2 / Intact",
+        "Further damage",
+        "Next accepted damage event breaks the egg."
+      ],
+      [
+        "3 / Broken",
+        "Broken egg visual",
+        "Round failure and checkpoint recovery; release landing can reach this state immediately."
+      ]
+    ]
+  },
+  {
+    "table": 7,
+    "before": [
+      [
+        "World",
+        "Hazard",
+        "Interaction type",
+        "Effect on the egg"
+      ],
+      [
+        "1 – Giant Kitchen",
+        "Oil / butter surface",
+        "Environment",
+        "Friction nearly zero, easy to slide"
+      ],
+      [
+        "1 – Giant Kitchen",
+        "Fan / hair dryer",
+        "Dynamic",
+        "Pushes jumps and movement sideways"
+      ],
+      [
+        "1 – Giant Kitchen",
+        "Toaster",
+        "Launch pad",
+        "Throws the pair/egg upward"
+      ],
+      [
+        "1 – Giant Kitchen",
+        "Hotplate",
+        "Environment trap",
+        "Cooks the egg if the pair stays too long"
+      ],
+      [
+        "1 – Giant Kitchen",
+        "Faucet drip",
+        "Dynamic",
+        "Periodic water drop impact"
+      ],
+      [
+        "2 – Garden Hazard",
+        "Pebbles and rocks",
+        "Environment",
+        "Uneven ground, increases impact"
+      ],
+      [
+        "2 – Garden Hazard",
+        "Swinging branch",
+        "Moving platform",
+        "Carries the pair; sudden accelerations"
+      ],
+      [
+        "2 – Garden Hazard",
+        "Rotating sprinkler",
+        "Dynamic",
+        "Sweeping water jet pushes the pair"
+      ],
+      [
+        "2 – Garden Hazard",
+        "Stream and stepping stones",
+        "Kill zone",
+        "Falling in = respawn at checkpoint"
+      ]
+    ],
+    "after": [
+      [
+        "Map",
+        "Obstacle / puzzle",
+        "Interaction",
+        "Effect"
+      ],
+      [
+        "Kitchen",
+        "Linked lights",
+        "Console",
+        "Toggle a 3×3 board to all-off to open its gate."
+      ],
+      [
+        "Kitchen",
+        "Cookline plates",
+        "Two pressure plates",
+        "Activate both within the grace rule to remove the hazard barrier and open the gate."
+      ],
+      [
+        "Kitchen",
+        "Stove fire / Dead zones",
+        "Hazard volume",
+        "Player contact can trigger team recovery."
+      ],
+      [
+        "Kitchen",
+        "Dishwashing seesaw",
+        "Tilting bridge",
+        "Occupant positions change the plank angle."
+      ],
+      [
+        "Kitchen",
+        "Cold-storage plates",
+        "Two pressure plates",
+        "Unlock the vault route and remove its barrier."
+      ],
+      [
+        "Kitchen",
+        "Pantry symbol lock",
+        "Console",
+        "Solve symbol sums and enter a three-digit code."
+      ],
+      [
+        "Both",
+        "Narrow route / collision geometry",
+        "Traversal",
+        "Height differences and impacts threaten nest stability."
+      ],
+      [
+        "Outdoor",
+        "Platforms and wooden bridges",
+        "Traversal",
+        "Coordinate movement and jumps along the route."
+      ],
+      [
+        "Both",
+        "Death and finish areas",
+        "Round logic",
+        "Death restarts the pair; valid finish activates victory."
+      ]
+    ]
+  },
+  {
+    "table": 8,
+    "before": [
+      [
+        "No",
+        "Scene",
+        "Purpose",
+        "Main contents"
+      ],
+      [
+        "1",
+        "MainMenu",
+        "Entry point of the game",
+        "Play, Settings panel, Guide panel, Credits, Quit"
+      ],
+      [
+        "2",
+        "Credit",
+        "Author and dev",
+        "Detail of the author and shout out for teammate"
+      ],
+      [
+        "3",
+        "Lobby",
+        "Create or join an online room",
+        "Create room, Join by code, Quick match, player slots, Ready / Start"
+      ],
+      [
+        "4",
+        "World1_GiantKitchen",
+        "Level of World 1",
+        "Table, cutting board, butter slide, toaster, fan corridor, hotplate, egg cup (goal)"
+      ],
+      [
+        "5",
+        "World2_GardenHazard",
+        "Level of World 2",
+        "Pebble path, branch bridge, sprinkler field, stepping stones, nest (goal)"
+      ],
+      [
+        "6",
+        "Result",
+        "End-of-run summary",
+        "Time, remaining integrity, seeds collected, stars; Play again / Quit"
+      ]
+    ],
+    "after": [
+      [
+        "No",
+        "Scene / panel",
+        "Purpose",
+        "Main contents"
+      ],
+      [
+        "1",
+        "Menu_Scene",
+        "Entry and local customisation",
+        "Main menu, name entry, room selection/lobby, shop and settings."
+      ],
+      [
+        "2",
+        "Credit",
+        "Credits",
+        "Team/author presentation."
+      ],
+      [
+        "3",
+        "Lobby panel",
+        "Room setup within Menu_Scene",
+        "Create, join code, roster, copy code and host Start."
+      ],
+      [
+        "4",
+        "Kitchen_Map",
+        "First gameplay map",
+        "Six zones, cooperative puzzles, checkpoints and victory trigger."
+      ],
+      [
+        "5",
+        "MainMap_Online",
+        "Second gameplay map",
+        "Outdoor platforms/bridges, coin objects, checkpoint and Win_Area."
+      ],
+      [
+        "6",
+        "GameWinPanel",
+        "In-scene victory UI",
+        "Next stage in Kitchen; replay in outdoor map; return-to-menu action."
+      ]
+    ]
+  },
+  {
+    "table": 9,
+    "before": [
+      [
+        "Action",
+        "Keyboard & mouse",
+        "Gamepad",
+        "Description"
+      ],
+      [
+        "Move",
+        "W A S D",
+        "Left stick",
+        "Move the chick; acceleration is limited so sudden starts are impossible"
+      ],
+      [
+        "Jump",
+        "Space",
+        "A / Cross",
+        "Jump; works best when both players jump together"
+      ],
+      [
+        "Lean (tilt)",
+        "Q / E",
+        "LB / RB",
+        "Tilt your side of the egg to rebalance the yolk"
+      ],
+      [
+        "Grip (press)",
+        "Hold left mouse button",
+        "RT",
+        "Squeeze the egg harder to avoid slipping; too much squeeze adds stress"
+      ],
+      [
+        "Camera",
+        "Mouse",
+        "Right stick",
+        "Orbit the shared camera"
+      ],
+      [
+        "Signal / ping",
+        "F",
+        "Y / Triangle",
+        "Shows a marker/emote to warn the partner"
+      ],
+      [
+        "Pause",
+        "Esc",
+        "Start",
+        "Opens the pause menu (does not pause the other player in online mode)"
+      ]
+    ],
+    "after": [
+      [
+        "Action",
+        "Input",
+        "Where",
+        "Behaviour"
+      ],
+      [
+        "Move",
+        "WASD or arrow keys",
+        "Gameplay",
+        "Camera-relative movement; input is read only by the local owner."
+      ],
+      [
+        "Jump",
+        "Space",
+        "Gameplay",
+        "Grounded jump; close jump timestamps from both players can release the carried egg."
+      ],
+      [
+        "Camera",
+        "Mouse, using scene camera input",
+        "Gameplay",
+        "Controls the configured local camera."
+      ],
+      [
+        "Settings",
+        "Esc",
+        "Gameplay",
+        "Toggle settings; if tutorial is open, Esc closes that first. The online world is not paused."
+      ],
+      [
+        "Tutorial",
+        "H or F1",
+        "Gameplay",
+        "Toggle the tutorial panel."
+      ],
+      [
+        "Puzzle input",
+        "E; digits; R / Enter / Backspace",
+        "Nearby console",
+        "E enters/leaves; lights use 1–9 and R reset; symbol lock uses 0–9, Backspace and Enter."
+      ],
+      [
+        "Shop / equipment",
+        "UI buttons; Back or Esc",
+        "Menu",
+        "Preview/buy cosmetics; cycle owned equipment including no item."
+      ]
+    ]
+  },
+  {
+    "table": 10,
+    "before": [
+      [
+        "No",
+        "Section",
+        "Hazard / mechanic",
+        "Learning goal",
+        "Difficulty"
+      ],
+      [
+        "1",
+        "Dining table (tutorial)",
+        "Wide tabletop, small bumps",
+        "Walk together, learn the speed warning and the egg health bar",
+        "★☆☆☆☆"
+      ],
+      [
+        "2",
+        "Cutting board bridge",
+        "Narrow wooden plank (1.0 m wide), gaps",
+        "Balance with Q/E lean, keep the same pace",
+        "★★☆☆☆"
+      ],
+      [
+        "3",
+        "Butter slide",
+        "Oil / butter surface (friction ≈ 0.05)",
+        "Stop and steer without sudden input",
+        "★★★☆☆"
+      ],
+      [
+        "4",
+        "Toaster launch",
+        "Toaster pad launches the pair over a gap",
+        "Jump in sync, land softly",
+        "★★★☆☆"
+      ],
+      [
+        "5",
+        "Fan corridor + faucet",
+        "Pulsing wind from a fan, periodic water drops",
+        "Time movement, shelter behind objects",
+        "★★★★☆"
+      ],
+      [
+        "6",
+        "Hotplate gauntlet",
+        "Heated plates cook the egg, oil on the pan",
+        "Do not stop; combine butter + hotplate",
+        "★★★★★"
+      ],
+      [
+        "7",
+        "Egg cup (goal)",
+        "Safe zone, finish trigger",
+        "Celebration and transition to World 2",
+        "–"
+      ]
+    ],
+    "after": [
+      [
+        "No",
+        "Kitchen zone",
+        "Mechanic",
+        "Player task",
+        "Checkpoint"
+      ],
+      [
+        "1",
+        "Prep Island",
+        "Linked lights",
+        "Use the console to turn all lights off and open the route.",
+        "1"
+      ],
+      [
+        "2",
+        "Cookline Stoves",
+        "Pressure plates and fire",
+        "Coordinate the plate activation and avoid Dead zones.",
+        "2"
+      ],
+      [
+        "3",
+        "Dishwashing Seesaw",
+        "Tilting plank",
+        "Balance the crossing using player positions.",
+        "3"
+      ],
+      [
+        "4",
+        "Cold Storage Vault",
+        "Pressure-plate lock",
+        "Activate both plates to remove the barrier.",
+        "4"
+      ],
+      [
+        "5",
+        "High-Rise Pantry",
+        "Symbol cipher",
+        "Read symbol sums and enter the code.",
+        "5"
+      ],
+      [
+        "6",
+        "VIP Banquet and Patio",
+        "Final approach",
+        "Carry through the last section to the win trigger.",
+        "6"
+      ],
+      [
+        "7",
+        "Victory panel",
+        "Next-stage action",
+        "Continue to MainMap_Online or return to menu.",
+        "—"
+      ]
+    ]
+  },
+  {
+    "table": 11,
+    "before": [
+      [
+        "No",
+        "Section",
+        "Hazard / mechanic",
+        "Learning goal",
+        "Difficulty"
+      ],
+      [
+        "1",
+        "Garden gate",
+        "Gentle slope, grass",
+        "Re-learn walking on a slope",
+        "★★☆☆☆"
+      ],
+      [
+        "2",
+        "Pebble path",
+        "Loose pebbles and rocks (uneven ground)",
+        "Walk slowly: bumps raise impact stress",
+        "★★★☆☆"
+      ],
+      [
+        "3",
+        "Branch bridge",
+        "Swinging branch / moving platform (≈ 1 m/s)",
+        "Match the platform movement, avoid sudden braking",
+        "★★★☆☆"
+      ],
+      [
+        "4",
+        "Sprinkler field",
+        "Rotating water jet (period ≈ 4 s)",
+        "Find the safe time window, hold the grip",
+        "★★★★☆"
+      ],
+      [
+        "5",
+        "Stepping stones",
+        "Stones over a small stream (kill zone)",
+        "Precise jumps in sync, no second chances",
+        "★★★★★"
+      ],
+      [
+        "6",
+        "Nest (goal)",
+        "Finish trigger",
+        "Final celebration and result screen",
+        "–"
+      ]
+    ],
+    "after": [
+      [
+        "No",
+        "Outdoor element",
+        "Mechanic",
+        "Player task",
+        "Progress"
+      ],
+      [
+        "1",
+        "Spawn area",
+        "Round preparation",
+        "Wait for both players, nest and egg to become ready.",
+        "Start"
+      ],
+      [
+        "2",
+        "Raised platforms",
+        "Traversal",
+        "Move together without excessive height separation.",
+        "Route"
+      ],
+      [
+        "3",
+        "Wooden bridges",
+        "Narrow crossing",
+        "Keep the nest clear of collision geometry.",
+        "Route"
+      ],
+      [
+        "4",
+        "Checkpoint_Flag3",
+        "Shared checkpoint",
+        "Touch the checkpoint and establish a valid respawn centre.",
+        "Recovery"
+      ],
+      [
+        "5",
+        "Dead zone",
+        "Team restart",
+        "Avoid falling; recover after a failed attempt.",
+        "Retry"
+      ],
+      [
+        "6",
+        "Win_Area",
+        "Nest contact",
+        "Bring the nest to the finish and choose replay or menu.",
+        "Victory"
+      ]
+    ]
+  },
+  {
+    "table": 12,
+    "before": [
+      [
+        "Obstacle",
+        "Type",
+        "Effect on egg / players",
+        "Co-op counterplay",
+        "Initial parameters"
+      ],
+      [
+        "Oil / butter surface",
+        "Environment",
+        "Dynamic friction near zero, easy to slide and over-speed",
+        "Release grip, tiny steps, stop together",
+        "Friction 0.05, combine = Minimum"
+      ],
+      [
+        "Fan / hair dryer",
+        "Dynamic",
+        "Adds lateral force to egg and players, deflects jumps",
+        "Wait for the off-phase, lean against the wind",
+        "6–14 N, pulse 3 s (1.5 s on)"
+      ],
+      [
+        "Toaster",
+        "Launch pad",
+        "Launches upward; hard landing = high impact",
+        "Jump together, land on a soft/flat area",
+        "Impulse ≈ 9 N·s, cooldown 2 s"
+      ],
+      [
+        "Hotplate",
+        "Environment trap",
+        "Cook progress increases while the egg touches it",
+        "Cross quickly but slowly enough to keep stress low",
+        "Cook time 6 s (0 → 100 %)"
+      ],
+      [
+        "Faucet drip",
+        "Dynamic",
+        "Periodic drop hits the egg",
+        "Watch the shadow warning, pass between drops",
+        "Impulse ≈ 1.5 N·s, every 2.5 s"
+      ],
+      [
+        "Pebbles / rocks",
+        "Environment",
+        "Uneven surface raises impact stress",
+        "Slow, steady steps",
+        "Bump height 5–15 cm"
+      ],
+      [
+        "Swinging branch",
+        "Moving platform",
+        "Carries the pair, accelerates the egg suddenly",
+        "Match the movement, step on/off together",
+        "Speed ≈ 1 m/s"
+      ],
+      [
+        "Sprinkler",
+        "Dynamic",
+        "Sweeping water jet pushes the pair",
+        "Time the crossing, hold the grip",
+        "≈ 10 N, period 4 s"
+      ],
+      [
+        "Stream",
+        "Kill zone",
+        "Falling in triggers respawn",
+        "Precise synchronised jumps",
+        "Trigger volume + checkpoint"
+      ]
+    ],
+    "after": [
+      [
+        "Mechanism",
+        "Type",
+        "Effect",
+        "Co-op response",
+        "Configuration"
+      ],
+      [
+        "Linked lights",
+        "Puzzle",
+        "A press flips the selected lamp and orthogonal neighbours.",
+        "Coordinate entries until all nine lamps are off.",
+        "3×3 board; keys 1–9; R reset"
+      ],
+      [
+        "Symbol cipher",
+        "Puzzle",
+        "Gate opens for the correct three-digit code.",
+        "Solve the circle/triangle/square pair sums.",
+        "Three sums stored on the puzzle"
+      ],
+      [
+        "Kitchen plates",
+        "Puzzle",
+        "Removes a barrier and opens a gate.",
+        "Activate both plates under the grace rule.",
+        "4 s in current controllers"
+      ],
+      [
+        "Seesaw",
+        "Traversal",
+        "Tilt depends on occupants’ lever arms.",
+        "Balance positions as both cross.",
+        "Component angle/sensitivity fields"
+      ],
+      [
+        "Nest impact",
+        "Shared damage",
+        "Host chooses crack or egg ejection.",
+        "Avoid touching obstacles with the nest.",
+        "0.5 crack chance; 0.75 s cooldown"
+      ],
+      [
+        "Excessive tilt",
+        "Egg release",
+        "Releases the egg from assisted carrying.",
+        "Avoid large vertical separation.",
+        "70° prefab release angle"
+      ],
+      [
+        "Paired jumps",
+        "Egg release",
+        "Matched jump timestamps trigger release.",
+        "Plan timing; do not assume simultaneous jumping is safe.",
+        "0.694 s scene override"
+      ],
+      [
+        "Dead zone",
+        "Round failure",
+        "Restarts the two-player round.",
+        "Use checkpoints to reduce lost progress.",
+        "Scene colliders / Dead convention"
+      ],
+      [
+        "Finish area",
+        "Victory",
+        "Stops the round and presents the win panel.",
+        "Complete the current map’s finish condition.",
+        "Kitchen trigger; outdoor nest contact"
+      ]
+    ]
+  },
+  {
+    "table": 13,
+    "before": [
+      [
+        "No",
+        "Object",
+        "Game object / prefab",
+        "Description"
+      ],
+      [
+        "1",
+        "Chick 1 (Yolkie)",
+        "Player_Yolkie",
+        "Networked player character, left grip anchor"
+      ],
+      [
+        "2",
+        "Chick 2 (Shelly)",
+        "Player_Shelly",
+        "Networked player character, right grip anchor"
+      ],
+      [
+        "3",
+        "Egg",
+        "Egg",
+        "Shared physics object, state authority = host"
+      ],
+      [
+        "4",
+        "Checkpoint",
+        "Checkpoint",
+        "Trigger that stores the respawn point"
+      ],
+      [
+        "5",
+        "Finish zone",
+        "FinishZone",
+        "Trigger that ends the level when both players and the egg are inside"
+      ],
+      [
+        "6",
+        "Kill zone",
+        "KillZone",
+        "Trigger below the map / in the stream"
+      ],
+      [
+        "7",
+        "Hazards",
+        "OilSlick, WindFan, Toaster, HotPlate, Sprinkler, FaucetDrip",
+        "Environment prefabs with HazardBase scripts"
+      ],
+      [
+        "8",
+        "Collectible seed",
+        "Seed",
+        "Optional collectible that adds score"
+      ],
+      [
+        "9",
+        "Managers",
+        "GameManager, NetworkRunnerHandler, AudioManager",
+        "Scene/singleton services"
+      ]
+    ],
+    "after": [
+      [
+        "No",
+        "Object",
+        "Implementation",
+        "Description"
+      ],
+      [
+        "1",
+        "Host player",
+        "NetWorkPlayer prefab",
+        "Owner input/movement, nameplate and equipment."
+      ],
+      [
+        "2",
+        "Client player",
+        "Same prefab",
+        "Separate owner and equipment ID."
+      ],
+      [
+        "3",
+        "Nest and egg",
+        "NetworkNest / NestEggBody",
+        "Shared carrying; egg body created at runtime."
+      ],
+      [
+        "4",
+        "Checkpoint",
+        "OnlineCheckpoint",
+        "ID and safe respawn centre."
+      ],
+      [
+        "5",
+        "Finish",
+        "KitchenWinZoneTrigger / NestWinContact",
+        "Scene-specific victory condition."
+      ],
+      [
+        "6",
+        "Death zone",
+        "Dead colliders",
+        "Server-validated team recovery."
+      ],
+      [
+        "7",
+        "Puzzles",
+        "LinkedLights / SymbolCipher / Kitchen plates / Seesaw",
+        "Interactive scene mechanisms."
+      ],
+      [
+        "8",
+        "Coin",
+        "Coin + NetworkObject",
+        "Approved once; awards both wallets online."
+      ],
+      [
+        "9",
+        "Services",
+        "Session, round, currency and save modules",
+        "Connection, progression and persistence."
+      ]
+    ]
+  },
+  {
+    "table": 14,
+    "before": [
+      [
+        "Component",
+        "Settings",
+        "Purpose"
+      ],
+      [
+        "Transform",
+        "Scale ≈ (0.45, 0.6, 0.45) m, visual mesh child “EggMesh”",
+        "Cartoon-scale egg, easy to see"
+      ],
+      [
+        "Mesh Filter / Renderer",
+        "Egg mesh (≤ 1,500 triangles), shell material with _CrackAmount property",
+        "Crack shader driven by MaterialPropertyBlock"
+      ],
+      [
+        "Collider",
+        "Convex MeshCollider (egg shape, ≤ 255 triangles) with PhysicMaterial “EggShell”",
+        "Real egg rolling behaviour"
+      ],
+      [
+        "Rigidbody",
+        "Mass 0.4 kg (raw) / 0.6 kg (boiled), Drag 0.05, Angular drag 0.3, Interpolate, Continuous Dynamic",
+        "Stable physics for a small fast object"
+      ],
+      [
+        "PhysicMaterial “EggShell”",
+        "Dynamic friction 0.4, static friction 0.5, bounciness 0.15 (boiled: 0.05), Combine = Average",
+        "Shell friction pillar"
+      ],
+      [
+        "EggController",
+        "References to all egg sub-systems",
+        "Facade / coordinator"
+      ],
+      [
+        "EggStateMachine",
+        "Idle, Rolling, Jumping, Cracked, Destroyed",
+        "State management"
+      ],
+      [
+        "EggStressSystem + IStressSource list",
+        "Speed, Acceleration, Grip, Impact sources",
+        "Computes integrity damage"
+      ],
+      [
+        "YolkSimulator",
+        "Spring k, damper c, influence (raw only)",
+        "Moves Rigidbody.centerOfMass"
+      ],
+      [
+        "EggCookable",
+        "Cook rate, boiled threshold",
+        "Raw → Boiled"
+      ],
+      [
+        "EggVisuals",
+        "Crack levels, particles, shard prefab (pooled)",
+        "Visual feedback"
+      ],
+      [
+        "NetworkObject + NetworkRigidbody3D + EggNetwork",
+        "State authority = host",
+        "Replication"
+      ],
+      [
+        "AudioSource",
+        "3D, spatial blend 1",
+        "Crack and impact SFX"
+      ]
+    ],
+    "after": [
+      [
+        "Element",
+        "Current implementation",
+        "Purpose"
+      ],
+      [
+        "Creation",
+        "NestEggLifecycle.Create",
+        "Creates the egg object and NestEggBody."
+      ],
+      [
+        "Visual",
+        "EggVisual prefab or fallback",
+        "Fits the mesh to the runtime collision body."
+      ],
+      [
+        "Collider",
+        "CapsuleCollider",
+        "Height 3.06; radius 0.99 in runtime units."
+      ],
+      [
+        "Rigidbody",
+        "Mass 0.5; linear damping 0.05; angular damping 0.1",
+        "Server-side physics; mode changes between carrying and flight."
+      ],
+      [
+        "Authority",
+        "SetAuthority(server)",
+        "Remote bodies display replicated state."
+      ],
+      [
+        "Lifecycle",
+        "NestEggPhase",
+        "Waiting, Intact and Broken."
+      ],
+      [
+        "Damage",
+        "DamageCount 0–3",
+        "Tracks discrete damage stages."
+      ],
+      [
+        "Containment",
+        "NestEggContainment",
+        "Tests whether the egg remains inside the nest."
+      ],
+      [
+        "Assistance",
+        "NestEggCarryPhysics",
+        "Rolls the egg on the nest floor; releases on configured triggers."
+      ],
+      [
+        "Jump pairing",
+        "CooperativeJumpWindow",
+        "Pairs timestamps from the two different players."
+      ],
+      [
+        "Visual feedback",
+        "NestEggDamageVisual / EggDamageFeedback",
+        "Cracks, broken model, shake and screen flash."
+      ],
+      [
+        "Replication",
+        "NestEggFrame via NetworkNest",
+        "Egg is not a separate NetworkObject."
+      ],
+      [
+        "Recovery",
+        "RoundFailed → NetworkRoundManager",
+        "Restart at checkpoint/start after breakage."
+      ]
+    ]
+  },
+  {
+    "table": 15,
+    "before": [
+      [
+        "Parameter",
+        "Symbol",
+        "Initial value",
+        "Meaning"
+      ],
+      [
+        "Safe speed",
+        "v_safe",
+        "3.5 m/s",
+        "Above this speed the egg starts to suffer"
+      ],
+      [
+        "Speed stress rate",
+        "k_v",
+        "6 per (m/s)·s",
+        "Integrity lost per second per m/s of excess"
+      ],
+      [
+        "Safe acceleration",
+        "a_safe",
+        "12 m/s²",
+        "Sudden changes in velocity"
+      ],
+      [
+        "Acceleration rate",
+        "k_a",
+        "0.8",
+        "Damage factor"
+      ],
+      [
+        "Safe grip force",
+        "F_safe",
+        "30 N",
+        "Total force of both players on the shell"
+      ],
+      [
+        "Grip rate",
+        "k_g",
+        "0.3",
+        "Damage factor"
+      ],
+      [
+        "Crack impulse",
+        "J_crack",
+        "2.5 N·s",
+        "Minimum impact that damages the shell"
+      ],
+      [
+        "Break impulse",
+        "J_break",
+        "7.0 N·s",
+        "Impact that shatters the egg at once"
+      ],
+      [
+        "Impact factor",
+        "k_i",
+        "8",
+        "Damage per N·s above J_crack"
+      ],
+      [
+        "Cracked threshold",
+        "–",
+        "Integrity < 60",
+        "Enters CrackedState (stress ×1.5)"
+      ],
+      [
+        "Critical threshold",
+        "–",
+        "Integrity < 25",
+        "HUD warning, creaking sound"
+      ]
+    ],
+    "after": [
+      [
+        "Parameter",
+        "Location",
+        "Current value",
+        "Meaning"
+      ],
+      [
+        "Move speed",
+        "NetWorkPlayer prefab",
+        "10",
+        "Motor speed in project units/s."
+      ],
+      [
+        "Jump height",
+        "NetWorkPlayer prefab",
+        "6",
+        "Motor jump-height setting."
+      ],
+      [
+        "Damage count",
+        "NestEggBody",
+        "0 / 1 / 2 / 3",
+        "Third stage is Broken; release landing can break immediately."
+      ],
+      [
+        "Egg mass",
+        "NestEggBody",
+        "0.5",
+        "Rigidbody mass."
+      ],
+      [
+        "Egg height",
+        "NestEggBody",
+        "3.06",
+        "Runtime collider height."
+      ],
+      [
+        "Release tilt",
+        "Nest prefab",
+        "70°",
+        "Excess nest tilt ends assisted carrying."
+      ],
+      [
+        "Jump-pair window",
+        "Both gameplay scenes",
+        "0.694 s",
+        "Overrides the 0.2 s prefab value."
+      ],
+      [
+        "Jump release velocity",
+        "Both gameplay scenes",
+        "Up 0; side 2",
+        "Adds to inherited motion when paired jumps release the egg."
+      ],
+      [
+        "Nest impact crack chance",
+        "Nest prefab",
+        "0.5",
+        "Alternative outcome is ejection."
+      ],
+      [
+        "Nest impact cooldown",
+        "Nest prefab",
+        "0.75 s",
+        "Limits repeated nest-impact events."
+      ],
+      [
+        "Egg-break recovery delay",
+        "NetworkRoundManager default",
+        "1 s",
+        "Delay before attempting checkpoint restart."
+      ]
+    ]
+  },
+  {
+    "table": 16,
+    "before": [
+      [
+        "From",
+        "To",
+        "Condition"
+      ],
+      [
+        "Idle",
+        "Rolling",
+        "Speed > 0.3 m/s while grounded"
+      ],
+      [
+        "Rolling",
+        "Idle",
+        "Speed < 0.1 m/s for 0.2 s"
+      ],
+      [
+        "Idle / Rolling",
+        "Jumping",
+        "Not grounded (jump, toaster launch, falling)"
+      ],
+      [
+        "Jumping",
+        "Idle / Rolling",
+        "Landing detected; landing impact is evaluated by ImpactStressSource"
+      ],
+      [
+        "Any (except Destroyed)",
+        "Cracked",
+        "Integrity < 60"
+      ],
+      [
+        "Cracked",
+        "Destroyed",
+        "Integrity ≤ 0"
+      ],
+      [
+        "Any",
+        "Destroyed",
+        "Impact impulse ≥ J_break, or KillZone entered"
+      ],
+      [
+        "Destroyed",
+        "Idle",
+        "Respawn at the last checkpoint (new egg, integrity 100)"
+      ]
+    ],
+    "after": [
+      [
+        "From",
+        "To",
+        "Condition"
+      ],
+      [
+        "Waiting",
+        "Intact",
+        "Prepared round resets and activates the egg."
+      ],
+      [
+        "Intact, damage 0",
+        "Intact, damage 1",
+        "Accepted damage event."
+      ],
+      [
+        "Intact, damage 1",
+        "Intact, damage 2",
+        "Next accepted damage event."
+      ],
+      [
+        "Intact, damage 2",
+        "Broken",
+        "Next accepted damage event."
+      ],
+      [
+        "Intact, any damage",
+        "Broken",
+        "Eligible landing after ReleaseCarry."
+      ],
+      [
+        "Intact",
+        "Broken",
+        "Safety fallback below Y = −50."
+      ],
+      [
+        "Broken",
+        "Intact",
+        "Checkpoint/start reset for the next round."
+      ],
+      [
+        "Active lifecycle",
+        "Waiting",
+        "Preparation/wait path stops active simulation."
+      ]
+    ]
+  },
+  {
+    "table": 17,
+    "before": [
+      [
+        "Component",
+        "Settings",
+        "Purpose"
+      ],
+      [
+        "Transform / model",
+        "Low-poly chick, ≈ 0.7 m tall; child “GripAnchor” at the wing",
+        "Visual and the point where the egg is held"
+      ],
+      [
+        "Rigidbody",
+        "Mass 1 kg, Interpolate, Freeze rotation X/Z, Continuous",
+        "Physics-based movement so that pushes and platforms affect players"
+      ],
+      [
+        "CapsuleCollider",
+        "Height 0.7, radius 0.25, PhysicMaterial “Player” (friction 0.6)",
+        "Ground collision"
+      ],
+      [
+        "PlayerInputReader",
+        "New Input System actions: Move, Jump, Lean, Grip, Look, Ping",
+        "Collects local input only"
+      ],
+      [
+        "PlayerMotor",
+        "Max speed 5 m/s, acceleration 12 m/s², jump impulse 5.5 N·s, coyote time 0.1 s",
+        "Applies movement forces from networked input"
+      ],
+      [
+        "PlayerGrip",
+        "Spring k = 40, damper c = 6, max force 60 N, max separation 2.4 m",
+        "Applies a spring-damper force between GripAnchor and the egg surface and reports force to the stress system"
+      ],
+      [
+        "PlayerAnimator",
+        "Animator Controller “Chick_Controller”",
+        "Drives animations from motor and grip data"
+      ],
+      [
+        "NetworkObject + NetworkRigidbody3D + PlayerNetwork",
+        "Input authority = owner, state authority = host",
+        "Replication and prediction"
+      ],
+      [
+        "AudioSource",
+        "Footstep SFX",
+        "Feedback"
+      ]
+    ],
+    "after": [
+      [
+        "Component / module",
+        "Current use",
+        "Purpose"
+      ],
+      [
+        "Duck model and rig",
+        "Duck_Wings_Expanded; carrying and hat anchors",
+        "Character presentation and attachment points."
+      ],
+      [
+        "CharacterController",
+        "Movement collision body",
+        "Grounding and collision flags."
+      ],
+      [
+        "KeyboardPlayerInput",
+        "WASD/arrows and Space",
+        "Local input only."
+      ],
+      [
+        "PlayerCharacterMotor",
+        "Gravity, jump and movement integration",
+        "Moves through CharacterController."
+      ],
+      [
+        "CarryDistanceConstraint",
+        "IPlayerMovementConstraint",
+        "Restricts separation while carrying."
+      ],
+      [
+        "OnlinePlayerStateMachine",
+        "Idle / Walk",
+        "Movement-state decisions."
+      ],
+      [
+        "PlayerAnimationPresenter / DuckNeckIK",
+        "Walk/side-walk and procedural rig adjustment",
+        "Animation follows movement and carrying pose."
+      ],
+      [
+        "NetworkObject / OwnerNetworkTransform",
+        "Owner-driven player movement",
+        "Replicates player pose."
+      ],
+      [
+        "NetworkPlayerIdentity / Equipment",
+        "Name and equipped-ID replication",
+        "Per-player identity and cosmetic visuals."
+      ]
+    ]
+  },
+  {
+    "table": 18,
+    "before": [
+      [
+        "No",
+        "Game object",
+        "Animator Controller",
+        "Animation clips"
+      ],
+      [
+        "1",
+        "Chick (Yolkie, Shelly)",
+        "Chick_Controller",
+        "Idle, Walk, Jump, Fall, Land, CarryIdle, CarryWalk, Strain, Celebrate, Sad"
+      ],
+      [
+        "2",
+        "Egg",
+        "Egg_Visual (procedural + shader)",
+        "Wobble (script), crack level 1–3 (shader), Shatter (particles)"
+      ],
+      [
+        "3",
+        "Toaster",
+        "Toaster_Controller",
+        "Idle, Charge, Pop"
+      ],
+      [
+        "4",
+        "Fan",
+        "Fan_Controller",
+        "Spin_Slow, Spin_Fast"
+      ],
+      [
+        "5",
+        "Sprinkler",
+        "Sprinkler_Controller",
+        "Rotate"
+      ],
+      [
+        "6",
+        "Branch",
+        "Branch_Controller",
+        "Swing"
+      ],
+      [
+        "7",
+        "Faucet",
+        "Faucet_Controller",
+        "Drip"
+      ]
+    ],
+    "after": [
+      [
+        "No",
+        "Object",
+        "Presentation system",
+        "Current behaviour"
+      ],
+      [
+        "1",
+        "Duck",
+        "PlayerAnimationPresenter",
+        "Walk/Walking and Side_Walk; restore base pose on idle."
+      ],
+      [
+        "2",
+        "Duck rig",
+        "DuckNeckIK",
+        "Neck/body/wing adjustment for carrying."
+      ],
+      [
+        "3",
+        "Egg",
+        "NestEggDamageVisual",
+        "Crack stages and broken-egg visual."
+      ],
+      [
+        "4",
+        "Damage feedback",
+        "EggDamageFeedback",
+        "Local camera shake and screen flash."
+      ],
+      [
+        "5",
+        "Puzzle gates",
+        "PuzzleGate / KitchenPuzzleGate",
+        "Translate or animate the gate into an open position."
+      ],
+      [
+        "6",
+        "Seesaw",
+        "SeesawBridge",
+        "Apply tilt and warning presentation."
+      ],
+      [
+        "7",
+        "Shop / loading",
+        "MenuShopTransition / CircularRevealGraphic",
+        "Camera framing, panel slide and circular transitions."
+      ]
+    ]
+  },
+  {
+    "table": 26,
+    "before": [
+      [
+        "Step",
+        "Content",
+        "Highlight"
+      ],
+      [
+        "1",
+        "Main menu → Create room / Join room",
+        "Online lobby, room code"
+      ],
+      [
+        "2",
+        "Tutorial section: walk together",
+        "HUD, egg health bar"
+      ],
+      [
+        "3",
+        "Break the rules on purpose: run fast, hit a wall",
+        "Stress system, cracks, Cracked state"
+      ],
+      [
+        "4",
+        "Butter slide, toaster launch, fan corridor",
+        "Physics hazards and cooperation"
+      ],
+      [
+        "5",
+        "Hotplate: raw → boiled egg",
+        "Egg states"
+      ],
+      [
+        "6",
+        "Egg breaks → checkpoint respawn",
+        "Checkpoint system"
+      ],
+      [
+        "7",
+        "World 2: sprinkler and stepping stones",
+        "Second world"
+      ],
+      [
+        "8",
+        "Result screen",
+        "Score and stars"
+      ],
+      [
+        "9",
+        "Debug overlay / profiler (short)",
+        "Engineering quality"
+      ]
+    ],
+    "after": [
+      [
+        "Step",
+        "Content",
+        "Highlight"
+      ],
+      [
+        "1",
+        "Menu: shop preview, purchase and equipment cycling",
+        "Local customisation; no-item option"
+      ],
+      [
+        "2",
+        "Host creates a room; second player joins by Relay code",
+        "Two-player roster and host Start"
+      ],
+      [
+        "3",
+        "Kitchen loading, preparation and basic movement",
+        "Both ducks carry one nest and egg"
+      ],
+      [
+        "4",
+        "Linked lights, plates, seesaw and symbol lock",
+        "Cooperative puzzle route"
+      ],
+      [
+        "5",
+        "Demonstrate nest impact or paired-jump release",
+        "Cracks/ejection and egg breakage"
+      ],
+      [
+        "6",
+        "Reach checkpoint, then trigger failure",
+        "Both players recover at the saved centre"
+      ],
+      [
+        "7",
+        "Finish Kitchen and select Next Stage",
+        "Synchronised MainMap_Online load"
+      ],
+      [
+        "8",
+        "Outdoor route, coin pickup and victory",
+        "Both wallets rewarded; win actions"
+      ],
+      [
+        "9",
+        "Esc settings and one participant quitting",
+        "Settings and both machines returning to menu"
+      ]
+    ]
+  },
+  {
+    "table": 27,
+    "before": [
+      [
+        "Setting",
+        "Value"
+      ],
+      [
+        "Target platform",
+        "Windows, x86_64"
+      ],
+      [
+        "Unity version",
+        "2022.3 LTS"
+      ],
+      [
+        "Scripting backend",
+        "IL2CPP for release (Mono for quick development builds)"
+      ],
+      [
+        "Scenes in build",
+        "MainMenu, Lobby, World1_GiantKitchen, World2_GardenHazard, Result"
+      ],
+      [
+        "Compression / quality",
+        "Texture compression ASTC/DXT, audio Vorbis, Quality level “Medium” by default"
+      ],
+      [
+        "Development Build",
+        "On for test builds (Profiler, debug tools); Off for release"
+      ],
+      [
+        "Photon",
+        "App ID for Fusion configured in PhotonAppSettings; region = auto / asia"
+      ]
+    ],
+    "after": [
+      [
+        "Setting",
+        "Current project / deployment action"
+      ],
+      [
+        "Target",
+        "Windows desktop build"
+      ],
+      [
+        "Unity",
+        "6000.3.15f1"
+      ],
+      [
+        "Backend",
+        "Confirm Windows backend in Build Profiles; this report does not claim a verified IL2CPP release."
+      ],
+      [
+        "Enabled scenes",
+        "Menu_Scene; Kitchen_Map; MainMap_Online; Credit"
+      ],
+      [
+        "Rendering",
+        "URP 17.3.0; use tested project quality/audio settings."
+      ],
+      [
+        "Profiling",
+        "Enable Development Build for measurement; validate release separately."
+      ],
+      [
+        "Online services",
+        "Unity Services authentication and Relay; NGO with UnityTransport. Configure the linked Unity project/services for deployment."
+      ]
+    ]
+  },
+  {
+    "table": 29,
+    "before": [
+      [
+        "ID",
+        "Test case",
+        "Steps",
+        "Expected result",
+        "Result / Notes"
+      ],
+      [
+        "TC-01",
+        "Create room",
+        "1. Main menu → Play\n2. Press Create Room",
+        "Lobby opens with a 4-character room code; host slot shown",
+        ""
+      ],
+      [
+        "TC-02",
+        "Join room by code",
+        "1. On the second PC press Join\n2. Enter the correct code",
+        "Both players are shown in the lobby",
+        ""
+      ],
+      [
+        "TC-03",
+        "Join with a wrong / full room code",
+        "1. Enter an invalid code\n2. Join a full room",
+        "Clear error message, stays in the menu",
+        ""
+      ],
+      [
+        "TC-04",
+        "Quick match",
+        "1. Two players press Quick Match",
+        "Both are paired in one room",
+        ""
+      ],
+      [
+        "TC-05",
+        "Ready and start",
+        "1. Both press Ready\n2. Host presses Start",
+        "Selected world loads on both machines",
+        ""
+      ],
+      [
+        "TC-06",
+        "Spawn players and egg",
+        "1. Start World 1",
+        "Two chicks and one egg appear at the start point",
+        ""
+      ],
+      [
+        "TC-07",
+        "Movement synchronisation",
+        "1. Move each chick",
+        "Remote movement is smooth, no teleport",
+        ""
+      ],
+      [
+        "TC-08",
+        "Carry the egg",
+        "1. Walk slowly with both chicks",
+        "Egg stays between the chicks without losing integrity",
+        ""
+      ],
+      [
+        "TC-09",
+        "Speed stress",
+        "1. Move faster than safe speed for 3 s",
+        "Integrity decreases, HUD warning appears",
+        ""
+      ],
+      [
+        "TC-10",
+        "Acceleration stress",
+        "1. Start and stop abruptly several times",
+        "Integrity decreases, yolk wobble increases",
+        ""
+      ],
+      [
+        "TC-11",
+        "Impact crack",
+        "1. Hit a wall at medium speed",
+        "Crack appears, state = Cracked, SFX plays",
+        ""
+      ],
+      [
+        "TC-12",
+        "Impact break",
+        "1. Fall from a high platform",
+        "Egg shatters, shards VFX, respawn at checkpoint",
+        ""
+      ],
+      [
+        "TC-13",
+        "State transitions",
+        "1. Idle → move → jump → land",
+        "Debug overlay shows Idle → Rolling → Jumping → Idle/Rolling",
+        ""
+      ],
+      [
+        "TC-14",
+        "Butter surface",
+        "1. Walk on the butter",
+        "Low friction; easy to slide",
+        ""
+      ],
+      [
+        "TC-15",
+        "Fan pushes players",
+        "1. Enter the fan zone",
+        "Lateral force during the on-phase only",
+        ""
+      ],
+      [
+        "TC-16",
+        "Toaster launch",
+        "1. Stand on the toaster pad",
+        "Pair/egg is launched upward",
+        ""
+      ],
+      [
+        "TC-17",
+        "Hotplate cooks the egg",
+        "1. Stay on the hotplate for 6 s",
+        "Egg becomes boiled (heavier, lower jump)",
+        ""
+      ],
+      [
+        "TC-18",
+        "Checkpoint respawn",
+        "1. Reach a checkpoint\n2. Break the egg",
+        "Both players respawn there with a new egg",
+        ""
+      ],
+      [
+        "TC-19",
+        "Finish and score",
+        "1. Reach the goal zone",
+        "Result screen with time, integrity, stars",
+        ""
+      ],
+      [
+        "TC-20",
+        "Disconnect handling",
+        "1. Client closes the game during play",
+        "Host sees a message and returns to the lobby",
+        ""
+      ],
+      [
+        "TC-21",
+        "High latency (150 ms)",
+        "1. Apply delay with clumsy",
+        "Game remains playable, RTT warning shown",
+        ""
+      ],
+      [
+        "TC-22",
+        "Settings / audio",
+        "1. Change the music and SFX sliders",
+        "Volumes change immediately and are saved",
+        ""
+      ],
+      [
+        "TC-23",
+        "Release build on a clean PC",
+        "1. Run the exe on a PC without Unity",
+        "Game starts and can play online",
+        ""
+      ],
+      [
+        "TC-24",
+        "Performance target",
+        "1. Play World 1 for 10 minutes",
+        "≥ 60 FPS, no GC spikes",
+        ""
+      ]
+    ],
+    "after": [
+      [
+        "ID",
+        "Test case",
+        "Steps",
+        "Expected result",
+        "Result"
+      ],
+      [
+        "TC-01",
+        "Create room",
+        "Host enters a name and creates a room.",
+        "Relay code and host roster entry appear.",
+        "Pending"
+      ],
+      [
+        "TC-02",
+        "Join by code",
+        "Second machine enters the shared code.",
+        "Both names appear; room has two members.",
+        "Pending"
+      ],
+      [
+        "TC-03",
+        "Invalid/full room",
+        "Attempt invalid code and a third participant.",
+        "Error/refusal without starting a match.",
+        "Pending"
+      ],
+      [
+        "TC-04",
+        "Host start gate",
+        "Try with one player, then connect the second.",
+        "Only host starts; normal start requires two players.",
+        "Pending"
+      ],
+      [
+        "TC-05",
+        "Load and spawn",
+        "Start the room.",
+        "Kitchen loads on both; each owns one duck; nest/egg prepare.",
+        "Pending"
+      ],
+      [
+        "TC-06",
+        "Movement",
+        "Use WASD/arrows and Space on both machines.",
+        "Only the local owner controls its duck; both see movement.",
+        "Pending"
+      ],
+      [
+        "TC-07",
+        "Carry and tilt",
+        "Walk, turn and change relative height.",
+        "Nest follows the pair; egg rolls; extreme tilt releases it.",
+        "Pending"
+      ],
+      [
+        "TC-08",
+        "Paired jumps",
+        "Jump within the configured 0.694 s window.",
+        "Server pairs different players’ times and releases the egg.",
+        "Pending"
+      ],
+      [
+        "TC-09",
+        "Nest impact",
+        "Contact an eligible obstacle with the nest.",
+        "Host chooses crack/ejection and both see the same result.",
+        "Pending"
+      ],
+      [
+        "TC-10",
+        "Progressive damage",
+        "Produce successive accepted damage events.",
+        "Damage 1, then 2, then Broken; duplicate contact is filtered.",
+        "Pending"
+      ],
+      [
+        "TC-11",
+        "Release landing",
+        "Release the egg and let it hit an eligible surface.",
+        "Egg breaks without requiring three prior hits.",
+        "Pending"
+      ],
+      [
+        "TC-12",
+        "Checkpoint",
+        "Touch checkpoint with one player; then fail.",
+        "Valid centre is saved; both players and egg reset there.",
+        "Pending"
+      ],
+      [
+        "TC-13",
+        "Death zone",
+        "Move one duck into a Dead zone.",
+        "Whole pair restarts; no score penalty is applied.",
+        "Pending"
+      ],
+      [
+        "TC-14",
+        "Linked lights",
+        "At console: E, keys 1–9; test R.",
+        "Board follows cross-toggle rule; all-off opens gate.",
+        "Pending"
+      ],
+      [
+        "TC-15",
+        "Kitchen plates",
+        "Activate both under the grace rule.",
+        "Barrier disappears and gate opens on both machines.",
+        "Pending"
+      ],
+      [
+        "TC-16",
+        "Seesaw",
+        "Place players at different points on the plank.",
+        "Tilt/warning changes and is synchronised.",
+        "Pending"
+      ],
+      [
+        "TC-17",
+        "Symbol code",
+        "Enter a wrong then correct three-digit code.",
+        "Wrong stays locked; correct opens the gate.",
+        "Pending"
+      ],
+      [
+        "TC-18",
+        "Kitchen victory",
+        "Enter final trigger with player/nest; select Next Stage.",
+        "Win panel appears; both transition to MainMap_Online.",
+        "Pending"
+      ],
+      [
+        "TC-19",
+        "Outdoor victory/replay",
+        "Bring nest into Win_Area; choose replay.",
+        "Win panel appears; replay resets to start and clears checkpoint.",
+        "Pending"
+      ],
+      [
+        "TC-20",
+        "Coin reward",
+        "Collect the same online coin once.",
+        "Coin despawns; each wallet gains one; UI updates.",
+        "Pending"
+      ],
+      [
+        "TC-21",
+        "Shop and save",
+        "Buy, relaunch, equip, preview another item and leave shop.",
+        "Owned item persists; saved equipment returns after preview.",
+        "Pending"
+      ],
+      [
+        "TC-22",
+        "Per-player equipment",
+        "Choose different items, join and start.",
+        "Each duck has its own item on both machines.",
+        "Pending"
+      ],
+      [
+        "TC-23",
+        "Settings / tutorial / quit",
+        "Use Esc and H/F1; change volume; quit from either peer.",
+        "Correct panels open; audio saves; both return through circular transition.",
+        "Pending"
+      ],
+      [
+        "TC-24",
+        "Latency and release build",
+        "Test added delay/loss and clean-PC release; profile both maps.",
+        "Record actual failures, timings and performance against targets.",
+        "Pending"
+      ]
+    ]
+  },
+  {
+    "table": 30,
+    "before": [
+      [
+        "No",
+        "Issue",
+        "Severity",
+        "Status"
+      ],
+      [
+        "1",
+        "[   ]",
+        "[   ]",
+        "[   ]"
+      ],
+      [
+        "2",
+        "[   ]",
+        "[   ]",
+        "[   ]"
+      ]
+    ],
+    "after": [
+      [
+        "No",
+        "Open issue / validation item",
+        "Impact",
+        "Status"
+      ],
+      [
+        "1",
+        "Purchase service relies on UI to block repeat purchases; currency and ownership are local.",
+        "Validation / save integrity",
+        "Review before release"
+      ],
+      [
+        "2",
+        "Current build still needs two-machine regression and fresh performance captures.",
+        "Runtime / performance",
+        "Pending"
+      ]
+    ]
+  },
+  {
+    "table": 31,
+    "before": [
+      [
+        "Objective",
+        "Result (to be evaluated)"
+      ],
+      [
+        "Physics-driven egg carried by two players with stress from speed, acceleration, grip and impact",
+        "[   ]"
+      ],
+      [
+        "Egg states (raw / boiled) and shell integrity with cracks",
+        "[   ]"
+      ],
+      [
+        "Two complete worlds with at least 4 hazards each",
+        "[   ]"
+      ],
+      [
+        "Online co-op through Photon Fusion (lobby, quick match, play)",
+        "[   ]"
+      ],
+      [
+        "Profiling and optimisation with documented before / after results",
+        "[   ]"
+      ],
+      [
+        "Debug tools in the editor and in development builds",
+        "[   ]"
+      ],
+      [
+        "Stable build deployed and tested on a clean PC",
+        "[   ]"
+      ]
+    ],
+    "after": [
+      [
+        "Objective",
+        "Current implementation status"
+      ],
+      [
+        "Two players carry a shared nest and egg",
+        "Source and gameplay scenes contain the carrying, damage and recovery systems."
+      ],
+      [
+        "Egg lifecycle and crack feedback",
+        "Waiting/Intact/Broken plus DamageCount; no boiling or continuous stress model."
+      ],
+      [
+        "Two gameplay maps",
+        "Kitchen_Map and MainMap_Online are enabled in the build."
+      ],
+      [
+        "Online session",
+        "NGO + Unity Transport + Relay; create/join, host start and disconnect return."
+      ],
+      [
+        "Coins and cosmetics",
+        "Shared online pickup rewards; local purchase/save; per-player equipped-ID replication."
+      ],
+      [
+        "Profiling and tests",
+        "Historical captures retained; current regression/benchmark checklist is pending."
+      ],
+      [
+        "Deployment",
+        "Build steps defined; clean-PC and final multiplayer release checks remain to be completed."
+      ]
+    ]
+  },
+  {
+    "paragraph": 18,
+    "before": "",
+    "after": "The main-menu and Relay screenshots retained in Part 1 document the earlier interface. The revised flow and lifecycle descriptions reflect the current implementation."
+  },
+  {
+    "paragraph": 19,
+    "before": "",
+    "after": ""
+  },
+  {
+    "paragraph": 21,
+    "before": "",
+    "after": "Tables are numbered in reading order. The contents page and page numbers are refreshed in Word."
+  },
+  {
+    "table": 24,
+    "before": [
+      [
+        "Scenario ",
+        "Frame ",
+        "CPU Time ",
+        "Profiler Observation ",
+        "Main Thread ",
+        "Evaluation "
+      ],
+      [
+        "Menu & Lobby ",
+        "1742 / 2051 ",
+        "The peak value exceeds 66ms.",
+        "The CPU graph shows multiple phases of lag (continuous yellow spikes) that surge above the 66ms threshold (below 15 FPS).",
+        "PostLateUpdate.UpdateAllSkinnedMeshes (0.26ms) and NetworkEarlyUpdate (0.26ms). The script logic only takes 0.16ms.",
+        "This frame’s script samples are small, but a selected frame cannot rule out CPU bottlenecks across the run. Separate active CPU work from presentation waits and inspect representative frames."
+      ],
+      [
+        "Main GamePlay",
+        "48 / 1447 ",
+        "33.63ms ",
+        "The CPU graph is filled with large yellow blocks, continuously reaching and exceeding the 33ms (30 FPS) threshold, sometimes even surpassing 66ms (15 FPS).",
+        "The DXGI.WaitOnSwapChain function takes the most time: 19.26ms (equivalent to 57.2% of the total frame time)",
+        "DXGI.WaitOnSwapChain is a presentation wait, not a direct measurement of GPU execution time. Check GPU profiling, VSync/frame caps and render-thread timing before assigning the bottleneck."
+      ]
+    ],
+    "after": [
+      [
+        "Scenario",
+        "Frame",
+        "CPU time",
+        "Observation",
+        "Main thread",
+        "Interpretation"
+      ],
+      [
+        "Menu / Lobby",
+        "1742 / 2051",
+        "Peak >66 ms",
+        "Historical graph contains repeated high frame-time spikes.",
+        "Selected samples: skinned meshes 0.26 ms; NetworkEarlyUpdate 0.26 ms; scripts 0.16 ms.",
+        "One selected frame cannot rule out a CPU bottleneck across the run. Separate work from waits."
+      ],
+      [
+        "Gameplay",
+        "48 / 1447",
+        "33.63 ms",
+        "A large presentation-wait block is visible.",
+        "DXGI.WaitOnSwapChain 19.26 ms; physics 2.30 ms; scripts 2.23 ms.",
+        "Presentation wait is not GPU execution time. Check GPU timing, VSync/caps and the render thread."
+      ]
+    ]
+  },
+  {
+    "table": 25,
+    "before": [
+      [
+        "Scenario",
+        "Draw Call / Target Element",
+        "Batch Breaking Reason (Frame Debugger)",
+        "Optimization Plan"
+      ],
+      [
+        "Main Gameplay",
+        "Terrain\n\nBranch: RenderLoop.Draw > Draw Mesh Terrain",
+        "No batch breaking error reported (Empty).",
+        "The capture contains five terrain draw events at that view. Recheck current scene/camera cost before deciding whether optimisation is needed."
+      ],
+      [
+        "Main Gameplay",
+        "Opaque Objects\n\nBranch: RenderLoop.DrawSRPBatcher > SRP Batch",
+        "SRP Batcher successfully applied, no batch breaking error.",
+        "SRP Batcher events are visible. They reduce compatible draw setup costs; their presence does not mean six groups equal six total draw calls."
+      ],
+      [
+        "Main Gameplay",
+        "Skybox\n\nBranch: (RP 2:0) DrawSkybox > Draw Mesh",
+        "No batch breaking error reported (Empty).",
+        "One skybox draw is visible in the capture. Maintain only if current timing confirms acceptable cost."
+      ]
+    ],
+    "after": [
+      [
+        "Scenario",
+        "Draw event",
+        "Historical observation",
+        "Follow-up"
+      ],
+      [
+        "Gameplay",
+        "Terrain",
+        "Five terrain draw events visible at the captured view.",
+        "Remeasure current scene/camera cost before optimising."
+      ],
+      [
+        "Gameplay",
+        "Opaque SRP batches",
+        "SRP Batcher events are visible.",
+        "Check compatible setup costs; batch groups are not the total draw-call count."
+      ],
+      [
+        "Gameplay",
+        "Skybox",
+        "One skybox draw visible in this capture.",
+        "Retain settings only after checking current timing."
+      ]
+    ]
+  }
+]

@@ -1,0 +1,1080 @@
+PAGE 1
+FINAL PROJECT REPORT 
+Project report • Updated to the implementation reviewed on 8 November 2026 
+EGG PRESS 3D 
+A 2-Player Online Co-op Physics Platformer (Original Game) 
+Group name: [Group 6] 
+Members of the group 
+Table 1: Team members 
+# Full name Student ID Role 
+1 Lê Ngọc Quang HE194563 Network & Lobby Programmer, Gameplay & 
+Physics Programmer 
+2 Ngô Quang Vũ HE191675 Level Designer & Hazard Programmer 
+3 Nguyễn Tùng Dương HE19150 UI/UX, Audio, VFX & QA 
+
+PAGE 2
+Egg Press 3D – Final Project Report   |   Page 2 
+GAME DEVELOPMENT PLAN (WEEK 1 – WEEK 9) 
+The nine-week plan below groups development work by milestone. It describes the implementation 
+scope and intended sequence; it is not a verified record of completion dates. 
+Table 2: Nine-week development plan 
+Week Main tasks Deliverables 
+1 Form the team; define two-player carrying and the report scope. Project concept and responsibilities 
+2 Define the nest/egg interaction, routes and recovery loop. Gameplay plan and task breakdown 
+3 Prototype duck movement, carrying geometry and egg motion. Movement and carrying prototype 
+4 Integrate NGO, Unity Transport and Relay; create/join rooms. Two-player connection and spawning 
+5 Add owner movement, shared nest snapshots and round preparation. Online carrying and player presentation 
+6 Build Kitchen_Map, its puzzles, hazards and checkpoints. First gameplay map 
+7 Build outdoor traversal; add round flow, coins and cosmetics. Second map, recovery and progression 
+8 Exercise test cases; profile host/client; improve stability. Test checklist and performance captures 
+9 Polish UI/audio; verify builds; record demo and finalise report. Submission build and report 
+
+PAGE 3
+Egg Press 3D – Final Project Report   |   Page 3 
+TASK ASSIGNMENT 
+The responsibility table retains the team assignments from the original report. Technical tasks have 
+been updated to match the current modules. 
+Table 3: Team responsibilities 
+# Member Role Detailed tasks 
+1 Dương HE191504 Team Leader; UI/UX, Audio and VFX Menu, settings, tutorial, lobby and result UI; audio integration; presentation feedback; profiling and report integration. 
+2 Quang HE194563 Network and Gameplay Physics NGO/Relay sessions, player spawning, nest/egg simulation and synchronisation; checkpoint/round flow; coins, equipment and session tests. 
+3 Vũ HE191675 Level Design and Hazards Level routes, environment setup, collisions, checkpoints and puzzle/hazard integration; level-design documentation. 
+Team membership and student identifiers are retained from the supplied report. Shared work includes 
+integration, testing, report writing and the presentation. 
+
+PAGE 4
+Egg Press 3D – Final Project Report   |   Page 4 
+TABLE OF CONTENTS 
+GAME DEVELOPMENT PLAN (WEEK 1 – WEEK 9) ................................................................................... 2 
+Part 1. Game Introduction ...................................................................................................................... 6 
+1.1 Game Story.................................................................................................................................... 6 
+Background ..................................................................................................................................... 6 
+Players and roles ............................................................................................................................. 6 
+Tone and vibe .................................................................................................................................. 6 
+Game overview ............................................................................................................................... 6 
+High concept ................................................................................................................................... 7 
+Core loop ......................................................................................................................................... 7 
+Design pillars ................................................................................................................................... 7 
+1.2 Characters in the Game ................................................................................................................ 7 
+Player characters ............................................................................................................................. 7 
+The egg ............................................................................................................................................ 7 
+Environment and hazards ............................................................................................................... 8 
+1.3 Game Scenes ................................................................................................................................. 9 
+1.4 How to Play ................................................................................................................................. 10 
+Controls ......................................................................................................................................... 10 
+Rules and objective ....................................................................................................................... 11 
+Coins and progression ................................................................................................................... 11 
+Tips for cooperation ...................................................................................................................... 11 
+Part 2. Game Design.............................................................................................................................. 13 
+2.1 Level Design ................................................................................................................................ 13 
+World 1 — Kitchen_Map............................................................................................................... 13 
+World 2 — MainMap_Online ........................................................................................................ 13 
+Obstacle specification ................................................................................................................... 14 
+Lighting, camera and audio ........................................................................................................... 14 
+2.2 Character and Object Design ...................................................................................................... 15 
+Game objects overview ................................................................................................................. 15 
+The egg — runtime components .................................................................................................. 15 
+Damage and release rules ............................................................................................................. 16 
+Assisted carrying and free flight ................................................................................................... 17 
+Egg state machine ......................................................................................................................... 17 
+Player characters – components................................................................................................... 18 
+Animation design .......................................................................................................................... 19 
+Assets ............................................................................................................................................ 19 
+2.3 Script Design ............................................................................................................................... 19 
+SOLID principles ............................................................................................................................ 20 
+
+PAGE 5
+Egg Press 3D – Final Project Report   |   Page 5 
+Design patterns ............................................................................................................................. 23 
+2.4 Online Session Flow .................................................................................................................... 25 
+2.5 Shop and Equipment ................................................................................................................... 26 
+2.6 Performance Analysis.................................................................................................................. 26 
+2.6.1 Test Environment ................................................................................................................. 26 
+2.6.2 Performance Targets ............................................................................................................ 27 
+2.6.3 Measurement Method ......................................................................................................... 28 
+Tools .............................................................................................................................................. 28 
+Capture Scenarios ......................................................................................................................... 28 
+2.6.4 Historical Baseline ................................................................................................................ 29 
+2.6.5 CPU and Presentation Waits ................................................................................................ 29 
+2.6.6 Issues and Proposed Optimisation ....................................................................................... 30 
+Draw Calls ...................................................................................................................................... 30 
+Geometry Workload ..................................................................................................................... 31 
+Shadow Workload ......................................................................................................................... 31 
+2.6.7 Frame Debugger Observations ............................................................................................ 31 
+Part 3. Demo and Deploy ...................................................................................................................... 33 
+3.1 Demo ........................................................................................................................................... 33 
+3.2 Build and Deployment ................................................................................................................ 33 
+Build configuration ........................................................................................................................ 33 
+Deployment steps ......................................................................................................................... 34 
+System requirements (target) ....................................................................................................... 34 
+3.3 Test Cases and Results ................................................................................................................ 34 
+Known issues ................................................................................................................................. 36 
+Part 4. Evaluation and Future Development ........................................................................................ 37 
+4.1 Evaluation ................................................................................................................................... 37 
+Objectives versus results............................................................................................................... 37 
+Strengths ....................................................................................................................................... 37 
+Limitations..................................................................................................................................... 37 
+Lessons learned ............................................................................................................................. 38 
+4.2 Future Development ................................................................................................................... 38 
+Part 5. References ................................................................................................................................. 39 
+Appendix — Implementation Sources .................................................................................................. 40 
+ 
+
+PAGE 6
+Egg Press 3D – Final Project Report   |   Page 6 
+Part 1. Game Introduction 
+1.1 Game Story 
+Background 
+Egg Press 3D is a cooperative journey in which two ducks carry a nest containing a fragile egg through 
+a large kitchen and an outdoor obstacle course. Each player controls one duck. Their relative positions 
+determine how the shared nest moves and tilts, so  progress depends on communication and careful 
+movement. 
+The first playable map is Kitchen_Map, with preparation counters, stove hazards, a seesaw crossing, 
+cold storage, a pantry and a final patio. It combines traversal with pressure plates, a linked -lights 
+puzzle and a symbol-code lock. The second map, MainMap_Online, uses outdoor platforms, bridges, 
+obstacles, checkpoints and a finish area. 
+Players and roles 
+Two players connect as a host and a client. Both use the same duck player prefab and movement 
+abilities. Each has a player name and an independently selected cosmetic item. The host starts the 
+match and resolves shared gameplay state, but both players participate in carrying the nest. 
+Tone and vibe 
+The game uses cartoon ducks, colourful scenery and  a warm orange interface. Cracks, egg -break 
+visuals, screen feedback and the movement of the nest communicate danger. Reaching a checkpoint 
+gives the pair a shorter recovery route after failure. 
+Game overview 
+Table 4: Game overview 
+Item Description 
+Title Egg Press 3D 
+Genre 3D cooperative physics platformer 
+Players Exactly two in the normal online session: host and client 
+Platform Windows PC; keyboard and mouse 
+Engine / language Unity 6000.3.15f1; C#; URP 17.3.0 
+Networking Netcode for GameObjects 2.13.3, Unity Transport and Unity Relay 
+Camera Local Cinemachine camera bound to the local player’s tracking target 
+Progression Kitchen_Map → MainMap_Online; checkpoint recovery; coins and cosmetic equipment 
+Audience Players who enjoy communication, traversal and cooperative puzzles 
+
+PAGE 7
+Egg Press 3D – Final Project Report   |   Page 7 
+High concept 
+A 3D online co -op platformer for two players carrying one nest and egg. Relative movement, height 
+differences, collisions and jump timing can destabilise the egg. Players must navigate the route, solve 
+environmental puzzles and reach the level goal together. 
+Core loop 
+Menu and equipment selection → create or join a Relay room → host starts with two players → 
+loading and preparation → carry the nest, solve puzzles and collect coins → checkpoint recovery after 
+failure → level victory → next level, replay or return to menu. 
+Design pillars 
+• Shared carrying: the nest is positioned from both players’ carrying points. Distance constraints 
+and the duck rig keep the pair visually connected to it. 
+• Recoverable failure: egg breakage or a player entering a death zone restarts both players and 
+the egg at the current checkpoint, or at the start if no checkpoint has been reached. 
+• Readable feedback: the egg has discrete damage stages, with cracks and local screen 
+feedback. Falling out of the nest is a separate risk from accumulating damage. 
+• Personal expression: players buy cosmetic head items with coins, preview them in the menu 
+and display their own selected item during online play. 
+1.2 Characters in the Game 
+Player characters 
+Table 5: Player roles 
+Character Role Abilities Notes 
+Host duck One carrier; starts the room Move and jump; interact with puzzle consoles; collect coins Same movement abilities as client; own name and equipment. 
+Client duck Second carrier; joins by code Move and jump; interact with puzzle consoles; collect coins Owns its player input and movement; sees shared nest/egg state. 
+The egg 
+The egg is a shared object created and managed by NetworkNest. Its lifecycle uses Waiting, Intact and 
+Broken. DamageCount is separate from the lifecycle phase; an egg with one or two damage 
+increments is still in the Intact simulation phase. 
+Table 6: Carried and released egg 
+Property Assisted carry Released egg 
+How it starts Round preparation resets the egg on the nest. Tilt, paired jumps or an ejection event ends assistance. 
+
+PAGE 8
+Egg Press 3D – Final Project Report   |   Page 8 
+Property Assisted carry Released egg 
+Motion Bounded rolling offset in nest coordinates. Host simulates free Rigidbody motion. 
+Physics body Kinematic during assisted movement. Dynamic while freely simulating. 
+Damage Eligible nest-impact branch can add damage. Eligible landing after release breaks the egg. 
+Network view Nest and egg are sent together in snapshots. Same shared snapshot/presentation path. 
+Table 7: Egg damage stages 
+Damage / phase Visual state Effect 
+0 / Intact Undamaged shell Normal carrying simulation. 
+1 / Intact First crack stage One accumulated damage event. 
+2 / Intact Further damage Next accepted damage event breaks the egg. 
+3 / Broken Broken egg visual Round failure and checkpoint recovery; release landing can reach this state immediately. 
+Environment and hazards 
+The current levels combine collision geometry, death zones and cooperative puzzles. The following 
+table describes imp lemented mechanisms rather than the earlier proposed butter, toaster, fan and 
+cooking systems. 
+Table 8: Hazards and puzzles 
+Map Obstacle / puzzle Interaction Effect 
+Kitchen Linked lights Console Toggle a 3×3 board to all-off to open its gate. 
+Kitchen Cookline plates Two pressure plates Activate both within the grace rule to remove the hazard barrier and open the gate. 
+Kitchen Stove fire / Dead zones Hazard volume Player contact can trigger team recovery. 
+Kitchen Dishwashing seesaw Tilting bridge Occupant positions change the plank angle. 
+Kitchen Cold-storage plates Two pressure plates Unlock the vault route and remove its barrier. 
+Kitchen Pantry symbol lock Console Solve symbol sums and enter a three-digit code. 
+Both Narrow route / collision geometry Traversal Height differences and impacts threaten nest stability. 
+
+PAGE 9
+Egg Press 3D – Final Project Report   |   Page 9 
+Map Obstacle / puzzle Interaction Effect 
+Outdoor Platforms and wooden bridges Traversal Coordinate movement and jumps along the route. 
+Both Death and finish areas Round logic Death restarts the pair; valid finish activates victory. 
+1.3 Game Scenes 
+Four scenes are enabled in the build: Menu_Scene, Kitchen_Map, MainMap_Online and Credit. Room 
+creation, the lobby and shop are panels in Menu_Scene. Gameplay scene changes use Netcode’s 
+NetworkSceneManager. Victory is presented as a panel within the gameplay scene. 
+Table 9: Scenes and panels 
+# Scene / panel Purpose Main contents 
+1 Menu_Scene Entry and local customisation Main menu, name entry, room selection/lobby, shop and settings. 
+2 Credit Credits Team/author presentation. 
+3 Lobby panel Room setup within Menu_Scene Create, join code, roster, copy code and host Start. 
+4 Kitchen_Map First gameplay map Six zones, cooperative puzzles, checkpoints and victory trigger. 
+5 MainMap_Online Second gameplay map Outdoor platforms/bridges, coin objects, checkpoint and Win_Area. 
+6 GameWinPanel In-scene victory UI Next stage in Kitchen; replay in outdoor map; return-to-menu action. 
+Menu_Scene: name entry → Create / Join → room roster → host Start 
+↓ 
+Kitchen_Map: loading → carry and solve puzzles → victory panel 
+↓ Select Next Stage 
+MainMap_Online: loading → outdoor traversal → victory panel 
+ 
+Failure in either map → restart at the active checkpoint. 
+Quit or partner disconnect → circular transition → Menu_Scene. 
+Figure 1: Game flow between scenes 
+
+PAGE 10
+Egg Press 3D – Final Project Report   |   Page 10 
+ 
+Figure 2: Main menu from the earlier build 
+ 
+Figure 3: Earlier Relay debug UI, replaced in the main flow by menu lobby panels  
+1.4 How to Play 
+Controls 
+Table 10: Player controls 
+Action Input Where Behaviour 
+Move WASD or arrow keys Gameplay Camera-relative movement; input is read only by the local owner. 
+
+
+PAGE 11
+Egg Press 3D – Final Project Report   |   Page 11 
+Action Input Where Behaviour 
+Jump Space Gameplay Grounded jump; close jump timestamps from both players can release the carried egg. 
+Camera 
+Mouse, using 
+scene camera 
+input 
+Gameplay Controls the configured local camera. 
+Settings Esc Gameplay Toggle settings; if tutorial is open, Esc closes that first. The online world is not paused. 
+Tutorial H or F1 Gameplay Toggle the tutorial panel. 
+Puzzle input 
+E; digits; R / 
+Enter / 
+Backspace 
+Nearby 
+console 
+E enters/leaves; lights use 1–9 and R reset; symbol 
+lock uses 0–9, Backspace and Enter. 
+Shop / 
+equipment 
+UI buttons; 
+Back or Esc Menu Preview/buy cosmetics; cycle owned equipment including no item. 
+Rules and objective 
+• Carry the egg from the start of the level to the goal without destroying it. 
+• The egg does not have a 100-point health bar or continuous speed, acceleration or squeeze 
+damage. With progressive damage enabled, eligible damage events increment a counter. Nest 
+collisions can either damage the egg or eject it, as decided by the host. 
+• When the egg breaks, both players and the nest restart at the saved checkpoint with a reset 
+egg. Entering a configured Dead zone also restarts the pair. There is no score deduction or 
+limited-life counter in the current round logic. 
+• A checkpoint can be reported by one player; the server validates the contact and safe respawn 
+positions for both. In Kitchen_Map, a player or the nest entering the final trigger can activate 
+victory. In MainMap_Online, NetworkNest checks whether the nest touches Win_Area. The 
+code does not require both ducks and the egg to enter the goal simultaneously. 
+Coins and progression 
+Coins are the implemented reward currency. A valid online pickup is approved by the server, despawns 
+the shared coin and adds one coin to each connected player’s local wallet. Coins buy cosmetic items 
+in the menu shop. A time score, seed score, restart penalty, star rating and competitive leaderboard 
+are not implemented. 
+Tips for cooperation 
+• Agree on a route and communicate before changing direction or stepping onto a narrow 
+platform. Movement is relative to the local camera. 
+• Keep the players at compatible heights and avoid extreme nest tilt. The egg can roll toward 
+the lower edge and leave the nest when the release angle is exceeded. 
+• Use jump timing deliberately. The cooperative jump detector pairs timestamps from different 
+players; a matched pair releases the egg from assisted carrying. In the current maps this can 
+push it sideways out of the nest. 
+
+PAGE 12
+Egg Press 3D – Final Project Report   |   Page 12 
+• At puzzle consoles, read the prompt and use E to enter or leave input mode. Solve the lights or 
+symbol code before crossing the opened gate. Esc opens settings; H or F1 toggles the tutorial. 
+The gameplay interface includes a coin display, player nameplates, tutorial and settings controls, 
+loading transitions and the victory panel. Egg damage is communicated through the model and 
+screen effects. 
+
+PAGE 13
+Egg Press 3D – Final Project Report   |   Page 13 
+Part 2. Game Design 
+2.1 Level Design 
+Kitchen_Map is arranged into six named zones and contains checkpoint IDs 1–6. MainMap_Online is 
+an outdoor platforming course with an active checkpoint configuration. Route length and completion 
+time depend on player coordination; this report does not assign an unmeasured one -minute 
+maximum loss or fixed completion time. 
+World 1 — Kitchen_Map 
+Table 11: Kitchen route 
+# Kitchen zone Mechanic Player task Checkpoint 
+1 Prep Island Linked lights Use the console to turn all lights off and open the route. 1 
+2 Cookline Stoves Pressure plates and fire Coordinate the plate activation and avoid Dead zones. 2 
+3 Dishwashing Seesaw Tilting plank Balance the crossing using player positions. 3 
+4 Cold Storage Vault Pressure-plate lock Activate both plates to remove the barrier. 4 
+5 High-Rise Pantry Symbol cipher Read symbol sums and enter the code. 5 
+6 VIP Banquet and Patio Final approach Carry through the last section to the win trigger. 6 
+7 Victory panel Next-stage action Continue to MainMap_Online or return to menu. — 
+The kitchen route progresses from the preparation island through the cookline, dishwashing area, 
+cold-storage vault and high pantry to the VIP banquet and patio. 
+The map combines static kitchen props with interactive gates, death zones and a tilting plank. 
+Decorative props should not be interpreted as functional cooking or launch-pad mechanics. 
+World 2 — MainMap_Online 
+Table 12: Outdoor route 
+# Outdoor element Mechanic Player task Progress 
+1 Spawn area Round preparation Wait for both players, nest and egg to become ready. Start 
+2 Raised platforms Traversal Move together without excessive height separation. Route 
+3 Wooden bridges Narrow crossing Keep the nest clear of collision geometry. Route 
+4 Checkpoint_Flag3 Shared checkpoint Touch the checkpoint and establish a valid respawn centre. Recovery 
+
+PAGE 14
+Egg Press 3D – Final Project Report   |   Page 14 
+# Outdoor element Mechanic Player task Progress 
+5 Dead zone Team restart Avoid falling; recover after a failed attempt. Retry 
+6 Win_Area Nest contact Bring the nest to the finish and choose replay or menu. Victory 
+The outdoor route uses raised platforms, wooden bridge sections, collision obstacles and a death 
+zone. Players must carry the nest through the route and bring it into contact with the finish area. 
+Obstacle specification 
+Gameplay parameters are stored in component fields, prefab values and scene overrides. The table 
+below distinguishes the current mechanisms from values proposed in the original design. ShopData is 
+the ScriptableObject catalogue for cosmetics; no shared HazardConfig asset drives all obstacles. 
+Table 13: Mechanism configuration 
+Mechanism Type Effect Co-op response Configuration 
+Linked lights Puzzle 
+A press flips the selected 
+lamp and orthogonal 
+neighbours. 
+Coordinate entries until all 
+nine lamps are off. 
+3×3 board; keys 1–
+9; R reset 
+Symbol cipher Puzzle Gate opens for the correct three-digit code. Solve the circle/triangle/square pair sums. Three sums stored on the puzzle 
+Kitchen plates Puzzle Removes a barrier and opens a gate. Activate both plates under the grace rule. 4 s in current controllers 
+Seesaw Traversal Tilt depends on occupants’ lever arms. Balance positions as both cross. Component angle/sensitivity fields 
+Nest impact Shared damage Host chooses crack or egg ejection. Avoid touching obstacles with the nest. 0.5 crack chance; 0.75 s cooldown 
+Excessive tilt Egg release Releases the egg from assisted carrying. Avoid large vertical separation. 70° prefab release angle 
+Paired jumps Egg release Matched jump timestamps trigger release. Plan timing; do not assume simultaneous jumping is safe. 0.694 s scene override 
+Dead zone Round failure Restarts the two-player round. Use checkpoints to reduce lost progress. Scene colliders / Dead convention 
+Finish area Victory Stops the round and presents the win panel. Complete the current map’s finish condition. Kitchen trigger; outdoor nest contact 
+Lighting, camera and audio 
+• The project uses URP 17.3.0 with scene lights, materials, shadows and environment assets. 
+Lighting and shadow cost must be assessed per scene and camera view; a fully baked lighting 
+setup is not assumed. 
+
+PAGE 15
+Egg Press 3D – Final Project Report   |   Page 15 
+• LocalPlayerCamera binds the active Cinemachine camera to the local player’s tracking target 
+and preserves the scene camera’s lens and input configuration. It is not a single camera shared 
+by both computers or a mandatory Cinemachine Target Group containing both ducks and the 
+egg. 
+• Audio is organised through scene background music, UI hover/click sounds and the existing 
+audio services. Settings expose Master, Music and SFX volume/mute controls and save these 
+preferences. Audio assigned to puzzle gates and the seesaw provides interaction feedback. 
+2.2 Character and Object Design 
+Game objects overview 
+Table 14: Main game objects 
+# Object Implementation Description 
+1 Host player NetWorkPlayer prefab Owner input/movement, nameplate and equipment. 
+2 Client player Same prefab Separate owner and equipment ID. 
+3 Nest and egg NetworkNest / NestEggBody Shared carrying; egg body created at runtime. 
+4 Checkpoint OnlineCheckpoint ID and safe respawn centre. 
+5 Finish KitchenWinZoneTrigger / NestWinContact Scene-specific victory condition. 
+6 Death zone Dead colliders Server-validated team recovery. 
+7 Puzzles LinkedLights / SymbolCipher / Kitchen plates / Seesaw Interactive scene mechanisms. 
+8 Coin Coin + NetworkObject Approved once; awards both wallets online. 
+9 Services Session, round, currency and save modules Connection, progression and persistence. 
+The egg — runtime components 
+Table 15: Runtime egg components 
+Element Current implementation Purpose 
+Creation NestEggLifecycle.Create Creates the egg object and NestEggBody. 
+Visual EggVisual prefab or fallback Fits the mesh to the runtime collision body. 
+Collider CapsuleCollider Height 3.06; radius 0.99 in runtime units. 
+Rigidbody Mass 0.5; linear damping 0.05; angular damping 0.1 Server-side physics; mode changes between carrying and flight. 
+Authority SetAuthority(server) Remote bodies display replicated state. 
+
+PAGE 16
+Egg Press 3D – Final Project Report   |   Page 16 
+Element Current implementation Purpose 
+Lifecycle NestEggPhase Waiting, Intact and Broken. 
+Damage DamageCount 0–3 Tracks discrete damage stages. 
+Containment NestEggContainment Tests whether the egg remains inside the nest. 
+Assistance NestEggCarryPhysics Rolls the egg on the nest floor; releases on configured triggers. 
+Jump pairing CooperativeJumpWindow Pairs timestamps from the two different players. 
+Visual feedback NestEggDamageVisual / EggDamageFeedback Cracks, broken model, shake and screen flash. 
+Replication NestEggFrame via NetworkNest Egg is not a separate NetworkObject. 
+Recovery RoundFailed → NetworkRoundManager Restart at checkpoint/start after breakage. 
+Damage and release rules 
+The server owns the egg simulation and decides damage. Progressive damage is enabled by overrides 
+on the nest instances in both gameplay scenes. Each accepted damage event changes DamageCount; 
+the implementation uses discrete contact events rather than continuous stress formulas. 
+• First and second damage events: DamageCount increases to 1 and then 2; the visual shows 
+increasing cracks while the phase remains Intact. 
+• Third damage event: the egg enters Broken and raises the round-failure event. Duplicate 
+contacts on the same object and contacts in the same physics step are filtered. 
+• Nest impact: after preparation and cooldown checks, the host chooses between applying a 
+damage increment and ejecting the egg. The shared nest prefab currently sets a 0.5 crack 
+probability and a 0.75-second cooldown. 
+• Release and landing: ReleaseCarry marks the egg to break at its next eligible environment 
+collision, even if it has fewer than two prior damage increments. Nest and player colliders, 
+triggers and Win_Area are excluded from ordinary environment damage checks. 
+• Recovery: NetworkRoundManager responds to egg failure with a checkpoint restart. The egg 
+lifecycle also breaks an actively simulated egg below world Y = −50 as a safety fallback. 
+Table 16: Current carrying and damage parameters 
+Parameter Location Current value Meaning 
+Move speed NetWorkPlayer prefab 10 Motor speed in project units/s. 
+Jump height NetWorkPlayer prefab 6 Motor jump-height setting. 
+Damage count NestEggBody 0 / 1 / 2 / 3 Third stage is Broken; release landing can break immediately. 
+
+PAGE 17
+Egg Press 3D – Final Project Report   |   Page 17 
+Parameter Location Current value Meaning 
+Egg mass NestEggBody 0.5 Rigidbody mass. 
+Egg height NestEggBody 3.06 Runtime collider height. 
+Release tilt Nest prefab 70° Excess nest tilt ends assisted carrying. 
+Jump-pair window Both gameplay scenes 0.694 s Overrides the 0.2 s prefab value. 
+Jump release velocity Both gameplay scenes Up 0; side 2 Adds to inherited motion when paired jumps release the egg. 
+Nest impact crack 
+chance Nest prefab 0.5 Alternative outcome is ejection. 
+Nest impact 
+cooldown Nest prefab 0.75 s Limits repeated nest-impact events. 
+Egg-break recovery 
+delay 
+NetworkRoundManage
+r default 1 s Delay before attempting checkpoint restart. 
+Values above were read from the current scripts, NetWorkPlayer/Nest prefabs and gameplay scene 
+overrides. Scene overrides take precedence over prefab defaults; for example, the current jump-pair 
+window is 0.694 seconds in both maps rather than the 0.2-second prefab default. 
+Assisted carrying and free flight 
+NestEggCarryPhysics simulates a bounded egg offset on the nest floor using gravity, a small inertial 
+contribution and damping. While carried, the body is moved in the nest coordinate system. Excessive 
+tilt or paired jump events release it to server -side Rigidbody motion. There is no simulated internal 
+yolk, raw-to-boiled conversion, player-controlled squeeze or Q/E balancing mechanic. 
+Egg state machine 
+NestEggPhase defines Waiting, Intact and Broken. Waiting covers setup; reset activates Intact; 
+breaking activates Broken; a round restart creates the next intact simulation state. DamageCount 1 
+and 2 do not create separate Cracked or Critical states. Player movement separately uses an Idle/Walk 
+state machine, with jump handled by the motor. 
+Waiting → preparation/reset → Intact → break condition → Broken 
+Broken → checkpoint restart/reset → Intact 
+Any active phase → stop/wait for preparation → Waiting 
+ 
+DamageCount within Intact: 0 → 1 → 2. 
+The next accepted damage event, or an eligible landing after release, produces Broken. 
+Figure 4: Egg lifecycle and separate damage counter 
+Table 17: Egg state transitions 
+From To Condition 
+Waiting Intact Prepared round resets and activates the egg. 
+
+PAGE 18
+Egg Press 3D – Final Project Report   |   Page 18 
+From To Condition 
+Intact, damage 0 Intact, damage 1 Accepted damage event. 
+Intact, damage 1 Intact, damage 2 Next accepted damage event. 
+Intact, damage 2 Broken Next accepted damage event. 
+Intact, any damage Broken Eligible landing after ReleaseCarry. 
+Intact Broken Safety fallback below Y = −50. 
+Broken Intact Checkpoint/start reset for the next round. 
+Active lifecycle Waiting Preparation/wait path stops active simulation. 
+Player characters – components 
+Table 18: Player components 
+Component / module Current use Purpose 
+Duck model and rig Duck_Wings_Expanded; carrying and hat anchors Character presentation and attachment points. 
+CharacterController Movement collision body Grounding and collision flags. 
+KeyboardPlayerInput WASD/arrows and Space Local input only. 
+PlayerCharacterMotor Gravity, jump and movement integration Moves through CharacterController. 
+CarryDistanceConstraint IPlayerMovementConstraint Restricts separation while carrying. 
+OnlinePlayerStateMachine Idle / Walk Movement-state decisions. 
+PlayerAnimationPresenter / 
+DuckNeckIK 
+Walk/side-walk and procedural 
+rig adjustment 
+Animation follows movement and 
+carrying pose. 
+NetworkObject / 
+OwnerNetworkTransform 
+Owner-driven player 
+movement Replicates player pose. 
+NetworkPlayerIdentity / 
+Equipment 
+Name and equipped-ID 
+replication 
+Per-player identity and cosmetic 
+visuals. 
+The pair carries the nest through carrying anchors, geometry calculations and distance constraints. 
+The player motor uses CharacterController. The nest follows the shared carry pose, while the egg uses 
+assisted carrying or free Rigidbody motion. The current system does not apply two player-controlled 
+spring grips directly to the eggshell. 
+
+PAGE 19
+Egg Press 3D – Final Project Report   |   Page 19 
+Animation design 
+Table 19: Animation and presentation 
+# Object Presentation system Current behaviour 
+1 Duck PlayerAnimationPresenter Walk/Walking and Side_Walk; restore base pose on idle. 
+2 Duck rig DuckNeckIK Neck/body/wing adjustment for carrying. 
+3 Egg NestEggDamageVisual Crack stages and broken-egg visual. 
+4 Damage feedback EggDamageFeedback Local camera shake and screen flash. 
+5 Puzzle gates PuzzleGate / KitchenPuzzleGate Translate or animate the gate into an open position. 
+6 Seesaw SeesawBridge Apply tilt and warning presentation. 
+7 Shop / loading MenuShopTransition / CircularRevealGraphic Camera framing, panel slide and circular transitions. 
+Assets 
+• The project contains a rigged duck, nest and egg visuals, kitchen/outdoor environment assets 
+and cosmetic item prefabs. Imported models and decorative assets are distinct from the 
+gameplay scripts that make an object interactive. Exact asset provenance and licences remain 
+in the team’s asset records. 
+• The existing audio assets support background music, UI actions and configured gameplay 
+interactions. Master, Music and SFX settings are applied through the audio mixer and stored 
+locally. 
+• The UI uses Unity UI and TextMeshPro for menu/lobby panels, the shop, coin display, settings, 
+tutorial pages, loading and victory feedback. 
+• Egg feedback uses crack/broken visuals, camera shake and a screen flash. The current report 
+does not claim pooled shell shards, steam or a boiling effect. 
+2.3 Script Design 
+The following examples refer to implemented classes. Interfaces separate input, movement 
+constraints, wallet access, Relay service calls and puzzle interactions. The project also retains direct 
+references and singleton services, so these examples describe specific applications of SOLID rather 
+than claiming that every class follows every principle. 
+
+PAGE 20
+Egg Press 3D – Final Project Report   |   Page 20 
+SOLID principles 
+S — Single Responsibility: KeyboardPlayerInput reads movement/jump input; PlayerCharacterM otor 
+applies movement; PlayerAnimationPresenter controls animation. These responsibilities are 
+separated from session setup and UI. 
+ 
+O — Open/Closed: PlayerCharacterMotor accepts IPlayerMovementConstraint. The motor can use a 
+different constraint implementation without changing its movement calculation. 
+ 
+L — Liskov Substitution: OnlineIdleState and OnlineWalkState implement OnlinePlayerState. 
+OnlinePlayerStateMachine calls the same Enter, Tick and Exit contract regardless of the active state. 
+
+
+PAGE 21
+Egg Press 3D – Final Project Report   |   Page 21 
+ 
+I — Interface Segregation: ICoinWallet exposes the wallet operations needed by coin collection; 
+IPlayerMovementConstraint exposes movement limiting; IPuzzleInteractable exposes puzzle 
+activation. Consumers do not depend on a large all-purpose game manager. 
+Example: Coin receives an ICoinWallet through Initialize; it calls AddCoin after collection. Puzzle 
+controllers reference IPuzzleInteractable to activate their gate. 
+D — Dependency Inversion: RelaySession receives IRelayRoomService in i ts constructor, and coin 
+collection receives ICoinWallet. Unity -facing installers connect concrete implementations to those 
+contracts. 
+
+
+PAGE 22
+Egg Press 3D – Final Project Report   |   Page 22 
+
+
+PAGE 23
+Egg Press 3D – Final Project Report   |   Page 23 
+ 
+Design patterns 
+State pattern: OnlinePlayerStateMachine changes between OnlineIdleState and OnlineWalkState. 
+Jump input is passed separately to the motor; the egg uses an enum lifecycle rather than the five-state 
+class hierarchy proposed in the original report. 
+The state-machine example is Assets/Scripts/Player/Movement/OnlinePlayerStateMachine.cs. 
+ChangeState calls Exit on the previous state and Enter on the next state, while Tick delegates 
+movement decisions to the current state. 
+
+
+PAGE 24
+Egg Press 3D – Final Project Report   |   Page 24 
+
+
+PAGE 25
+Egg Press 3D – Final Project Report   |   Page 25 
+ 
+Strategy-style composition: IPlayerMovementConstraint lets PlayerCharacterMotor delegate 
+movement limits. CarryDistanceConstraint supplies the current carrying constraint. This separates 
+movement integration from the rule that keeps two carriers within reach. 
+Observer pattern: CurrencyManager raises OnCoinChanged after AddCoin or a successful SpendCoin. 
+CoinUI subscribes, updates its TextMeshPro label and unsubscribes when destroyed. RoomLobbyView 
+similarly listens to roster changes; equipment visuals listen to the equipped-ID NetworkVariable. 
+Singleton usage: SaveSystem, CurrencyManager, PlayerInventory and CharacterEquipment provide 
+shared access in the existing implementation. They simplify access but require correct scene lifetime 
+and initialisation. No Object Pool or HazardBase Template Method is claimed for the current 
+gameplay. 
+Network synchronisation: player movement is owner-authoritative; shared nest/egg state, checkpoint 
+decisions and round outcomes are server -controlled. NetworkVariables carry persistent state and 
+RPCs carry requests/events. Nest snapshots include both nest and egg data, and the client uses 
+prediction, reconciliation and presentation smoothing. 
+Interface-based puzzle design: LinkedLightsPuzzle and SymbolCipherPuzzle use IPuzzleInteractable for 
+the gate. Their plain C# rule classes can be tested without running a scene. EditMode test sources exist 
+for LinkedLightsBoard and SymbolCipherLock. 
+2.4 Online Session Flow 
+• Create room: RelayRoomService signs in anonymously, allocates room for one joining client 
+and obtains a Relay join code. RelaySession configures UnityTransport and starts the NGO 
+host. The join code is returned by Relay; the project does not generate a fixed four-character 
+Fusion room name. 
+
+
+PAGE 26
+Egg Press 3D – Final Project Report   |   Page 26 
+• Join room: the other player enters the shared Relay code. The session joins through Unity 
+Transport, and RelayRoomRoster maintains the two-player list and names. Invalid or 
+unavailable rooms report an error through the session UI. 
+• The current menu supports Create and Join by code. Automatic quick matching and skill-based 
+matchmaking are not part of this implementation. 
+• Start: only the host sees an enabled Start action when both connected players and roster 
+entries are present. There is no separate Ready button required from each player. 
+NetworkGameStarter synchronises the first map load and then spawns each player object with 
+its owner and display name. 
+• Disconnect or Quit: leaving gameplay ends the two-player session for the other participant as 
+well. ReturnToMenuTransition performs the circular cover/loading effect and returns to 
+Menu_Scene. Reconnection and host migration are not implemented. 
+2.5 Shop and Equipment 
+The shop uses the menu duck as the preview character. MenuShopTransition moves the camera 
+closer and slides the item panel in from the right. ShopUI selects a slot and ShopPreview asks 
+CharacterEquipment to display the corresponding prefab at HatAnchor. Previewing does not save a 
+new equipped item. 
+Buy calls ShopPurchaseService, which requests SpendCoin, appends the item ID to the owned list 
+and saves it. SlotItem marks owned items and disables their button. CurrencyManager raises 
+OnCoinChanged so subscribed coin displays refresh immediately. 
+Outside the shop, PlayerEquipment cycles through owned IDs and an empty ID for no equipment. 
+The chosen ID is saved. Closing the shop restores this saved selection. When an online player 
+spawns, only its owner submits the saved ID; the server distributes that player’s ID and each 
+machine creates the matching visual locally. 
+SaveSystem stores coins using PlayerPrefs.SetInt and stores purchased IDs/equipped ID as JSON 
+strings through JsonUtility and PlayerPrefs. These are local settings, not cloud/database records. The 
+current network equipment check validates a known item ID, not a server-maintained purchase 
+ledger. 
+2.6 Performance Analysis 
+2.6.1 Test Environment 
+Table 20: Test environment 
+Item Details 
+Unity version Current project: Unity 6000.3.15f1. The exact 
+old capture revision was not recorded. 
+Render Pipeline URP; current package 17.3.0 
+CPU 12th gen Intel - core i5 
+
+PAGE 27
+Egg Press 3D – Final Project Report   |   Page 27 
+Item Details 
+GPU Intel Iris Xe Graphics 
+RAM 32GB  
+Operating system Window 11 
+Measurement method Historical screenshots from the supplied report; 
+recapture the current Development Build. 
+Resolution Full HD 
+2.6.2 Performance Targets 
+Table 21: Performance targets 
+Metrics Target Reason 
+FPS 60FPS Project target for responsive PC 
+play; not a measured 
+guarantee. 
+CPU Frame Time Under 16.6ms Corresponding to 60 FPS; 
+exceeding this will cause 
+stuttering. 
+GC Alloc during gameplay 0 KB/frame Limit recurring allocations 
+during movement and shared-
+egg simulation. 
+Batches Under 500 Initial investigation budget; 
+judge changes using frame-time 
+measurements. 
+Setpass calls Under 150 Changing materials each time 
+consumes CPU, so reduce the 
+number of different materials. 
+Memory Under 1GB Ensure it runs on a machine 
+with average specifications. 
+
+PAGE 28
+Egg Press 3D – Final Project Report   |   Page 28 
+2.6.3 Measurement Method 
+Tools 
+Table 22: Profiling tools 
+Tool Used for Evidence in original report 
+Unity Profiler: CPU Usage Finding time-consuming 
+functions and spikes 
+Historical capture / report 
+Unity Profile: Rendering Batches, SetPass, Triangles Historical capture / report 
+Unity Profiler: Memory Memory usage, GC Alloc Historical capture / report 
+Frame Debugger Viewing draw calls, reasons 
+batching fails 
+Historical capture / report 
+Capture Scenarios 
+The screenshots and numerical results retained below belong to the earlier report. They document a 
+historical capture, not a benchmark of the current scripts and levels. A new comparison must use the 
+same hardware, resolution, quality settings, build type and capture duration for host and client. 
+Table 23: Historical capture scenarios 
+# Scenario Capture duration Actions performed Saved data.file 
+1 Main menu and 
+lobby 
+30s Wait 5 seconds in the 
+main menu, then 
+press start game to 
+create a room. 
+MainMenu_Lo
+bby 
+2 Main gameplay 30s 2 player move 
+together 
+Main 
+Gameplay 
+ 
+
+
+PAGE 29
+Egg Press 3D – Final Project Report   |   Page 29 
+ 
+2.6.4 Historical Baseline 
+Table 24: Historical measurement results 
+Scenario Avg FPS Lowest 
+FPS 
+Avg 
+CPU(ms) 
+Peak 
+CPU(ms) 
+GC 
+Alloc(KB/F
+rame) 
+Batches SetPass 
+Menu & 
+Lobby 
+46.5  < 15 FPS  21.5  > 66ms  0 KB (At 
+Frame 
+1742) 
+297  23  
+Main 
+GamePlay 
+23.7  < 15 FPS 42.1 ~ 508 0.6KB 4725  39 
+2.6.5 CPU and Presentation Waits 
+Table 25: CPU and presentation-wait analysis 
+Scenario Frame CPU time Observation Main thread Interpretation 
+Menu / 
+Lobby 
+1742 / 
+2051 
+Peak >66 
+ms 
+Historical graph 
+contains repeated 
+high frame-time 
+spikes. 
+Selected samples: 
+skinned meshes 0.26 
+ms; 
+NetworkEarlyUpdate 
+0.26 ms; scripts 0.16 
+ms. 
+One selected frame 
+cannot rule out a CPU 
+bottleneck across the run. 
+Separate work from waits. 
+Gamepla
+y 
+48 / 
+1447 33.63 ms 
+A large 
+presentation-wait 
+block is visible. 
+DXGI.WaitOnSwapChai
+n 19.26 ms; physics 
+2.30 ms; scripts 2.23 
+ms. 
+Presentation wait is not 
+GPU execution time. 
+Check GPU timing, 
+VSync/caps and the 
+render thread. 
+
+
+PAGE 30
+Egg Press 3D – Final Project Report   |   Page 30 
+ 
+ 
+2.6.6 Issues and Proposed Optimisation 
+Draw Calls 
+The earlier report records 4,725 batches for a gameplay capture. This is a useful optimisation lead, but 
+the count depends on the scene, camera and render passes. It is not a universal limit or a current -
+build measurement. 
+A high batch count can increase render -thread submission cost. A zero “Saved by batching” statistic 
+alone does not prove that every batching path is disabled; SRP Batcher behaviour must be inspected 
+separately in the Frame Debugger. 
+Proposed Solutions: 
+● Evaluate static batching for suitable non-moving environment meshes, checking the memory 
+cost and the render-pipeline configuration. 
+● Evaluate GPU instancing for repeated compatible mesh/material combinations, and 
+compare frame time before and after. Do not assume every repeated object can be reduced 
+to a single draw call. 
+
+
+PAGE 31
+Egg Press 3D – Final Project Report   |   Page 31 
+Geometry Workload 
+The earlier capture reports approximately 9.4 million triangles and 9.8 million vertices. These ar e 
+recorded rendering statistics and should be remeasured with the current content and camera views. 
+High visible geometry can add GPU work. To establish the bottleneck, compare GPU timing and 
+controlled changes to resolution, shadows and geometry. The FPS value and polygon count alone do 
+not prove a GPU-bound frame. 
+Proposed Solutions: 
+● Review dense models and reduce detail that is not visible at gameplay distance. Preserve the 
+silhouette and important visual features. 
+● Evaluate LOD Groups for distant environment assets and verify transitions during actual 
+camera movement. 
+● Evaluate occlusion culling where level geometry can hide substantial content; measure its 
+benefit against the cost and bake requirements. 
+Shadow Workload 
+The earlier report records 2,333 sha dow casters in the captured view. The number is historical and 
+varies with scene visibility and shadow settings. 
+Shadow passes render additional geometry from the light’s view. Shadow distance, cascades and the 
+number of visible casters should be measured alongside GPU timing before selecting a change. 
+Proposed Solutions: 
+● Disable shadow casting on minor or distant decorative objects where it does not affect 
+readability. 
+● Evaluate baked or mixed lighting for static scenery while retaining suitable dynamic shadows 
+for ducks, the nest and moving objects. Compare quality and performance rather than 
+assuming this conversion is already complete. 
+2.6.7 Frame Debugger Observations 
+Table 26: Frame Debugger observations 
+Scenario Draw event Historical observation Follow-up 
+Gameplay Terrain Five terrain draw events visible at the captured view. Remeasure current scene/camera cost before optimising. 
+Gameplay Opaque SRP batches SRP Batcher events are visible. Check compatible setup costs; batch groups are not the total draw-call count. 
+Gameplay Skybox One skybox draw visible in this capture. Retain settings only after checking current timing. 
+
+PAGE 32
+Egg Press 3D – Final Project Report   |   Page 32 
+ 
+ 
+ 
+
+
+PAGE 33
+Egg Press 3D – Final Project Report   |   Page 33 
+Part 3. Demo and Deploy 
+3.1 Demo 
+The proposed demo follows the current two -player flow from menu customisation and Relay 
+connection through the kitchen and outdoor maps. The sequence below is a recording plan, not 
+evidence that every test has passed. 
+Table 27: Demo storyboard 
+# Content Highlight 
+1 Menu: shop preview, purchase and equipment cycling Local customisation; no-item option 
+2 Host creates a room; second player joins by Relay code Two-player roster and host Start 
+3 Kitchen loading, preparation and basic movement Both ducks carry one nest and egg 
+4 Linked lights, plates, seesaw and symbol lock Cooperative puzzle route 
+5 Demonstrate nest impact or paired-jump release Cracks/ejection and egg breakage 
+6 Reach checkpoint, then trigger failure Both players recover at the saved centre 
+7 Finish Kitchen and select Next Stage Synchronised MainMap_Online load 
+8 Outdoor route, coin pickup and victory Both wallets rewarded; win actions 
+9 Esc settings and one participant quitting Settings and both machines returning to menu 
+Demo video, repository and playable -build links should be supplied by the team with the final 
+submission. 
+Demo capture 1 should show both ducks carrying the nest through a kitchen puzzle, with names and 
+coin UI visible. 
+Demo capture 2 should show egg damage or a fall, followed by both players returning to the active 
+checkpoint. 
+Demo capture 3 should show the victory panel and the selected next-stage, replay or menu action 
+on both machines. 
+3.2 Build and Deployment 
+Build configuration 
+Table 28: Build configuration 
+Setting Current project / deployment action 
+Target Windows desktop build 
+Unity 6000.3.15f1 
+
+PAGE 34
+Egg Press 3D – Final Project Report   |   Page 34 
+Setting Current project / deployment action 
+Backend Confirm Windows backend in Build Profiles; this report does not claim a verified IL2CPP release. 
+Enabled scenes Menu_Scene; Kitchen_Map; MainMap_Online; Credit 
+Rendering URP 17.3.0; use tested project quality/audio settings. 
+Profiling Enable Development Build for measurement; validate release separately. 
+Online services Unity Services authentication and Relay; NGO with UnityTransport. Configure the linked Unity project/services for deployment. 
+Deployment steps 
+1. Merge the final branch into main and tag the version (e.g. v1.0.0). 
+2. Run the EditMode/PlayMode tests and the test-case checklist (section 3.3). 
+3. Create a Windows build from Unity Build Profiles using the enabled scene list. Enable 
+Development Build for profiling; create a separate release build after verification. 
+4. Test the exe on a clean Windows PC that has no Unity installed (two PCs for online mode). 
+5. Zip the build (with README: controls and requirements) and upload it to itch.io / Google Drive 
+/ GitHub Releases. 
+6. Publish the source code on GitHub (Git LFS for large assets) and add the link to the report. 
+System requirements (target) 
+Table 29: Target system requirements 
+Item Minimum Recommended 
+OS Windows 10 64-bit Windows 11 
+CPU Intel i3 / Ryzen 3 Intel i5 / Ryzen 5 
+RAM 8 GB 16 GB 
+GPU Integrated GPU with DirectX 11 GTX 1650 or better 
+Network Stable Internet connection; verify 
+under added latency/loss. 
+Low-latency connection; no certified 
+RTT limit yet. 
+3.3 Test Cases and Results 
+The checklist below covers the implemented controls, shared egg behaviour, puzzles, coins, cosmetics 
+and session flow. Results are marked Pending until the team runs each case on the final build. Source 
+review confirms implementation paths, not multiplayer runtime correctness. 
+
+PAGE 35
+Egg Press 3D – Final Project Report   |   Page 35 
+Table 30: Test checklist 
+ID Test case Steps Expected result Result 
+TC-01 Create room Host enters a name and creates a room. Relay code and host roster entry appear. Pending 
+TC-02 Join by code Second machine enters the shared code. Both names appear; room has two members. Pending 
+TC-03 Invalid/full room Attempt invalid code and a third participant. Error/refusal without starting a match. Pending 
+TC-04 Host start gate Try with one player, then connect the second. Only host starts; normal start requires two players. Pending 
+TC-05 Load and spawn Start the room. Kitchen loads on both; each owns one duck; nest/egg prepare. Pending 
+TC-06 Movement Use WASD/arrows and Space on both machines. Only the local owner controls its duck; both see movement. Pending 
+TC-07 Carry and tilt Walk, turn and change relative height. Nest follows the pair; egg rolls; extreme tilt releases it. Pending 
+TC-08 Paired jumps 
+Jump within the 
+configured 0.694 s 
+window. 
+Server pairs different players’ times and 
+releases the egg. Pending 
+TC-09 Nest impact Contact an eligible obstacle with the nest. Host chooses crack/ejection and both see the same result. Pending 
+TC-10 Progressive damage Produce successive accepted damage events. Damage 1, then 2, then Broken; duplicate contact is filtered. Pending 
+TC-11 Release landing Release the egg and let it hit an eligible surface. Egg breaks without requiring three prior hits. Pending 
+TC-12 Checkpoint Touch checkpoint with one player; then fail. Valid centre is saved; both players and egg reset there. Pending 
+TC-13 Death zone Move one duck into a Dead zone. Whole pair restarts; no score penalty is applied. Pending 
+TC-14 Linked lights At console: E, keys 1–9; test R. Board follows cross-toggle rule; all-off opens gate. Pending 
+TC-15 Kitchen plates Activate both under the grace rule. Barrier disappears and gate opens on both machines. Pending 
+TC-16 Seesaw Place players at different points on the plank. Tilt/warning changes and is synchronised. Pending 
+TC-17 Symbol code Enter a wrong then correct three-digit code. Wrong stays locked; correct opens the gate. Pending 
+
+PAGE 36
+Egg Press 3D – Final Project Report   |   Page 36 
+ID Test case Steps Expected result Result 
+TC-18 Kitchen victory 
+Enter final trigger with 
+player/nest; select Next 
+Stage. 
+Win panel appears; both transition to 
+MainMap_Online. Pending 
+TC-19 Outdoor victory/replay Bring nest into Win_Area; choose replay. Win panel appears; replay resets to start and clears checkpoint. Pending 
+TC-20 Coin reward Collect the same online coin once. Coin despawns; each wallet gains one; UI updates. Pending 
+TC-21 Shop and save 
+Buy, relaunch, equip, 
+preview another item 
+and leave shop. 
+Owned item persists; saved equipment 
+returns after preview. Pending 
+TC-22 Per-player equipment Choose different items, join and start. Each duck has its own item on both machines. Pending 
+TC-23 Settings / tutorial / quit Use Esc and H/F1; change volume; quit from either peer. Correct panels open; audio saves; both return through circular transition. Pending 
+TC-24 Latency and release build Test added delay/loss and clean-PC release; profile both maps. Record actual failures, timings and performance against targets. Pending 
+Known issues 
+Table 31: Open issues and validation 
+# Open issue / validation item Impact Status 
+1 Purchase service relies on UI to block repeat purchases; currency and ownership are local. Validation / save integrity Review before release 
+2 Current build still needs two-machine regression and fresh performance captures. Runtime / performance Pending 
+
+PAGE 37
+Egg Press 3D – Final Project Report   |   Page 37 
+Part 4. Evaluation and Future Development 
+4.1 Evaluation 
+Objectives versus results 
+Table 32: Objectives and implementation 
+Objective Current implementation status 
+Two players carry a shared nest and 
+egg 
+Source and gameplay scenes contain the carrying, damage and 
+recovery systems. 
+Egg lifecycle and crack feedback Waiting/Intact/Broken plus DamageCount; no boiling or continuous stress model. 
+Two gameplay maps Kitchen_Map and MainMap_Online are enabled in the build. 
+Online session NGO + Unity Transport + Relay; create/join, host start and disconnect return. 
+Coins and cosmetics Shared online pickup rewards; local purchase/save; per-player equipped-ID replication. 
+Profiling and tests Historical captures retained; current regression/benchmark checklist is pending. 
+Deployment Build steps defined; clean-PC and final multiplayer release checks remain to be completed. 
+Strengths 
+• A clear and original mechanic: the shared fragile egg turns cooperation into the central 
+challenge. 
+• The project separates input, motor, animation, carrying and session concerns, and stores 
+cosmetic catalogue data in ShopData. 
+• Plain C# puzzle rules and small interfaces support focused testing; C# events and network 
+state-change callbacks update the UI and replicated visuals. 
+Limitations 
+• Shared carrying remains sensitive to latency, jitter and packet loss. Prediction and smoothing 
+are implemented, but no verified latency threshold is claimed without controlled multiplayer 
+tests. 
+• Authority is mixed: players drive their own movement, while the host resolves the nest/egg 
+and shared outcomes. Cosmetic ownership and currency are stored locally, so this is not a 
+server-secured economy. 
+• Content consists of two gameplay maps. There is no reconnect/host-migration flow, automatic 
+matchmaking, built-in voice chat, timed leaderboard or star scoring. 
+
+PAGE 38
+Egg Press 3D – Final Project Report   |   Page 38 
+Lessons learned 
+• Prototype the risky mechanic (shared physics) before building content and networking. 
+• Measure performance and latency early with a development build, not only inside the editor. 
+• Agree interfaces between gameplay and network code early to allow parallel work. 
+4.2 Future Development 
+• More worlds: World 3 – Bathroom (soap, wet tiles), World 4 – Supermarket (conveyor belts, 
+shopping carts). 
+• More players: 3–4 players carrying a bigger egg, or relay races between teams. 
+• Optional future work: add built-in voice chat or emotes and evaluate a compatible service for 
+the existing Unity networking stack. 
+• Optional future work: introduce a timer, explicit scoring rules and leaderboards after designing 
+and validating the score model. 
+• Extend the existing cosmetic shop with additional items, stronger purchase validation and 
+cloud/account persistence if needed. Hats and equipment selection already exist. 
+• Accessibility work could include colour-independent puzzle cues, control remapping and full 
+gamepad coverage. Current online movement reads keyboard input. 
+• Platform expansion: Steam release, later consoles. 
+
+PAGE 39
+Egg Press 3D – Final Project Report   |   Page 39 
+Part 5. References 
+[1] Unity Technologies. Unity Manual and Scripting API (Rigidbody, PhysicMaterial, Profiler, Input 
+System, Cinemachine). https://docs.unity3d.com/ 
+[2] Unity Technologies. Netcode for GameObjects 2.13 documentation: NetworkVariables an d RPCs. 
+https://docs.unity.cn/Packages/com.unity.netcode.gameobjects@2.13/manual/basics/networkvaria
+ble.html 
+[3] Nystrom, R. (2014). Game Programming Patterns. https://gameprogrammingpatterns.com/ 
+[4] Martin, R. C. (2017). Clean Architecture: A Craftsman’s  Guide to Software Structure and Design. 
+Prentice Hall. 
+[5] Unity Technologies. Relay allocating, binding and joining. https://docs.unity.com/relay/allocating-
+binding-joining 
+[6] Unity Technologies. Unity Profiler documentation. https://docs.unity3d.com/Manual/Profiler.html 
+[7] clumsy – network condition simulator for Windows. https://jagt.github.io/clumsy/ 
+[8] Ghost Town Games (2016). Overcooked; No Brakes Games (2016). Human: Fall Flat – co-op physics 
+games used as design references. 
+[9] Project asset folders and their supplied licence files. Asset credits should list the exact imported 
+packages used in the submitted build. 
+[10] Egg Press 3D project source, scenes and configuration reviewed on 8 November 2026. Key 
+implementation paths are listed in the appendix. 
+
+PAGE 40
+Egg Press 3D – Final Project Report   |   Page 40 
+Appendix — Implementation Sources 
+The revised mechanics correspond to the current project files below. These references make the 
+report traceable without presenting a source review as a runtime test. 
+Engine and build scenes: ProjectSettings/ProjectVersion.txt; 
+ProjectSettings/EditorBuildSettings.asset; Packages/manifest.json 
+Maps and overrides: Assets/Scenes/Kitchen_Map.unity; Assets/Scenes/MainMap_Online.unity; 
+Assets/Prefabs/Nest.prefab; Assets/Prefabs/NetWorkPlayer.prefab 
+Input and movement: Assets/Scripts/Player/Input/KeyboardPlayerInput.cs; 
+Movement/PlayerCharacterMotor.cs; Movement/OnlinePlayerStateMachine.cs; 
+Camera/LocalPlayerCamera.cs 
+Shared carrying and egg: Assets/Scripts/NestEggPhysics/Nest/Networking/NetworkNest.cs; 
+Egg/Physics/NestEggBody.cs; NestEggCarryPhysics.cs; CooperativeJumpWindow.cs; 
+Egg/Lifecycle/NestEggLifecycle.cs 
+Victory and recovery: Assets/Scripts/RoundManagement/NetworkRoundManager.cs; 
+OnlineCheckpoint.cs; KitchenWinZoneTrigger.cs; Assets/Quang/Scripts/OnlineWinButtons.cs 
+Kitchen puzzles: Assets/Scripts/KitchenPuzzle/; Assets/_Hoang/Scripts/Puzzles/LinkedLightsBoard.cs; 
+SymbolCipherLock.cs; SeesawBridge.cs and their controllers/consoles 
+Sessions: Assets/Scripts/OnlineStartup/Services/RelayRoomService.cs; 
+Session/NetworkGameStarter.cs; NetworkSessionRuntime.cs; Lobby/RoomLobbyView.cs 
+Shop and persistence: Assets/Scripts/Shop/; Assets/Scripts/Player/Inventory/; 
+Assets/Scripts/Coins/Persistence/SaveSystem.cs; 
+Assets/Scripts/Player/Networking/NetworkPlayerEquipment.cs 
+Coins and UI events: Assets/Scripts/Coins/Collection/Coin.cs; Wallet/CurrencyManager.cs; 
+Presentation/CoinUI.cs 
+Settings and transitions: Assets/Quang/Scripts/InGameSettingsShortcut.cs; 
+Assets/Scripts/Menu/SettingPanelController.cs; MenuShopTransition.cs; 
+Assets/Scripts/GameLoading/ReturnToMenuTransition.cs 
+Existing puzzle tests: Assets/_Hoang/Tests/Editor/LinkedLightsBoardTests.cs; 
+SymbolCipherLockTests.cs; prefab-validation scripts 

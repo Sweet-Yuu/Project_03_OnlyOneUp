@@ -11,7 +11,9 @@ public sealed class NestEggLifecycle : IDisposable
     private NetworkObject ignoredHost, ignoredGuest;
     private NestEggContainment _containment;
     private INestEggCarryPhysics _carryPhysics;
+    //Gắn bộ xử lý chuyển động trứng trong tổ
     public void SetCarryPhysics(INestEggCarryPhysics physics) => _carryPhysics = physics;
+    //Kiểm tra vị trí vật lý của trứng có nằm trong vùng chứa của tổ không
     public bool IsEggInNest
     {
         get
@@ -37,7 +39,7 @@ public sealed class NestEggLifecycle : IDisposable
         egg.SetAuthority(server);
         egg.Broken += OnBroken;
     }
-
+    //Tính vùng chứa từ collider đáy và các BoxCollider của tổ
     private void CacheContainment()
     {
         Bounds bounds = BoxInNestSpace(nestFloor);
@@ -52,7 +54,7 @@ public sealed class NestEggLifecycle : IDisposable
         bounds.SetMinMax(minimum, maximum);
         _containment = new NestEggContainment(bounds);
     }
-
+    //Chuyển vùng bao của một BoxCollider về hệ tọa độ tổ
     private Bounds BoxInNestSpace(BoxCollider box)
     {
         Matrix4x4 toNest = transform.worldToLocalMatrix * box.transform.localToWorldMatrix;
@@ -95,6 +97,7 @@ public sealed class NestEggLifecycle : IDisposable
         ignoredHost = ignoredGuest = null;
         IgnorePlayers(host, guest);
     }
+    //Đặt trứng ra sát ngoài mép tổ và cho rơi với vận tốc được truyền vào
     public void FallFromImpact(Vector3 direction, float sideSpeed, float upSpeed)
     {
         if (egg == null || !egg.IsSimulating) return;
@@ -110,7 +113,7 @@ public sealed class NestEggLifecycle : IDisposable
         egg.Body.position = position;
         egg.FallFromNestImpact(direction * sideSpeed + Vector3.up * upSpeed);
     }
-
+    //Đặt trứng ra ngoài tổ để kiểm thử rơi
     public void DropForTest()
     {
         _carryPhysics?.Stop();
@@ -122,6 +125,7 @@ public sealed class NestEggLifecycle : IDisposable
         egg.ResetOnServer(position, Quaternion.identity);
         ignoredHost = ignoredGuest = null;
     }
+    //Gỡ sự kiện, dừng xử lý và hủy GameObject trứng
     public void Dispose()
     {
         _carryPhysics?.Stop();
