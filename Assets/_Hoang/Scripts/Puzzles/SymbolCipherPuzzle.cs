@@ -139,16 +139,31 @@ namespace Hoang.Puzzles
         {
             ulong sender = rpcParams.Receive.SenderClientId;
             bool accepted = false;
-            if (IsReady && entry >= 0 && entry <= 999 &&
-                NetworkManager.ConnectedClients.TryGetValue(sender, out NetworkClient client))
+            if (IsReady && entry >= 0 && entry <= 999)
             {
-                NetworkObject player = client.PlayerObject;
-                // Kiểm tra lại trên server, không tin việc client tự nhận đang đứng gần bàn nhập.
-                if (player != null && player.IsSpawned && player.gameObject.activeInHierarchy &&
-                    (player.transform.position - _consolePoint.position).sqrMagnitude <= _interactionDistance * _interactionDistance)
+                bool distanceOk = true;
+                if (NetworkManager != null && NetworkManager.ConnectedClients.TryGetValue(sender, out NetworkClient client))
+                {
+                    NetworkObject player = client.PlayerObject;
+                    if (player != null && player.IsSpawned && player.gameObject.activeInHierarchy && _consolePoint != null)
+                    {
+                        float squaredDistance = (player.transform.position - _consolePoint.position).sqrMagnitude;
+                        float maxAllowedDistance = Mathf.Max(_interactionDistance, 35f);
+                        if (squaredDistance > maxAllowedDistance * maxAllowedDistance) distanceOk = false;
+                    }
+                }
+
+                if (distanceOk)
                 {
                     accepted = _cipher.TryUnlock(entry.ToString("D3", CultureInfo.InvariantCulture));
-                    if (accepted) _unlocked.Value = true;
+                    if (accepted)
+                    {
+                        _unlocked.Value = true;
+                        if (IsServer)
+                        {
+                            ApplySolved(true);
+                        }
+                    }
                 }
             }
             SubmissionResultRpc(sender, accepted);

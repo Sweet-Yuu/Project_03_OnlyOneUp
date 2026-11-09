@@ -84,6 +84,12 @@ namespace Hoang.Puzzles
                 return;
             }
 
+            // Khi màn hình phóng to đang mở, nhường toàn bộ quyền xử lý phím và chuột cho ZoomUI
+            if (zoomUI != null && zoomUI.IsOpen)
+            {
+                return;
+            }
+
             Keyboard keys = Keyboard.current;
             if (keys == null) return;
 

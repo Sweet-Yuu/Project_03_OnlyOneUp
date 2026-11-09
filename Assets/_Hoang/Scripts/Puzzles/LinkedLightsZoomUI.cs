@@ -24,6 +24,7 @@ namespace Hoang.Puzzles
         [Header("Buttons")]
         [SerializeField] private Button closeButton;
         [SerializeField] private Button resetButton;
+        [SerializeField] private Button exitButton;
         [SerializeField] private Button[] lampButtons;
         [SerializeField] private Image[] lampImages;
         [SerializeField] private TMP_Text[] lampNumbers;
@@ -38,6 +39,8 @@ namespace Hoang.Puzzles
         private Action onCloseCallback;
         private bool isPanelOpen;
         private bool wasCursorLocked;
+        private int openFrame = -1;
+        private bool listenersBound;
 
         public bool IsOpen => isPanelOpen;
 
@@ -48,14 +51,43 @@ namespace Hoang.Puzzles
                 panelRoot = gameObject;
             }
 
+            SetupListeners();
+            SanitizeRaycastsAndLayers();
+
+            // Chỉ tắt panel nếu không phải đang được mở thông qua hàm Open
+            if (!isPanelOpen)
+            {
+                panelRoot.SetActive(false);
+            }
+        }
+
+        private void SetupListeners()
+        {
+            if (listenersBound) return;
+            listenersBound = true;
+
             if (closeButton != null)
             {
+                closeButton.onClick.RemoveAllListeners();
                 closeButton.onClick.AddListener(Close);
             }
 
             if (resetButton != null)
             {
+                resetButton.onClick.RemoveAllListeners();
                 resetButton.onClick.AddListener(OnResetClicked);
+            }
+
+            if (exitButton == null && panelRoot != null)
+            {
+                Transform exitTrans = panelRoot.transform.Find("Exit_Button");
+                if (exitTrans != null) exitButton = exitTrans.GetComponent<Button>();
+            }
+
+            if (exitButton != null)
+            {
+                exitButton.onClick.RemoveAllListeners();
+                exitButton.onClick.AddListener(Close);
             }
 
             if (lampButtons != null)
@@ -65,14 +97,73 @@ namespace Hoang.Puzzles
                     int buttonNumber = i + 1;
                     if (lampButtons[i] != null)
                     {
+                        lampButtons[i].onClick.RemoveAllListeners();
                         lampButtons[i].onClick.AddListener(() => OnLampClicked(buttonNumber));
                     }
                 }
             }
+        }
 
-            // Đảm bảo panel luôn ẩn khi game bắt đầu
-            panelRoot.SetActive(false);
-            isPanelOpen = false;
+        private void SanitizeRaycastsAndLayers()
+        {
+            // Thiết lập toàn bộ UI panel sang Layer 5 (UI) để đảm bảo chuẩn GraphicRaycaster của Unity
+            SetLayerRecursively(panelRoot != null ? panelRoot : gameObject, 5);
+
+            // Tắt raycastTarget trên các text con bên trong nút để click chuột xuyên thẳng vào component Button
+            if (lampNumbers != null)
+            {
+                foreach (TMP_Text label in lampNumbers)
+                {
+                    if (label != null) label.raycastTarget = false;
+                }
+            }
+
+            if (titleText != null) titleText.raycastTarget = false;
+            if (statusText != null) statusText.raycastTarget = false;
+            if (rulesText != null) rulesText.raycastTarget = false;
+
+            // Tắt navigation mode trên tất cả buttons để tránh bàn phím bị cướp tiêu điểm focus
+            if (lampButtons != null)
+            {
+                foreach (Button btn in lampButtons)
+                {
+                    if (btn != null)
+                    {
+                        Navigation nav = btn.navigation;
+                        nav.mode = Navigation.Mode.None;
+                        btn.navigation = nav;
+                    }
+                }
+            }
+
+            if (closeButton != null)
+            {
+                Navigation nav = closeButton.navigation;
+                nav.mode = Navigation.Mode.None;
+                closeButton.navigation = nav;
+            }
+            if (resetButton != null)
+            {
+                Navigation nav = resetButton.navigation;
+                nav.mode = Navigation.Mode.None;
+                resetButton.navigation = nav;
+            }
+            if (exitButton != null)
+            {
+                Navigation nav = exitButton.navigation;
+                nav.mode = Navigation.Mode.None;
+                exitButton.navigation = nav;
+            }
+        }
+
+        private static void SetLayerRecursively(GameObject target, int layer)
+        {
+            if (target == null) return;
+            target.layer = layer;
+            foreach (Transform child in target.transform)
+            {
+                SetLayerRecursively(child.gameObject, layer);
+            }
         }
 
         private void OnDestroy()
@@ -87,7 +178,7 @@ namespace Hoang.Puzzles
         {
             if (puzzle == null)
             {
-                return;
+                puzzle = FindFirstObjectByType<LinkedLightsPuzzle>();
             }
 
             if (activePuzzle != null)
@@ -97,17 +188,28 @@ namespace Hoang.Puzzles
 
             activePuzzle = puzzle;
             onCloseCallback = closeCallback;
-            activePuzzle.StateChanged += HandleStateChanged;
+            if (activePuzzle != null)
+            {
+                activePuzzle.StateChanged += HandleStateChanged;
+            }
 
-            panelRoot.SetActive(true);
             isPanelOpen = true;
+            openFrame = Time.frameCount;
 
-            // Mở khóa chuột để người chơi có thể bấm trực tiếp lên 9 ô đèn trên UI
+            if (panelRoot != null)
+            {
+                panelRoot.SetActive(true);
+            }
+
+            SetupListeners();
+            SanitizeRaycastsAndLayers();
+
             wasCursorLocked = Cursor.lockState == CursorLockMode.Locked;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
 
-            UpdateVisuals(activePuzzle.IsReady ? activePuzzle.Mask : -1);
+            int currentMask = activePuzzle != null && activePuzzle.IsReady ? activePuzzle.Mask : -1;
+            UpdateVisuals(currentMask);
         }
 
         public void Close()
@@ -130,7 +232,6 @@ namespace Hoang.Puzzles
                 panelRoot.SetActive(false);
             }
 
-            // Trả lại trạng thái khóa chuột ban đầu cho gameplay
             if (wasCursorLocked)
             {
                 Cursor.lockState = CursorLockMode.Locked;
@@ -144,9 +245,31 @@ namespace Hoang.Puzzles
 
         private void Update()
         {
-            if (!isPanelOpen || activePuzzle == null)
+            if (!isPanelOpen)
             {
                 return;
+            }
+
+            // Tự động liên kết puzzle nếu bị mất tham chiếu khi mở độc lập trong editor
+            if (activePuzzle == null)
+            {
+                activePuzzle = FindFirstObjectByType<LinkedLightsPuzzle>();
+                if (activePuzzle != null)
+                {
+                    activePuzzle.StateChanged -= HandleStateChanged;
+                    activePuzzle.StateChanged += HandleStateChanged;
+                    UpdateVisuals(activePuzzle.IsReady ? activePuzzle.Mask : -1);
+                }
+            }
+
+            // Luôn đảm bảo chuột hiển thị và không bị khóa trong suốt thời gian màn hình phóng to đang mở
+            if (Cursor.lockState != CursorLockMode.None)
+            {
+                Cursor.lockState = CursorLockMode.None;
+            }
+            if (!Cursor.visible)
+            {
+                Cursor.visible = true;
             }
 
             Keyboard keyboard = Keyboard.current;
@@ -155,8 +278,8 @@ namespace Hoang.Puzzles
                 return;
             }
 
-            // Phím E hoặc Escape đóng màn hình phóng to
-            if (keyboard.eKey.wasPressedThisFrame || keyboard.escapeKey.wasPressedThisFrame)
+            // Bỏ qua cùng frame khi bấm E để mở, tránh việc vừa mở xong bị lệnh E đóng ngay lập tức
+            if (Time.frameCount > openFrame && (keyboard.eKey.wasPressedThisFrame || keyboard.escapeKey.wasPressedThisFrame))
             {
                 Close();
                 return;
@@ -182,6 +305,11 @@ namespace Hoang.Puzzles
 
         private void OnLampClicked(int buttonNumber)
         {
+            if (activePuzzle == null)
+            {
+                activePuzzle = FindFirstObjectByType<LinkedLightsPuzzle>();
+            }
+
             if (activePuzzle == null || !activePuzzle.IsReady || activePuzzle.IsSolved)
             {
                 return;
@@ -192,6 +320,11 @@ namespace Hoang.Puzzles
 
         private void OnResetClicked()
         {
+            if (activePuzzle == null)
+            {
+                activePuzzle = FindFirstObjectByType<LinkedLightsPuzzle>();
+            }
+
             if (activePuzzle == null || !activePuzzle.IsReady || activePuzzle.IsSolved)
             {
                 return;
@@ -204,7 +337,6 @@ namespace Hoang.Puzzles
         {
             UpdateVisuals(mask);
 
-            // Khi giải xong, tự động thông báo và chuẩn bị đóng
             if (activePuzzle != null && activePuzzle.IsSolved)
             {
                 if (statusText != null)
@@ -253,4 +385,3 @@ namespace Hoang.Puzzles
         }
     }
 }
-

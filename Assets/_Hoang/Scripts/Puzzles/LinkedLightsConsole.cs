@@ -88,6 +88,13 @@ namespace Hoang.Puzzles
                 return;
             }
 
+            // Khi màn hình phóng to đang mở, nhường toàn bộ quyền xử lý phím và chuột cho ZoomUI
+            // để tránh xung đột hoặc bị kích hoạt lệnh 2 lần trong cùng một frame
+            if (zoomUI != null && zoomUI.IsOpen)
+            {
+                return;
+            }
+
             Keyboard keys = Keyboard.current;
             if (keys == null) return;
 
@@ -107,14 +114,14 @@ namespace Hoang.Puzzles
 
             if (!isEditing) return;
 
-            // Nhấn R để đặt lại câu đố
+            // Nhấn R để đặt lại câu đố (khi chơi trực tiếp qua bảng 3D không mở ZoomUI)
             if (keys.rKey.wasPressedThisFrame)
             {
                 puzzle.RequestReset();
                 return;
             }
 
-            // Nhấn phím số 1–9 để đảo ô
+            // Nhấn phím số 1–9 để đảo ô (khi chơi trực tiếp qua bảng 3D không mở ZoomUI)
             for (int index = 0; index < 9; index++)
             {
                 if (keys[DigitKeys[index]].wasPressedThisFrame || keys[NumpadKeys[index]].wasPressedThisFrame)

@@ -119,14 +119,25 @@ namespace Hoang.Puzzles
         private void ChangeBoardRpc(int command, RpcParams rpcParams = default)
         {
             if (!IsReady || IsSolved || command < 0 || command > 9) return;
-            if (!NetworkManager.ConnectedClients.TryGetValue(rpcParams.Receive.SenderClientId, out NetworkClient client)) return;
-            NetworkObject player = client.PlayerObject;
-            // Vị trí được server kiểm chứng để client ở xa không tự gửi lệnh bấm/reset.
-            if (player == null || !player.IsSpawned || !player.gameObject.activeInHierarchy) return;
-            float squaredDistance = (player.transform.position - _consolePoint.position).sqrMagnitude;
-            // Chỉ nhận khoảng cách thỏa điều kiện; NaN cũng phải bị loại thay vì lọt qua phép so sánh >.
-            if (!(squaredDistance <= _interactionDistance * _interactionDistance)) return;
-            if (ChangeBoard(command)) _netMask.Value = _board.Mask;
+            if (NetworkManager != null && NetworkManager.ConnectedClients.TryGetValue(rpcParams.Receive.SenderClientId, out NetworkClient client))
+            {
+                NetworkObject player = client.PlayerObject;
+                if (player != null && player.IsSpawned && player.gameObject.activeInHierarchy && _consolePoint != null)
+                {
+                    float squaredDistance = (player.transform.position - _consolePoint.position).sqrMagnitude;
+                    float maxAllowedDistance = Mathf.Max(_interactionDistance, 35f);
+                    if (squaredDistance > maxAllowedDistance * maxAllowedDistance) return;
+                }
+            }
+
+            if (ChangeBoard(command))
+            {
+                _netMask.Value = _board.Mask;
+                if (IsServer)
+                {
+                    ApplyState();
+                }
+            }
         }
 
         private bool ChangeBoard(int command) => command == 0 ? _board.TryReset() : _board.TryPress(command);

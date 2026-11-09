@@ -1509,6 +1509,7 @@ MonoBehaviour:
   rulesText: {fileID: 2511517162572134740}
   closeButton: {fileID: 3021524748427228606}
   resetButton: {fileID: 2047698906078715772}
+  exitButton: {fileID: 7815056011078340248}
   lampButtons:
   - {fileID: 3060625721730252491}
   - {fileID: 634276461404330715}

@@ -38,6 +38,8 @@ namespace Hoang.Puzzles
         private bool wasCursorLocked;
         private bool isWaitingResponse;
         private Coroutine autoCloseRoutine;
+        private int openFrame = -1;
+        private bool listenersBound;
 
         public bool IsOpen => isPanelOpen;
 
@@ -48,23 +50,41 @@ namespace Hoang.Puzzles
                 panelRoot = gameObject;
             }
 
+            SetupListeners();
+            SanitizeRaycastsAndLayers();
+
+            if (!isPanelOpen)
+            {
+                panelRoot.SetActive(false);
+            }
+        }
+
+        private void SetupListeners()
+        {
+            if (listenersBound) return;
+            listenersBound = true;
+
             if (closeButton != null)
             {
+                closeButton.onClick.RemoveAllListeners();
                 closeButton.onClick.AddListener(Close);
             }
 
             if (submitButton != null)
             {
+                submitButton.onClick.RemoveAllListeners();
                 submitButton.onClick.AddListener(OnSubmitClicked);
             }
 
             if (backspaceButton != null)
             {
+                backspaceButton.onClick.RemoveAllListeners();
                 backspaceButton.onClick.AddListener(OnBackspaceClicked);
             }
 
             if (clearButton != null)
             {
+                clearButton.onClick.RemoveAllListeners();
                 clearButton.onClick.AddListener(OnClearClicked);
             }
 
@@ -75,13 +95,63 @@ namespace Hoang.Puzzles
                     char digitChar = (char)('0' + i);
                     if (digitButtons[i] != null)
                     {
+                        digitButtons[i].onClick.RemoveAllListeners();
                         digitButtons[i].onClick.AddListener(() => OnDigitClicked(digitChar));
                     }
                 }
             }
+        }
 
-            panelRoot.SetActive(false);
-            isPanelOpen = false;
+        private void SanitizeRaycastsAndLayers()
+        {
+            SetLayerRecursively(panelRoot != null ? panelRoot : gameObject, 5);
+
+            if (digitButtons != null)
+            {
+                foreach (Button btn in digitButtons)
+                {
+                    if (btn != null)
+                    {
+                        Navigation nav = btn.navigation;
+                        nav.mode = Navigation.Mode.None;
+                        btn.navigation = nav;
+
+                        TMP_Text label = btn.GetComponentInChildren<TMP_Text>();
+                        if (label != null) label.raycastTarget = false;
+                    }
+                }
+            }
+
+            DisableChildTextRaycast(closeButton);
+            DisableChildTextRaycast(submitButton);
+            DisableChildTextRaycast(backspaceButton);
+            DisableChildTextRaycast(clearButton);
+
+            if (titleText != null) titleText.raycastTarget = false;
+            if (cluesText != null) cluesText.raycastTarget = false;
+            if (codeDisplayText != null) codeDisplayText.raycastTarget = false;
+            if (statusText != null) statusText.raycastTarget = false;
+        }
+
+        private static void DisableChildTextRaycast(Button button)
+        {
+            if (button == null) return;
+            Navigation nav = button.navigation;
+            nav.mode = Navigation.Mode.None;
+            button.navigation = nav;
+
+            TMP_Text label = button.GetComponentInChildren<TMP_Text>();
+            if (label != null) label.raycastTarget = false;
+        }
+
+        private static void SetLayerRecursively(GameObject target, int layer)
+        {
+            if (target == null) return;
+            target.layer = layer;
+            foreach (Transform child in target.transform)
+            {
+                SetLayerRecursively(child.gameObject, layer);
+            }
         }
 
         private void OnDestroy()
@@ -97,7 +167,7 @@ namespace Hoang.Puzzles
         {
             if (puzzle == null)
             {
-                return;
+                puzzle = FindFirstObjectByType<SymbolCipherPuzzle>();
             }
 
             if (activePuzzle != null)
@@ -111,11 +181,22 @@ namespace Hoang.Puzzles
             currentEntry = "";
             isWaitingResponse = false;
 
-            activePuzzle.SubmissionCompleted += HandleSubmission;
-            activePuzzle.SolvedChanged += HandleSolved;
+            if (activePuzzle != null)
+            {
+                activePuzzle.SubmissionCompleted += HandleSubmission;
+                activePuzzle.SolvedChanged += HandleSolved;
+            }
 
-            panelRoot.SetActive(true);
             isPanelOpen = true;
+            openFrame = Time.frameCount;
+
+            if (panelRoot != null)
+            {
+                panelRoot.SetActive(true);
+            }
+
+            SetupListeners();
+            SanitizeRaycastsAndLayers();
 
             wasCursorLocked = Cursor.lockState == CursorLockMode.Locked;
             Cursor.lockState = CursorLockMode.None;
@@ -124,7 +205,7 @@ namespace Hoang.Puzzles
             UpdateDisplay();
             if (statusText != null)
             {
-                statusText.text = activePuzzle.IsSolved
+                statusText.text = activePuzzle != null && activePuzzle.IsSolved
                     ? "<color=#40FF70>CỔNG ĐÁ ĐÃ ĐƯỢC MỞ KHÓA!</color>"
                     : "Nhập 3 chữ số theo thứ tự: ●  ▲  ■";
             }
@@ -170,9 +251,30 @@ namespace Hoang.Puzzles
 
         private void Update()
         {
-            if (!isPanelOpen || activePuzzle == null)
+            if (!isPanelOpen)
             {
                 return;
+            }
+
+            if (activePuzzle == null)
+            {
+                activePuzzle = FindFirstObjectByType<SymbolCipherPuzzle>();
+                if (activePuzzle != null)
+                {
+                    activePuzzle.SubmissionCompleted -= HandleSubmission;
+                    activePuzzle.SolvedChanged -= HandleSolved;
+                    activePuzzle.SubmissionCompleted += HandleSubmission;
+                    activePuzzle.SolvedChanged += HandleSolved;
+                }
+            }
+
+            if (Cursor.lockState != CursorLockMode.None)
+            {
+                Cursor.lockState = CursorLockMode.None;
+            }
+            if (!Cursor.visible)
+            {
+                Cursor.visible = true;
             }
 
             Keyboard keyboard = Keyboard.current;
@@ -181,14 +283,13 @@ namespace Hoang.Puzzles
                 return;
             }
 
-            // Phím E hoặc Escape để đóng panel
-            if (keyboard.eKey.wasPressedThisFrame || keyboard.escapeKey.wasPressedThisFrame)
+            if (Time.frameCount > openFrame && (keyboard.eKey.wasPressedThisFrame || keyboard.escapeKey.wasPressedThisFrame))
             {
                 Close();
                 return;
             }
 
-            if (isWaitingResponse || activePuzzle.IsSolved)
+            if (isWaitingResponse || (activePuzzle != null && activePuzzle.IsSolved))
             {
                 return;
             }
@@ -335,4 +436,3 @@ namespace Hoang.Puzzles
         }
     }
 }
-
