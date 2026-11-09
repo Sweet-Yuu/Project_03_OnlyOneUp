@@ -28,8 +28,8 @@ Transform:
   m_GameObject: {fileID: 99344255338387377}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.25, y: 2, z: 0}
-  m_LocalScale: {x: 0.7, y: 4, z: 0.9}
+  m_LocalPosition: {x: 5.3, y: 6, z: 0}
+  m_LocalScale: {x: 0.8, y: 12, z: 1.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4586471197819935469}
@@ -140,8 +140,8 @@ Transform:
   m_GameObject: {fileID: 308560165474889701}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 4.2, z: 0}
-  m_LocalScale: {x: 7.2, y: 0.4, z: 0.9}
+  m_LocalPosition: {x: 0, y: 12.2, z: 0}
+  m_LocalScale: {x: 11.4, y: 0.8, z: 1.4}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4586471197819935469}
@@ -455,8 +455,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Hoang.Puzzles.PuzzleGate
   _movingPart: {fileID: 5382520039212770355}
-  _openOffset: {x: 0, y: 4, z: 0}
-  _moveSpeed: 3
+  _openOffset: {x: 0, y: 14, z: 0}
+  _moveSpeed: 7
   _audioSource: {fileID: 0}
   _openClip: {fileID: 0}
   _closeClip: {fileID: 0}
@@ -731,8 +731,8 @@ Transform:
   m_GameObject: {fileID: 5251589152659013078}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.25, y: 2, z: 0}
-  m_LocalScale: {x: 0.7, y: 4, z: 0.9}
+  m_LocalPosition: {x: -5.3, y: 6, z: 0}
+  m_LocalScale: {x: 0.8, y: 12, z: 1.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4586471197819935469}
@@ -1336,8 +1336,8 @@ Transform:
   m_GameObject: {fileID: 7544642309482926780}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.8, z: 0}
-  m_LocalScale: {x: 5.8, y: 3.6, z: 0.45}
+  m_LocalPosition: {x: 0, y: 6, z: 0}
+  m_LocalScale: {x: 10.5, y: 12, z: 0.8}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4586471197819935469}

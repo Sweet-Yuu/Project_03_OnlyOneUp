@@ -26,11 +26,25 @@ namespace Hoang.Puzzles
         [Tooltip("Bật để tự động hoàn thành câu đố và mở cổng ngay lập tức phục vụ test game.")]
         [SerializeField] private bool instantSolve;
 
+        [Header("Pass Through & Sinking On Solved")]
+        [Tooltip("Tự động chuyển các collider của bảng gợi ý và bàn nhập mã thành trigger khi giải xong để người chơi đi xuyên qua.")]
+        [SerializeField] private bool passThroughOnSolved = true;
+        [Tooltip("Tự động hạ bảng gợi ý và bàn nhập mã chìm xuống mặt bàn khi giải xong.")]
+        [SerializeField] private bool sinkBoardsOnSolved = true;
+        [SerializeField] private Transform clueBoardTransform;
+        [SerializeField] private Transform consoleTransform;
+        [SerializeField] private float sinkOffset = 5f;
+        [SerializeField] private float sinkSpeed = 6f;
+
         private readonly NetworkVariable<bool> _unlocked = new NetworkVariable<bool>(false,
             NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
         private IPuzzleInteractable _gate;
         private SymbolCipherLock _cipher;
         private bool lastInstantSolve;
+        private Collider[] boardColliders;
+        private Vector3 clueBoardDefaultPos;
+        private Vector3 consoleDefaultPos;
+        private bool originalPositionsRecorded;
 
         public bool IsSolved => instantSolve || (IsSpawned ? _unlocked.Value : _cipher != null && _cipher.IsUnlocked);
         public bool IsReady => isActiveAndEnabled && _cipher != null &&
@@ -42,6 +56,7 @@ namespace Hoang.Puzzles
         private void Awake()
         {
             _gate = _gateBehaviour as IPuzzleInteractable;
+            InitializePassThrough();
             try
             {
                 _cipher = new SymbolCipherLock(_circleTriangleSum, _triangleSquareSum, _circleSquareSum);
@@ -61,6 +76,7 @@ namespace Hoang.Puzzles
         private void Start()
         {
             lastInstantSolve = instantSolve;
+            InitializePassThrough();
             if (IsReady) ApplySolved(IsSolved);
         }
 
@@ -74,6 +90,11 @@ namespace Hoang.Puzzles
                     _unlocked.Value = instantSolve;
                 }
                 ApplySolved(IsSolved);
+            }
+
+            if (sinkBoardsOnSolved && originalPositionsRecorded)
+            {
+                UpdateBoardSinking();
             }
         }
 
@@ -179,8 +200,76 @@ namespace Hoang.Puzzles
 
         private void ApplySolved(bool solved)
         {
-            _gate.SetActive(solved);
+            if (_gate != null) _gate.SetActive(solved);
             SolvedChanged?.Invoke(solved);
+
+            InitializePassThrough();
+            if (passThroughOnSolved && boardColliders != null)
+            {
+                foreach (Collider col in boardColliders)
+                {
+                    if (col != null)
+                    {
+                        col.isTrigger = solved;
+                    }
+                }
+            }
+        }
+
+        private void InitializePassThrough()
+        {
+            if (originalPositionsRecorded) return;
+            originalPositionsRecorded = true;
+
+            if (clueBoardTransform == null)
+            {
+                clueBoardTransform = transform.Find("Puzzle/ClueBoard");
+                if (clueBoardTransform == null) clueBoardTransform = transform.Find("ClueBoard");
+            }
+
+            if (consoleTransform == null)
+            {
+                consoleTransform = transform.Find("Puzzle/CipherConsole");
+                if (consoleTransform == null) consoleTransform = transform.Find("CipherConsole");
+            }
+
+            if (clueBoardTransform != null) clueBoardDefaultPos = clueBoardTransform.localPosition;
+            if (consoleTransform != null) consoleDefaultPos = consoleTransform.localPosition;
+
+            var collidersList = new System.Collections.Generic.List<Collider>();
+            if (clueBoardTransform != null)
+            {
+                foreach (Collider col in clueBoardTransform.GetComponentsInChildren<Collider>(true))
+                {
+                    if (!col.isTrigger) collidersList.Add(col);
+                }
+            }
+            if (consoleTransform != null)
+            {
+                foreach (Collider col in consoleTransform.GetComponentsInChildren<Collider>(true))
+                {
+                    if (!col.isTrigger) collidersList.Add(col);
+                }
+            }
+            boardColliders = collidersList.ToArray();
+        }
+
+        private void UpdateBoardSinking()
+        {
+            bool solved = IsSolved;
+            Vector3 clueTarget = solved ? clueBoardDefaultPos - new Vector3(0f, sinkOffset, 0f) : clueBoardDefaultPos;
+            Vector3 consoleTarget = solved ? consoleDefaultPos - new Vector3(0f, sinkOffset, 0f) : consoleDefaultPos;
+
+            if (clueBoardTransform != null)
+            {
+                clueBoardTransform.localPosition = Vector3.MoveTowards(
+                    clueBoardTransform.localPosition, clueTarget, sinkSpeed * Time.deltaTime);
+            }
+            if (consoleTransform != null)
+            {
+                consoleTransform.localPosition = Vector3.MoveTowards(
+                    consoleTransform.localPosition, consoleTarget, sinkSpeed * Time.deltaTime);
+            }
         }
 
         private void RefreshClues()

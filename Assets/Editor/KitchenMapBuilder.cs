@@ -508,7 +508,7 @@ public static class KitchenMapBuilder
             Undo.RegisterCreatedObjectUndo(puzzleInst, "Spawn Symbol Cipher Puzzle");
             puzzleInst.name = "Kitchen_Puzzle_Pantry_SymbolCipher";
             puzzleInst.transform.position = new Vector3(0f, 21.7f, 412f);
-            puzzleInst.transform.localScale = new Vector3(1.6f, 1.6f, 1.6f);
+            puzzleInst.transform.localScale = new Vector3(1.8f, 1.8f, 1.8f);
 
             var puzzleComp = puzzleInst.GetComponentInChildren<Hoang.Puzzles.SymbolCipherPuzzle>();
             if (puzzleComp != null)
@@ -523,9 +523,9 @@ public static class KitchenMapBuilder
             {
                 var soGate = new SerializedObject(gateComp);
                 var offsetProp = soGate.FindProperty("_openOffset");
-                if (offsetProp != null) offsetProp.vector3Value = new Vector3(0f, 11f, 0f);
+                if (offsetProp != null) offsetProp.vector3Value = new Vector3(0f, 14f, 0f);
                 var speedProp = soGate.FindProperty("_moveSpeed");
-                if (speedProp != null) speedProp.floatValue = 5.5f;
+                if (speedProp != null) speedProp.floatValue = 7f;
                 soGate.ApplyModifiedProperties();
             }
         }
@@ -1501,20 +1501,53 @@ public static class KitchenMapBuilder
 
     private static void WidenCipherGate()
     {
+        var puzzleInst = GameObject.Find("Kitchen_Puzzle_Pantry_SymbolCipher");
+        if (puzzleInst != null)
+        {
+            puzzleInst.transform.localScale = new Vector3(1.8f, 1.8f, 1.8f);
+        }
+
         var cipherGate = GameObject.Find("CipherGate");
         if (cipherGate == null) return;
 
         var lPost = cipherGate.transform.Find("LeftPost");
-        if (lPost != null) lPost.localPosition = new Vector3(-5.0f, 2.0f, 0f);
+        if (lPost != null)
+        {
+            lPost.localPosition = new Vector3(-5.3f, 6.0f, 0f);
+            lPost.localScale = new Vector3(0.8f, 12.0f, 1.2f);
+        }
 
         var rPost = cipherGate.transform.Find("RightPost");
-        if (rPost != null) rPost.localPosition = new Vector3(5.0f, 2.0f, 0f);
+        if (rPost != null)
+        {
+            rPost.localPosition = new Vector3(5.3f, 6.0f, 0f);
+            rPost.localScale = new Vector3(0.8f, 12.0f, 1.2f);
+        }
 
         var mGate = cipherGate.transform.Find("MovingGate");
-        if (mGate != null) mGate.localScale = new Vector3(9.3f, 3.6f, 0.45f);
+        if (mGate != null)
+        {
+            mGate.localPosition = new Vector3(0f, 6.0f, 0f);
+            mGate.localScale = new Vector3(10.5f, 12.0f, 0.8f);
+        }
 
         var lintel = cipherGate.transform.Find("Lintel");
-        if (lintel != null) lintel.localScale = new Vector3(10.7f, 0.4f, 0.9f);
+        if (lintel != null)
+        {
+            lintel.localPosition = new Vector3(0f, 12.2f, 0f);
+            lintel.localScale = new Vector3(11.4f, 0.8f, 1.4f);
+        }
+
+        var gateComp = cipherGate.GetComponent<Hoang.Puzzles.PuzzleGate>();
+        if (gateComp != null)
+        {
+            var soGate = new SerializedObject(gateComp);
+            var offsetProp = soGate.FindProperty("_openOffset");
+            if (offsetProp != null) offsetProp.vector3Value = new Vector3(0f, 14f, 0f);
+            var speedProp = soGate.FindProperty("_moveSpeed");
+            if (speedProp != null) speedProp.floatValue = 7f;
+            soGate.ApplyModifiedProperties();
+        }
     }
 
     private static void WidenExitDoorway()
