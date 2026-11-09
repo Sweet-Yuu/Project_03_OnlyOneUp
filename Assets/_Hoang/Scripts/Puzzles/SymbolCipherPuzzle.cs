@@ -22,12 +22,17 @@ namespace Hoang.Puzzles
         [SerializeField] private Transform _consolePoint;
         [SerializeField, Min(0.1f)] private float _interactionDistance = 5f;
 
+        [Header("Debug & Quick Testing")]
+        [Tooltip("Bật để tự động hoàn thành câu đố và mở cổng ngay lập tức phục vụ test game.")]
+        [SerializeField] private bool instantSolve;
+
         private readonly NetworkVariable<bool> _unlocked = new NetworkVariable<bool>(false,
             NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
         private IPuzzleInteractable _gate;
         private SymbolCipherLock _cipher;
+        private bool lastInstantSolve;
 
-        public bool IsSolved => IsSpawned ? _unlocked.Value : _cipher != null && _cipher.IsUnlocked;
+        public bool IsSolved => instantSolve || (IsSpawned ? _unlocked.Value : _cipher != null && _cipher.IsUnlocked);
         public bool IsReady => isActiveAndEnabled && _cipher != null &&
             (!IsNetworkSessionActive || IsSpawned);
         public bool IsNetworkSessionActive => NetworkManager != null && NetworkManager.IsListening;
@@ -55,13 +60,49 @@ namespace Hoang.Puzzles
 
         private void Start()
         {
+            lastInstantSolve = instantSolve;
             if (IsReady) ApplySolved(IsSolved);
         }
+
+        private void Update()
+        {
+            if (instantSolve != lastInstantSolve)
+            {
+                lastInstantSolve = instantSolve;
+                if (IsServer && IsSpawned)
+                {
+                    _unlocked.Value = instantSolve;
+                }
+                ApplySolved(IsSolved);
+            }
+        }
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (Application.isPlaying && _gate != null)
+            {
+                if (instantSolve != lastInstantSolve)
+                {
+                    lastInstantSolve = instantSolve;
+                    if (IsServer && IsSpawned)
+                    {
+                        _unlocked.Value = instantSolve;
+                    }
+                    ApplySolved(IsSolved);
+                }
+            }
+        }
+#endif
 
         public override void OnNetworkSpawn()
         {
             _unlocked.OnValueChanged += HandleUnlocked;
-            if (_cipher != null && _gate != null) ApplySolved(_unlocked.Value);
+            if (IsServer && _cipher != null && instantSolve)
+            {
+                _unlocked.Value = true;
+            }
+            if (_cipher != null && _gate != null) ApplySolved(IsSolved);
         }
 
         public override void OnNetworkDespawn()

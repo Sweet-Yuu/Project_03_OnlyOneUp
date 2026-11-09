@@ -842,9 +842,36 @@ public static class KitchenMapBuilder
         CreatePointLight(lightsGroup.transform, "Light_Zone6_ExitPatio", new Vector3(0f, 12f, 502f), new Color(1f, 0.95f, 0.85f), 4.5f, 35f);
 
         EditorSceneManager.MarkSceneDirty(activeScene);
+        EnsurePuzzleZoomPanels();
+
         EditorSceneManager.SaveScene(activeScene);
         Undo.CollapseUndoOperations(undoGroup);
         Debug.Log("<color=green><b>Mega Kitchen_Map with full-width walls and rich wall facilities built successfully!</b></color>");
+    }
+
+    private static void EnsurePuzzleZoomPanels()
+    {
+        var canvas = GameObject.Find("Canvas");
+        if (canvas == null) return;
+
+        EnsureZoomPanel(canvas.transform, "LinkedLights_ZoomPanel", "Assets/_Hoang/Prefabs/UI/LinkedLights_ZoomPanel.prefab");
+        EnsureZoomPanel(canvas.transform, "SymbolCipher_ZoomPanel", "Assets/_Hoang/Prefabs/UI/SymbolCipher_ZoomPanel.prefab");
+    }
+
+    private static void EnsureZoomPanel(Transform canvas, string panelName, string prefabPath)
+    {
+        var existingPanel = canvas.Find(panelName);
+        if (existingPanel == null)
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            if (prefab != null)
+            {
+                var inst = (GameObject)PrefabUtility.InstantiatePrefab(prefab, canvas);
+                Undo.RegisterCreatedObjectUndo(inst, "Instantiate " + panelName);
+                inst.name = panelName;
+                inst.SetActive(false);
+            }
+        }
     }
 
     /// <summary>
@@ -1853,14 +1880,18 @@ public static class KitchenMapBuilder
         barrierContainer.transform.SetParent(zone1Parent);
         barrierContainer.transform.localPosition = Vector3.zero;
 
-        // Khối rào chắn tàng hình đặc dày 38m, cao 30m phủ kín toàn bộ 2 bên lề (ngăn tuyệt đối chui qua/nhảy qua)
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Left_Corridor", new Vector3(-28.5f, 15.0f, 46.0f), new Vector3(38.0f, 30.0f, 36.0f));
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Right_Corridor", new Vector3(28.5f, 15.0f, 46.0f), new Vector3(38.0f, 30.0f, 36.0f));
+        // Bức tường vô hình bắt đầu từ chỗ đi xuống phần giải đố (Z >= 30.5f), tuyệt đối không xuất hiện trên khu vực bàn spawn (Z <= 30f)
+        // Hành lang hai bên lối đi xuống giải đố (từ Z = 30.5f đến 65.5f)
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Left_Corridor", new Vector3(-28.5f, 15.0f, 48.0f), new Vector3(38.0f, 30.0f, 35.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Right_Corridor", new Vector3(28.5f, 15.0f, 48.0f), new Vector3(38.0f, 30.0f, 35.0f));
 
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Left_Back", new Vector3(-28.5f, 15.0f, 27.0f), new Vector3(38.0f, 30.0f, 4.0f));
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Right_Back", new Vector3(28.5f, 15.0f, 27.0f), new Vector3(38.0f, 30.0f, 4.0f));
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Left_Front", new Vector3(-28.5f, 15.0f, 63.0f), new Vector3(38.0f, 30.0f, 4.0f));
-        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Right_Front", new Vector3(28.5f, 15.0f, 63.0f), new Vector3(38.0f, 30.0f, 4.0f));
+        // Rào chắn hai bên dốc thớt gỗ dẫn thẳng người chơi từ mép bàn xuống khu giải đố
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Slope_Left", new Vector3(-5.0f, 12.0f, 33.5f), new Vector3(1.0f, 8.0f, 6.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Slope_Right", new Vector3(5.0f, 12.0f, 33.5f), new Vector3(1.0f, 8.0f, 6.0f));
+
+        // Chắn hai bên mép trước ngoài cùng của khu vực giải đố (Z = 65.5f)
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Left_Front", new Vector3(-28.5f, 15.0f, 65.5f), new Vector3(38.0f, 30.0f, 2.0f));
+        CreateInvisibleCollider(barrierContainer.transform, "Barrier_Right_Front", new Vector3(28.5f, 15.0f, 65.5f), new Vector3(38.0f, 30.0f, 2.0f));
     }
 
     private static void CreateInvisibleCollider(Transform parent, string name, Vector3 pos, Vector3 size)

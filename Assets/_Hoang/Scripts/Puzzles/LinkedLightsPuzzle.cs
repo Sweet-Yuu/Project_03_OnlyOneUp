@@ -15,17 +15,22 @@ namespace Hoang.Puzzles
         [SerializeField] private Transform _consolePoint;
         [SerializeField, Min(0.1f)] private float _interactionDistance = 5f;
 
+        [Header("Debug & Quick Testing")]
+        [Tooltip("Bật để tự động hoàn thành câu đố và mở cổng ngay lập tức phục vụ test game.")]
+        [SerializeField] private bool instantSolve;
+
         // -1 phân biệt trạng thái chưa nhận dữ liệu mạng với bảng đã giải (0).
         private readonly NetworkVariable<int> _netMask = new NetworkVariable<int>(-1,
             NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
         private LinkedLightsBoard _board;
         private IPuzzleInteractable _gate;
+        private bool lastInstantSolve;
 
-        public int Mask => IsSpawned ? _netMask.Value : _board != null ? _board.Mask : -1;
-        public bool IsSolved => Mask == 0;
+        public int Mask => instantSolve ? 0 : (IsSpawned ? _netMask.Value : _board != null ? _board.Mask : -1);
+        public bool IsSolved => instantSolve || Mask == 0;
         public bool IsNetworkSessionActive => NetworkManager != null && NetworkManager.IsListening;
         public bool IsReady => isActiveAndEnabled && _board != null && _gate != null &&
-            Mask >= 0 && Mask <= 511 && (!IsNetworkSessionActive || IsSpawned);
+            (instantSolve || (Mask >= 0 && Mask <= 511)) && (!IsNetworkSessionActive || IsSpawned);
         public event Action<int> StateChanged;
 
         private void Awake()
@@ -45,12 +50,47 @@ namespace Hoang.Puzzles
             }
         }
 
-        private void Start() => ApplyState();
+        private void Start()
+        {
+            lastInstantSolve = instantSolve;
+            ApplyState();
+        }
+
+        private void Update()
+        {
+            if (instantSolve != lastInstantSolve)
+            {
+                lastInstantSolve = instantSolve;
+                if (IsServer && IsSpawned)
+                {
+                    _netMask.Value = instantSolve ? 0 : (_board != null ? _board.Mask : 0);
+                }
+                ApplyState();
+            }
+        }
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (Application.isPlaying && _gate != null)
+            {
+                if (instantSolve != lastInstantSolve)
+                {
+                    lastInstantSolve = instantSolve;
+                    if (IsServer && IsSpawned)
+                    {
+                        _netMask.Value = instantSolve ? 0 : (_board != null ? _board.Mask : 0);
+                    }
+                    ApplyState();
+                }
+            }
+        }
+#endif
 
         public override void OnNetworkSpawn()
         {
             _netMask.OnValueChanged += HandleMaskChanged;
-            if (IsServer && _board != null) _netMask.Value = _board.Mask;
+            if (IsServer && _board != null) _netMask.Value = instantSolve ? 0 : _board.Mask;
             ApplyState();
         }
 
