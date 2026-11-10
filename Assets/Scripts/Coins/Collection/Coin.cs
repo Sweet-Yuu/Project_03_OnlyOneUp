@@ -4,20 +4,20 @@ using UnityEngine;
 [RequireComponent(typeof(Collider), typeof(NetworkObject))]
 public class Coin : NetworkBehaviour
 {
-    private ICoinWallet _wallet;
-    private Collider _collider;
-    private bool _collected;
-    private float _nextRequestTime;
+    private ICoinWallet wallet;
+    private Collider coinCollider;
+    private bool isCollected;
+    private float nextRequestTime;
 
     private void Awake()
     {
-        // Cache collider trên chính coin, tránh tham chiếu nhầm coin khác trong scene.
-        _collider = GetComponent<Collider>();
+        // Cache collider trên chính coin, tránh tham chiếu nhầm collider khác trong scene.
+        coinCollider = GetComponent<Collider>();
     }
 
-    public void Initialize(ICoinWallet wallet)
+    public void Initialize(ICoinWallet coinWallet)
     {
-        _wallet = wallet ?? throw new System.ArgumentNullException(nameof(wallet));
+        wallet = coinWallet ?? throw new System.ArgumentNullException(nameof(coinWallet));
     }
 
     private void OnCollisionEnter(Collision collision) => TryCollect(collision.collider);
@@ -26,30 +26,33 @@ public class Coin : NetworkBehaviour
 
     public void TryCollect(Collider playerCollider)
     {
-        if (_collected) return;
+        if (isCollected) return;
+
         if (IsSpawned)
         {
             NetworkObject player = playerCollider.GetComponentInParent<NetworkObject>();
             if (player == null || !player.IsPlayerObject || !player.IsOwner ||
-                Time.unscaledTime < _nextRequestTime) return;
-            _nextRequestTime = Time.unscaledTime + 0.2f;
+                Time.unscaledTime < nextRequestTime) return;
+            nextRequestTime = Time.unscaledTime + 0.2f;
             RequestCollectRpc();
             return;
         }
 
         // Không phát thưởng cục bộ trong lúc phiên online đang chờ spawn coin.
-        if (Unity.Netcode.NetworkManager.Singleton != null &&
-            Unity.Netcode.NetworkManager.Singleton.IsListening) return;
-        if (!playerCollider.CompareTag("Player") || _wallet == null) return;
-        _collected = true;
-        _wallet.AddCoin(1);
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening) return;
+        if (!playerCollider.CompareTag("Player")) return;
+
+        isCollected = true;
+        if (coinCollider != null) coinCollider.enabled = false;
+        if (wallet == null) wallet = CurrencyManager.instance;
+        wallet?.AddCoin(1);
         Destroy(gameObject);
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void RequestCollectRpc(RpcParams rpcParams = default)
     {
-        if (_collected || !NetworkManager.ConnectedClients.TryGetValue(
+        if (isCollected || !NetworkManager.ConnectedClients.TryGetValue(
                 rpcParams.Receive.SenderClientId, out NetworkClient client)) return;
         NetworkObject player = client.PlayerObject;
         if (player == null || !player.TryGetComponent(out CharacterController controller)) return;
@@ -62,21 +65,42 @@ public class Coin : NetworkBehaviour
             new Vector3(radius * 2f, height, radius * 2f));
         // Dung sai nhỏ cho độ trễ đồng bộ vị trí khi chạm coin.
         playerBounds.Expand(1f);
-        if (!playerBounds.Intersects(_collider.bounds)) return;
+        if (!playerBounds.Intersects(coinCollider.bounds)) return;
 
-        _collected = true;
+        isCollected = true;
+        if (coinCollider != null) coinCollider.enabled = false;
         RewardClientsRpc();
-        NetworkObject.Despawn();
+
+        // Sử dụng Despawn(false) cho in-scene NetworkObject để không sinh lỗi Netcode cảnh báo phá hủy scene object.
+        if (IsSpawned)
+        {
+            NetworkObject.Despawn(false);
+        }
+        gameObject.SetActive(false);
     }
 
     [Rpc(SendTo.ClientsAndHost, InvokePermission = RpcInvokePermission.Server)]
     private void RewardClientsRpc()
     {
-        if (_wallet == null)
+        isCollected = true;
+        if (coinCollider != null) coinCollider.enabled = false;
+        foreach (Renderer rend in GetComponentsInChildren<Renderer>())
         {
-            Debug.LogError("Coin: chưa được truyền ICoinWallet để nhận thưởng.", this);
+            rend.enabled = false;
+        }
+        gameObject.SetActive(false);
+
+        if (wallet == null)
+        {
+            wallet = CurrencyManager.instance;
+        }
+
+        if (wallet == null)
+        {
+            Debug.LogError("Coin: chưa được truyền ICoinWallet và không tìm thấy CurrencyManager.instance.", this);
             return;
         }
-        _wallet.AddCoin(1);
+
+        wallet.AddCoin(1);
     }
 }

@@ -697,26 +697,26 @@ public static class KitchenMapBuilder
         {
             Vector3[] coinPositions = new Vector3[]
             {
-                new Vector3(-6f, 17.5f, 14f),
-                new Vector3(6f, 17.5f, 14f),
-                new Vector3(0f, 15f, 32f),
-                new Vector3(0f, 7.5f, 78f),
-                new Vector3(-1f, 7.5f, 105f),
-                new Vector3(0f, 2.5f, 126f),
-                new Vector3(-4f, 6.5f, 150f),
-                new Vector3(0f, 5.5f, 188f),
-                new Vector3(0f, 2.5f, 216f),
-                new Vector3(-6f, 9.5f, 240f),
-                new Vector3(0f, 5.5f, 276f),
-                new Vector3(0f, 2.5f, 292f),
-                new Vector3(-3f, 6f, 318f),
-                new Vector3(0f, 11.5f, 340f),
-                new Vector3(3f, 13.5f, 358f),
-                new Vector3(0f, 18f, 376f),
-                new Vector3(0f, 23f, 405f),
-                new Vector3(0f, 12f, 428f),
-                new Vector3(0f, 6f, 452f),
-                new Vector3(0f, 2f, 498f)
+                new Vector3(-6f, 18.5f, 14f),
+                new Vector3(6f, 18.5f, 14f),
+                new Vector3(0f, 16.5f, 32f),
+                new Vector3(0f, 9.0f, 78f),
+                new Vector3(-1f, 9.0f, 105f),
+                new Vector3(0f, 4.0f, 126f),
+                new Vector3(-4f, 8.0f, 150f),
+                new Vector3(0f, 6.5f, 188f),
+                new Vector3(0f, 4.0f, 216f),
+                new Vector3(-6f, 10.5f, 240f),
+                new Vector3(0f, 7.0f, 276f),
+                new Vector3(0f, 4.0f, 292f),
+                new Vector3(-3f, 7.5f, 318f),
+                new Vector3(0f, 13.0f, 340f),
+                new Vector3(3f, 15.0f, 358f),
+                new Vector3(0f, 19.5f, 376f),
+                new Vector3(0f, 24.5f, 405f),
+                new Vector3(0f, 13.5f, 428f),
+                new Vector3(0f, 7.5f, 452f),
+                new Vector3(0f, 3.5f, 498f)
             };
 
             for (int i = 0; i < coinPositions.Length; i++)
@@ -1152,7 +1152,7 @@ public static class KitchenMapBuilder
         Undo.RegisterCreatedObjectUndo(coinObj, "Create Coin " + id);
         coinObj.name = $"Gold_Coin_Unity_{id}";
         coinObj.transform.position = pos;
-        coinObj.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
+        coinObj.transform.localScale = new Vector3(2.5f, 2.5f, 2.5f);
         coinObj.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
 
         var netObj = coinObj.GetComponent<NetworkObject>();
@@ -1182,7 +1182,8 @@ public static class KitchenMapBuilder
         {
             foreach (var rend in coinObj.GetComponentsInChildren<Renderer>())
             {
-                rend.sharedMaterial = goldMat;
+                // Đồng bộ cả 2 submesh (mặt và viền) để toàn bộ đồng xu hiển thị vàng sáng
+                rend.sharedMaterials = new Material[] { goldMat, goldMat };
             }
         }
     }
