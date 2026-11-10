@@ -9,6 +9,14 @@ using Unity.Services.Relay.Models;
 
 public sealed class RelayRoomService : IRelayRoomService
 {
+    private const string ConnectionType =
+#if UNITY_WEBGL
+        // WebGL chỉ hỗ trợ WebSocket bảo mật (wss); AllocationUtils sẽ báo lỗi nếu truyền dtls/udp.
+        "wss";
+#else
+        "dtls";
+#endif
+
     public async Task SignInAsync(CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
@@ -32,7 +40,7 @@ public sealed class RelayRoomService : IRelayRoomService
         cancellation.ThrowIfCancellationRequested();
         string code = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
         cancellation.ThrowIfCancellationRequested();
-        return new RelayRoom(code, AllocationUtils.ToRelayServerData(allocation, "dtls"));
+        return new RelayRoom(code, AllocationUtils.ToRelayServerData(allocation, ConnectionType));
     }
 
     public async Task<RelayRoom> JoinAsync(string code, CancellationToken cancellation)
@@ -40,6 +48,6 @@ public sealed class RelayRoomService : IRelayRoomService
         cancellation.ThrowIfCancellationRequested();
         var allocation = await RelayService.Instance.JoinAllocationAsync(code);
         cancellation.ThrowIfCancellationRequested();
-        return new RelayRoom(code, AllocationUtils.ToRelayServerData(allocation, "dtls"));
+        return new RelayRoom(code, AllocationUtils.ToRelayServerData(allocation, ConnectionType));
     }
 }
