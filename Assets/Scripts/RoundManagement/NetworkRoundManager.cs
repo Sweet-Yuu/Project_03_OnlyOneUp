@@ -8,6 +8,7 @@ using System.Collections.Generic;
 public sealed class NetworkRoundManager : NetworkBehaviour, IRoundSession, IOnlineRoundActions
 {
     private bool _actionPending;
+    private bool transitioningToNextStage;
     private readonly HashSet<ulong> _coveredClients = new HashSet<ulong>();
     private OnlineRoundTransition _transition;
     public void RequestPlayAgain() => RequestActionRpc(false);
@@ -25,7 +26,7 @@ public sealed class NetworkRoundManager : NetworkBehaviour, IRoundSession, IOnli
     private System.Collections.IEnumerator PerformNextStage()
     {
         _coveredClients.Clear();
-        CoverRpc();
+        CoverRpc(true);
         float deadline = Time.realtimeSinceStartup + 10f;
         while (_coveredClients.Count < NetworkManager.ConnectedClientsIds.Count &&
             Time.realtimeSinceStartup < deadline) yield return null;
@@ -34,10 +35,18 @@ public sealed class NetworkRoundManager : NetworkBehaviour, IRoundSession, IOnli
         NetworkManager networkManager = NetworkManager.Singleton;
         if (networkManager != null && networkManager.IsServer && networkManager.SceneManager != null)
         {
-            networkManager.SceneManager.LoadScene("MainMap_Online", UnityEngine.SceneManagement.LoadSceneMode.Single);
+            var status = networkManager.SceneManager.LoadScene("MainMap_Online", UnityEngine.SceneManagement.LoadSceneMode.Single);
+            if (status != SceneEventProgressStatus.Started)
+            {
+                Debug.LogError("Không thể chuyển sang MainMap_Online: " + status, this);
+                transitioningToNextStage = false;
+                _actionPending = false;
+                FinishActionRpc(false);
+            }
         }
         else
         {
+            transitioningToNextStage = true;
             UnityEngine.SceneManagement.SceneManager.LoadScene("MainMap_Online");
         }
     }
@@ -55,7 +64,7 @@ public sealed class NetworkRoundManager : NetworkBehaviour, IRoundSession, IOnli
     {
         _respawning.Value = true;
         _coveredClients.Clear();
-        CoverRpc();
+        CoverRpc(false);
         float deadline = Time.realtimeSinceStartup + 10f;
         // Chờ cả hai màn hình được che trước khi teleport hoặc đóng phiên mạng.
         while (_coveredClients.Count < NetworkManager.ConnectedClientsIds.Count &&
@@ -89,9 +98,10 @@ public sealed class NetworkRoundManager : NetworkBehaviour, IRoundSession, IOnli
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    private void CoverRpc() => StartCoroutine(CoverAndConfirm());
-    private System.Collections.IEnumerator CoverAndConfirm()
+    private void CoverRpc(bool nextStage) => StartCoroutine(CoverAndConfirm(nextStage));
+    private System.Collections.IEnumerator CoverAndConfirm(bool nextStage)
     {
+        transitioningToNextStage = nextStage;
         _transition = OnlineRoundTransition.Create();
         yield return _transition.Cover();
         if (IsSpawned) ConfirmCoveredRpc();
@@ -106,7 +116,11 @@ public sealed class NetworkRoundManager : NetworkBehaviour, IRoundSession, IOnli
     private void FinishActionRpc(bool menu)
     {
         if (menu) StartCoroutine(LeaveAfterDelivery());
-        else if (_transition != null) _transition.Reveal();
+        else
+        {
+            transitioningToNextStage = false;
+            if (_transition != null) _transition.Reveal();
+        }
     }
     private System.Collections.IEnumerator LeaveAfterDelivery()
     {
@@ -162,7 +176,9 @@ public sealed class NetworkRoundManager : NetworkBehaviour, IRoundSession, IOnli
     public override void OnNetworkDespawn()
     {
         StopAllCoroutines();
-        if (_transition != null) _transition.ReturnToMenu();
+        // Chỉ thoát về Menu nếu bị despawn ngoài ý muốn; khi chuyển sang màn 2 thì giữ _transition cho scene mới tiếp quản.
+        if (_transition != null && !transitioningToNextStage) _transition.ReturnToMenu();
+        transitioningToNextStage = false;
         _actionPending = false;
         _coveredClients.Clear();
         if (_resetTarget != null) _resetTarget.RoundFailed -= OnRoundFailed;

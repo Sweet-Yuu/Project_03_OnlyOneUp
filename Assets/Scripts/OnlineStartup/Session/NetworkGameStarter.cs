@@ -67,6 +67,9 @@ public sealed class NetworkGameStarter : MonoBehaviour
         }
     }
 
+    private bool IsGameplayScene(string sceneName) =>
+        sceneName == _gameSceneName || sceneName == "MainMap_Online";
+
     private void OnLoadCompleted(
         string sceneName,
         LoadSceneMode loadMode,
@@ -75,7 +78,7 @@ public sealed class NetworkGameStarter : MonoBehaviour
     {
         if (!_manager.IsServer ||
             !IsStarting ||
-            sceneName != _gameSceneName)
+            !IsGameplayScene(sceneName))
             return;
 
         // Không bắt đầu trận nếu một máy tải lỗi hoặc mất kết nối.
