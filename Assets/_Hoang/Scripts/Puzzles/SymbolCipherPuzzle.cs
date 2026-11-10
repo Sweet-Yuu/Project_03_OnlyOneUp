@@ -85,11 +85,7 @@ namespace Hoang.Puzzles
             if (instantSolve != lastInstantSolve)
             {
                 lastInstantSolve = instantSolve;
-                if (IsServer && IsSpawned)
-                {
-                    _unlocked.Value = instantSolve;
-                }
-                ApplySolved(IsSolved);
+                SyncInstantSolve(instantSolve);
             }
 
             if (sinkBoardsOnSolved && originalPositionsRecorded)
@@ -106,11 +102,7 @@ namespace Hoang.Puzzles
                 if (instantSolve != lastInstantSolve)
                 {
                     lastInstantSolve = instantSolve;
-                    if (IsServer && IsSpawned)
-                    {
-                        _unlocked.Value = instantSolve;
-                    }
-                    ApplySolved(IsSolved);
+                    SyncInstantSolve(instantSolve);
                 }
             }
         }
@@ -123,7 +115,40 @@ namespace Hoang.Puzzles
             {
                 _unlocked.Value = true;
             }
+            else if (!IsServer && instantSolve)
+            {
+                SetInstantSolveRpc(true);
+            }
             if (_cipher != null && _gate != null) ApplySolved(IsSolved);
+        }
+
+        private void SyncInstantSolve(bool solved)
+        {
+            if (IsSpawned)
+            {
+                if (IsServer)
+                {
+                    _unlocked.Value = solved || (_cipher != null && _cipher.IsUnlocked);
+                    ApplySolved(IsSolved);
+                }
+                else
+                {
+                    // Client gửi RPC lên Server để đồng bộ mở cổng và hạ chướng ngại vật tới Host
+                    SetInstantSolveRpc(solved);
+                    ApplySolved(IsSolved);
+                }
+            }
+            else
+            {
+                ApplySolved(IsSolved);
+            }
+        }
+
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+        private void SetInstantSolveRpc(bool solved)
+        {
+            _unlocked.Value = solved || (_cipher != null && _cipher.IsUnlocked);
+            ApplySolved(IsSolved);
         }
 
         public override void OnNetworkDespawn()

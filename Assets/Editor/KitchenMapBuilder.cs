@@ -491,12 +491,13 @@ public static class KitchenMapBuilder
         SpawnKayKit("jar_B_large", zone5Group.transform, new Vector3(3f, 18.5f, 386f), Vector3.zero, new Vector3(5f, 5f, 5f), true, 6);
 
         // Cầu xà ngang đi trên cao kết nối qua khu sảnh tiệc (Y = 21.5m, Z = 395 đến 415)
+        // Mở rộng bề ngang X từ 8m lên 16m để 2 người chơi mang tổ trứng (~8.9m) đứng an toàn và spawn hợp lệ tại Checkpoint 5
         GameObject catwalk = GameObject.CreatePrimitive(PrimitiveType.Cube);
         Undo.RegisterCreatedObjectUndo(catwalk, "Create High Catwalk");
         catwalk.name = "Pantry_High_Catwalk";
         catwalk.transform.SetParent(zone5Group.transform);
         catwalk.transform.position = new Vector3(0f, 21.5f, 405f);
-        catwalk.transform.localScale = new Vector3(8f, 0.4f, 28f);
+        catwalk.transform.localScale = new Vector3(16f, 0.4f, 28f);
         catwalk.layer = 6;
         if (woodMat != null) catwalk.GetComponent<MeshRenderer>().sharedMaterial = woodMat;
 
@@ -1139,8 +1140,8 @@ public static class KitchenMapBuilder
 
         var col = flag.GetComponent<BoxCollider>();
         if (col == null) col = flag.AddComponent<BoxCollider>();
-        // Collider vùng nhận diện rộng ~7m cao 7m (35f * 0.2x) để người chơi dễ dàng kích hoạt khi đi qua
-        col.size = new Vector3(35f, 35f, 35f);
+        // Collider vùng nhận diện rộng ~17m cao 7m (85f * 0.2x) để người chơi dễ dàng kích hoạt khi đi qua
+        col.size = new Vector3(85f, 35f, 35f);
         col.center = new Vector3(0f, 15f, 0f);
         col.isTrigger = true;
     }

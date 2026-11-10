@@ -61,11 +61,7 @@ namespace Hoang.Puzzles
             if (instantSolve != lastInstantSolve)
             {
                 lastInstantSolve = instantSolve;
-                if (IsServer && IsSpawned)
-                {
-                    _netMask.Value = instantSolve ? 0 : (_board != null ? _board.Mask : 0);
-                }
-                ApplyState();
+                SyncInstantSolve(instantSolve);
             }
         }
 
@@ -77,11 +73,7 @@ namespace Hoang.Puzzles
                 if (instantSolve != lastInstantSolve)
                 {
                     lastInstantSolve = instantSolve;
-                    if (IsServer && IsSpawned)
-                    {
-                        _netMask.Value = instantSolve ? 0 : (_board != null ? _board.Mask : 0);
-                    }
-                    ApplyState();
+                    SyncInstantSolve(instantSolve);
                 }
             }
         }
@@ -90,7 +82,43 @@ namespace Hoang.Puzzles
         public override void OnNetworkSpawn()
         {
             _netMask.OnValueChanged += HandleMaskChanged;
-            if (IsServer && _board != null) _netMask.Value = instantSolve ? 0 : _board.Mask;
+            if (IsServer && _board != null)
+            {
+                _netMask.Value = instantSolve ? 0 : _board.Mask;
+            }
+            else if (!IsServer && instantSolve)
+            {
+                SetInstantSolveRpc(true);
+            }
+            ApplyState();
+        }
+
+        private void SyncInstantSolve(bool solved)
+        {
+            if (IsSpawned)
+            {
+                if (IsServer)
+                {
+                    _netMask.Value = solved ? 0 : (_board != null ? _board.Mask : 0);
+                    ApplyState();
+                }
+                else
+                {
+                    // Client gửi RPC lên Server để đồng bộ trạng thái mở cổng tới Host và tất cả người chơi
+                    SetInstantSolveRpc(solved);
+                    ApplyState();
+                }
+            }
+            else
+            {
+                ApplyState();
+            }
+        }
+
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+        private void SetInstantSolveRpc(bool solved)
+        {
+            _netMask.Value = solved ? 0 : (_board != null ? _board.Mask : 0);
             ApplyState();
         }
 
