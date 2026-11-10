@@ -27,12 +27,6 @@ public sealed class NestEggDamageVisual : IDisposable
         _broken.transform.localPosition = Vector3.zero;
         _broken.transform.localRotation = Quaternion.identity;
         _broken.transform.localScale = Vector3.one;
-        // Prefab chỉ cung cấp hình ảnh; không cho camera/âm thanh/đèn đi kèm
-        // chiếm camera gameplay khi Show() bật model trứng vỡ.
-        // foreach (Camera camera in _broken.GetComponentsInChildren<Camera>(true)) camera.enabled = false;
-        // foreach (AudioListener listener in _broken.GetComponentsInChildren<AudioListener>(true)) listener.enabled = false;
-        // foreach (Light light in _broken.GetComponentsInChildren<Light>(true)) light.enabled = false;
-        // foreach (Collider collider in _broken.GetComponentsInChildren<Collider>(true)) collider.enabled = false;
         foreach (Rigidbody body in _broken.GetComponentsInChildren<Rigidbody>(true))
         { body.isKinematic = true; body.detectCollisions = false; }
         Renderer[] fragments = _broken.GetComponentsInChildren<Renderer>();

@@ -287,10 +287,11 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
             ? guest.GetComponent<NetworkTestMovement>().CarryPoint
             : guest.transform.position + Vector3.up * carryHeight;
         if (_predictCarryInputs && enableEggTest && placed)
-        {
+        {   
+            //Lay 1 input tu bo dem
             if (_carryInputs.TryTake(out NestCarryInput input))
             {
-                // Giới hạn một bước dịch chuyển bất thường; không nhận HostAnchor từ client.
+                // Giới hạn một bước dịch chuyển 
                 _lastGuestCarryAnchor = Vector3.MoveTowards(_lastGuestCarryAnchor, input.GuestAnchor,
                     100f * Time.fixedDeltaTime);
             }
@@ -567,7 +568,7 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
         };
         nextSnapshot = time + 1.0 / Mathf.Max(1, (int)NetworkManager.NetworkConfig.TickRate);
     }
-
+    //Nhan frame tu server, cap nhat trang thai client
     private void ReceiveFrame(NestEggFrame previous, NestEggFrame current)
     {
         if (!history.Add(current)) return;

@@ -103,7 +103,7 @@ public sealed class RelaySession : IDisposable
 
                 RelayRoom room = await rooms.CreateAsync(cancellation);
                 cancellation.ThrowIfCancellationRequested();
-                transport.SetRelayServerData(room.ServerData);
+                ConfigureTransport(room);
 
                 if (!manager.StartHost())
                     throw new Exception("Khong khoi dong duoc Host.");
@@ -117,7 +117,7 @@ public sealed class RelaySession : IDisposable
 
                 RelayRoom room = await rooms.JoinAsync(code, cancellation);
                 cancellation.ThrowIfCancellationRequested();
-                transport.SetRelayServerData(room.ServerData);
+                ConfigureTransport(room);
 
                 connectionStartedAt = Time.realtimeSinceStartup;
 
@@ -148,6 +148,14 @@ public sealed class RelaySession : IDisposable
                 Busy = false;
         }
     }
+
+    private void ConfigureTransport(RelayRoom room)
+    {
+        // Đồng bộ chế độ WebSockets theo dữ liệu Relay (WebGL bắt buộc dùng wss).
+        transport.UseWebSockets = room.ServerData.IsWebSocket != 0;
+        transport.SetRelayServerData(room.ServerData);
+    }
+
     private void OnClientConnected(ulong clientId)
     {
         if (clientId == manager.LocalClientId && !manager.IsHost)
