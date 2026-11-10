@@ -16,8 +16,13 @@ public sealed class OnlineCheckpoint : MonoBehaviour
     {
         if (!isActiveAndEnabled) return false;
         foreach (Collider collider in _colliders)
-            if (collider != null && collider.enabled && collider.gameObject.activeInHierarchy &&
-                (collider.ClosestPoint(position) - position).sqrMagnitude <= tolerance * tolerance) return true;
+        {
+            if (collider == null || !collider.enabled || !collider.gameObject.activeInHierarchy) continue;
+            Vector3 closest = (collider is MeshCollider meshCollider && !meshCollider.convex)
+                ? collider.bounds.ClosestPoint(position)
+                : collider.ClosestPoint(position);
+            if ((closest - position).sqrMagnitude <= tolerance * tolerance) return true;
+        }
         return false;
     }
 }

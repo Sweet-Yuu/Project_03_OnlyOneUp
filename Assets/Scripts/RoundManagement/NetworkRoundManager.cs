@@ -236,12 +236,16 @@ public sealed class NetworkRoundManager : NetworkBehaviour, IRoundSession, IOnli
         var h = host.GetComponent<NetworkTestMovement>();
         var g = guest.GetComponent<NetworkTestMovement>();
         float halfDistance = h.GetCarryRootDistance(g, _resetTarget.GripDistance) * .5f;
-        if (!h.TryGetStartPosition(center + Vector3.left * halfDistance, out Vector3 hp) ||
-            !g.TryGetStartPosition(center + Vector3.right * halfDistance, out Vector3 gp) ||
+        Vector3 hp = Vector3.zero;
+        Vector3 gp = Vector3.zero;
+        string hostObstacle = null;
+        string guestObstacle = null;
+        if (!h.TryGetStartPosition(center + Vector3.left * halfDistance, out hp) ||
+            !g.TryGetStartPosition(center + Vector3.right * halfDistance, out gp) ||
             Mathf.Abs(hp.y - gp.y) > .03f || IsInsideDeathZone(hp) || IsInsideDeathZone(gp) ||
-            !h.StartPositionIsClear(hp, out _) || !g.StartPositionIsClear(gp, out _))
+            !h.StartPositionIsClear(hp, out hostObstacle) || !g.StartPositionIsClear(gp, out guestObstacle))
         {
-            Debug.LogWarning("Checkpoint needs clear, level ground for both players. Assign its Spawn Center to a safe position.", checkpoint);
+            Debug.LogWarning($"Checkpoint {id} needs clear, level ground for both players. Assign its Spawn Center to a safe position. hp={hp}, gp={gp}, diffY={Mathf.Abs(hp.y - gp.y):F3}, hostObstacle={hostObstacle}, guestObstacle={guestObstacle}", checkpoint);
             return;
         }
         _respawnCenter.Value = center;
@@ -251,8 +255,13 @@ public sealed class NetworkRoundManager : NetworkBehaviour, IRoundSession, IOnli
     private bool IsInsideDeathZone(Vector3 position)
     {
         foreach (Collider zone in _deathZones)
-            if (zone != null && zone.enabled && zone.gameObject.activeInHierarchy &&
-                (zone.ClosestPoint(position) - position).sqrMagnitude < .01f) return true;
+        {
+            if (zone == null || !zone.enabled || !zone.gameObject.activeInHierarchy) continue;
+            Vector3 closest = (zone is MeshCollider meshCollider && !meshCollider.convex)
+                ? zone.bounds.ClosestPoint(position)
+                : zone.ClosestPoint(position);
+            if ((closest - position).sqrMagnitude < .01f) return true;
+        }
         return false;
     }
 
@@ -264,7 +273,10 @@ public sealed class NetworkRoundManager : NetworkBehaviour, IRoundSession, IOnli
         foreach (Collider zone in _deathZones)
         {
             if (zone == null || !zone.enabled || !zone.gameObject.activeInHierarchy) continue;
-            if ((zone.ClosestPoint(player.transform.position) - player.transform.position).sqrMagnitude > 36f) continue;
+            Vector3 closest = (zone is MeshCollider meshCollider && !meshCollider.convex)
+                ? zone.bounds.ClosestPoint(player.transform.position)
+                : zone.ClosestPoint(player.transform.position);
+            if ((closest - player.transform.position).sqrMagnitude > 36f) continue;
             ScheduleRespawn(0f);
             return;
         }

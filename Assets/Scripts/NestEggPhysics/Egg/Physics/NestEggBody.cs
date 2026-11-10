@@ -277,7 +277,7 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
         _lastImpactTime = Time.fixedTime;
         if (_breakOnLanding || !_progressiveDamage || DamageCount >= 2)
         {
-            Vector3 surface = other.ClosestPoint(Body.position);
+            Vector3 surface = GetContactSurface(other, Body.position);
             BreakOnServer();
             if (_progressiveDamage)
             {
@@ -287,6 +287,18 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
             }
         }
         else SetPresentation(NestEggPhase.Intact, (byte)(DamageCount + 1));
+    }
+
+    // MeshCollider không convex sẽ ném cảnh báo nếu gọi ClosestPoint; bắn tia xuống hoặc lấy bounds để tính vị trí bề mặt an toàn.
+    private Vector3 GetContactSurface(Collider contact, Vector3 position)
+    {
+        if (contact is MeshCollider meshCollider && !meshCollider.convex)
+        {
+            Ray ray = new Ray(position + Vector3.up * 0.5f, Vector3.down);
+            if (contact.Raycast(ray, out RaycastHit hit, 2f)) return hit.point;
+            return contact.bounds.ClosestPoint(position);
+        }
+        return contact.ClosestPoint(position);
     }
 
     private void RecordNestSupport(Collision collision)

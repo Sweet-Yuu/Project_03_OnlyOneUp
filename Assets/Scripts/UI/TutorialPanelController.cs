@@ -266,7 +266,7 @@ public sealed class TutorialPanelController : MonoBehaviour
             TMP_Text nextText = _nextButton.GetComponentInChildren<TMP_Text>();
             if (nextText != null)
             {
-                nextText.text = (_currentPageIndex >= _pages.Length - 1) ? "Bắt đầu chơi ➔" : "Trang tiếp ➔";
+                nextText.text = (_currentPageIndex >= _pages.Length - 1) ? "Bắt đầu chơi >" : "Trang tiếp >";
             }
         }
     }
