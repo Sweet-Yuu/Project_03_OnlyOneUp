@@ -22,6 +22,8 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
     [SerializeField, Range(0f, 1f)] private float eggCrackVolume = 1f;
     [SerializeField] private AudioClip eggBreakClip;
     [SerializeField, Range(0f, 1f)] private float eggBreakVolume = 1f;
+    [SerializeField] private AudioClip eggRestoreClip;
+    [SerializeField, Range(0f, 1f)] private float eggRestoreVolume = 1f;
     private EggDamageFeedback _damageFeedback;
     [Header("Nest collision consequences")]
     [SerializeField] private bool _randomEggOnNestImpact = true;
@@ -484,6 +486,8 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
     private void PlayCheckpointHealFlashRpc()
     {
         egg?.PlayHealFlash(0.5f);
+        if (_damageFeedback != null) _damageFeedback.PlayClip(eggRestoreClip, eggRestoreVolume);
+        else if (eggRestoreClip != null && AudioManager.Instance != null) AudioManager.Instance.PlaySFX(eggRestoreClip, eggRestoreVolume);
     }
 
     // Kích hoạt trạng thái chiến thắng từ server (dành cho trigger khu vực chiến thắng)

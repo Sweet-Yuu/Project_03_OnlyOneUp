@@ -103,7 +103,7 @@ public sealed class EggDamageFeedback : MonoBehaviour
         lastPhase = phase;
     }
 
-    private void PlayClip(AudioClip clip, float volume)
+    public void PlayClip(AudioClip clip, float volume = 1f)
     {
         if (clip == null) return;
         if (AudioManager.Instance != null)

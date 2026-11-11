@@ -119,6 +119,8 @@ MonoBehaviour:
   eggCrackVolume: 1
   eggBreakClip: {fileID: 8300000, guid: c329a7f2a8607f442992ae9e34c872fb, type: 3}
   eggBreakVolume: 1
+  eggRestoreClip: {fileID: 8300000, guid: ff7b5f9dab17c834bb593764c51f36f7, type: 3}
+  eggRestoreVolume: 1
   _randomEggOnNestImpact: 1
   _nestImpactCrackChance: 0.5
   _nestImpactCooldown: 0.75

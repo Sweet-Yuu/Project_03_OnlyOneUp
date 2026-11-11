@@ -183,6 +183,8 @@ public class AudioManager : MonoBehaviour, IAudioService
         }
     }
 
+    public float SfxVolume => _sfxVolume;
+
     public void SetSFXVolume(float volume)
     {
         _sfxVolume = Mathf.Clamp01(volume);
