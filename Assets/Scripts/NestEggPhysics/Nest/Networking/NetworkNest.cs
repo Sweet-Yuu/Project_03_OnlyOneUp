@@ -18,6 +18,10 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
     [SerializeField, Min(0.01f)] private float _eggDamageShakeDuration = .35f;
     [SerializeField, Min(0f)] private float _eggDamageShakeStrength = .07f;
     [SerializeField, Min(0.01f)] private float _eggDamageFlashDuration = .9f;
+    [SerializeField] private AudioClip eggCrackClip;
+    [SerializeField, Range(0f, 1f)] private float eggCrackVolume = 1f;
+    [SerializeField] private AudioClip eggBreakClip;
+    [SerializeField, Range(0f, 1f)] private float eggBreakVolume = 1f;
     private EggDamageFeedback _damageFeedback;
     [Header("Nest collision consequences")]
     [SerializeField] private bool _randomEggOnNestImpact = true;
@@ -189,7 +193,8 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
             var feedbackObject = new GameObject("Local egg damage feedback", typeof(RectTransform));
             _damageFeedback = feedbackObject.AddComponent<EggDamageFeedback>();
             _damageFeedback.Initialize(Camera.main, _eggDamageShakeDuration,
-                _eggDamageShakeStrength, _eggDamageFlashDuration);
+                _eggDamageShakeStrength, _eggDamageFlashDuration,
+                eggCrackClip, eggCrackVolume, eggBreakClip, eggBreakVolume);
         }
         if (IsServer && _assistEggCarry)
         {
@@ -465,6 +470,20 @@ public class NetworkNest : NetworkBehaviour, IEggJumpReceiver, IRoundResetTarget
         preparation.Begin(host, guest);
         SyncPreparation();
         return true;
+    }
+
+    public void OnCheckpointReached()
+    {
+        if (!IsSpawned || !IsServer || !enableEggTest || egg == null || !egg.IsSimulating) return;
+        egg.HealOnServer();
+        PublishFrame();
+        PlayCheckpointHealFlashRpc();
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void PlayCheckpointHealFlashRpc()
+    {
+        egg?.PlayHealFlash(0.5f);
     }
 
     // Kích hoạt trạng thái chiến thắng từ server (dành cho trigger khu vực chiến thắng)

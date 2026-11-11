@@ -22,13 +22,25 @@ public sealed class EggDamageFeedback : MonoBehaviour
     private float _shakeStrength;
     private float _flashDuration;
     private float _intensity;
+    private AudioClip crackClip;
+    private float crackVolume = 1f;
+    private AudioClip breakClip;
+    private float breakVolume = 1f;
+    private NestEggPhase lastPhase;
+    private AudioSource fallbackAudioSource;
 
-    public void Initialize(Camera camera, float shakeDuration, float shakeStrength, float flashDuration)
+    public void Initialize(Camera camera, float shakeDuration, float shakeStrength, float flashDuration,
+        AudioClip eggCrackClip = null, float eggCrackVolume = 1f,
+        AudioClip eggBreakClip = null, float eggBreakVolume = 1f)
     {
         _camera = camera;
         _shakeDuration = Mathf.Max(.01f, shakeDuration);
         _shakeStrength = Mathf.Max(0f, shakeStrength);
         _flashDuration = Mathf.Max(.01f, flashDuration);
+        crackClip = eggCrackClip;
+        crackVolume = Mathf.Clamp01(eggCrackVolume);
+        breakClip = eggBreakClip;
+        breakVolume = Mathf.Clamp01(eggBreakVolume);
         _canvas = GetComponent<Canvas>();
         _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         _canvas.sortingOrder = 32000;
@@ -63,6 +75,7 @@ public sealed class EggDamageFeedback : MonoBehaviour
             _initialized = true;
             _generation = generation;
             _damage = damage;
+            lastPhase = phase;
             _impactSequence = impactSequence;
             Clear();
             return;
@@ -72,16 +85,39 @@ public sealed class EggDamageFeedback : MonoBehaviour
         if (phase == NestEggPhase.Waiting || damage < _damage)
         {
             _damage = damage;
+            lastPhase = phase;
             Clear();
             return;
         }
-        if (nestImpact || (phase == NestEggPhase.Intact && damage > _damage && damage <= 2))
+        bool brokenNow = lastPhase != NestEggPhase.Broken && phase == NestEggPhase.Broken;
+        bool cracked = phase == NestEggPhase.Intact && damage > _damage && damage <= 2;
+        if (nestImpact || cracked)
         {
             _intensity = damage == 1 ? 1f : 1.35f;
             _started = Time.unscaledTime;
             Update();
         }
+        if (brokenNow) PlayClip(breakClip, breakVolume);
+        else if (cracked) PlayClip(crackClip, crackVolume);
         _damage = damage;
+        lastPhase = phase;
+    }
+
+    private void PlayClip(AudioClip clip, float volume)
+    {
+        if (clip == null) return;
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX(clip, volume);
+            return;
+        }
+        if (fallbackAudioSource == null)
+        {
+            fallbackAudioSource = gameObject.AddComponent<AudioSource>();
+            fallbackAudioSource.playOnAwake = false;
+            fallbackAudioSource.spatialBlend = 0f;
+        }
+        fallbackAudioSource.PlayOneShot(clip, volume);
     }
 
     private void Update()

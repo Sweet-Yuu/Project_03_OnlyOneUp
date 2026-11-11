@@ -35654,7 +35654,7 @@ PrefabInstance:
     - target: {fileID: 1735328774628698676, guid: dea9d0be98532ac4c9b187309ef71aae, type: 3}
       propertyPath: _brokenEggVisualPrefab
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 919132149155446097, guid: 1b5a04e8d569039458b1f0505023398e, type: 3}
     - target: {fileID: 3515163302328259294, guid: dea9d0be98532ac4c9b187309ef71aae, type: 3}
       propertyPath: m_LocalPosition.x
       value: -6.47432
@@ -48910,7 +48910,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkRoundManager
   ShowTopMostFoldoutHeaderGroup: 1
   _startCenter: {x: 45, y: 2.1, z: 30}
-  _eggBreakRespawnDelay: 0.2
+  _eggBreakRespawnDelay: 1
 --- !u!114 &2099000003
 MonoBehaviour:
   m_ObjectHideFlags: 0

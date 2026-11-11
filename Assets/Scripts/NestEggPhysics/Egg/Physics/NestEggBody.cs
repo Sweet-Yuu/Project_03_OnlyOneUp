@@ -35,6 +35,10 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
     private NestEggPhase phase;
     private float ignoreImpactUntil;
     private bool presentationInitialized;
+    private bool healFlashActive;
+    private float healFlashStartedAt;
+    private float healFlashDuration;
+    private static readonly Color HealGreenColor = new Color(0.2f, 0.95f, 0.35f, 1f);
 
     /// Cấu hình Rigidbody/collider, tạo model và điều chỉnh kích thước model
     public void Initialize(Transform nestRoot, GameObject visualPrefab)
@@ -340,6 +344,63 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
         Broken?.Invoke();
     }
 
+    // Hồi phục trứng về trạng thái nguyên vẹn khi đi qua checkpoint.
+    public void HealOnServer()
+    {
+        if (!IsSimulating || DamageCount == 0) return;
+        SetPresentation(NestEggPhase.Intact, 0);
+    }
+
+    public void PlayHealFlash(float duration = 0.5f)
+    {
+        if (phase != NestEggPhase.Intact || renderers == null) return;
+        healFlashDuration = Mathf.Max(0.01f, duration);
+        healFlashStartedAt = Time.unscaledTime;
+        healFlashActive = true;
+        ApplyHealFlashColor(1f);
+    }
+
+    private void Update()
+    {
+        if (!healFlashActive) return;
+        float elapsed = Time.unscaledTime - healFlashStartedAt;
+        if (phase != NestEggPhase.Intact || elapsed >= healFlashDuration)
+        {
+            ClearHealFlash();
+            return;
+        }
+        // Giữ màu xanh rõ trong phần lớn thời gian rồi dịu dần về màu gốc ở cuối 0.5s.
+        float progress = elapsed / healFlashDuration;
+        float weight = progress < 0.7f ? 1f : 1f - Mathf.InverseLerp(0.7f, 1f, progress);
+        ApplyHealFlashColor(weight);
+    }
+
+    private void ApplyHealFlashColor(float weight)
+    {
+        if (renderers == null || properties == null) return;
+        foreach (Renderer r in renderers)
+        {
+            if (r == null) continue;
+            Material mat = r.sharedMaterial;
+            Color baseColor = mat != null && mat.HasProperty("_BaseColor") ? mat.GetColor("_BaseColor")
+                : mat != null && mat.HasProperty("_Color") ? mat.GetColor("_Color") : Color.white;
+            Color tint = Color.Lerp(baseColor, HealGreenColor, weight);
+            properties.Clear();
+            properties.SetColor("_BaseColor", tint);
+            properties.SetColor("_Color", tint);
+            r.SetPropertyBlock(properties);
+        }
+    }
+
+    private void ClearHealFlash()
+    {
+        if (!healFlashActive) return;
+        healFlashActive = false;
+        if (renderers == null) return;
+        foreach (Renderer r in renderers)
+            if (r != null) r.SetPropertyBlock(null);
+    }
+
     public void ApplyRemote(NestEggFrame frame)
     {
         if (authority) return;
@@ -351,6 +412,7 @@ public sealed class NestEggBody : MonoBehaviour, INestEggPhysicsBody
     {
         damage = next == NestEggPhase.Broken ? (byte)3 : next == NestEggPhase.Waiting ? (byte)0 : (byte)Mathf.Min(damage, 2);
         if (presentationInitialized && phase == next && DamageCount == damage) return;
+        if (next != NestEggPhase.Intact) ClearHealFlash();
         presentationInitialized = true;
         phase = next;
         DamageCount = damage;

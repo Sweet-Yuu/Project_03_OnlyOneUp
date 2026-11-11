@@ -222,8 +222,11 @@ public sealed class DuckNeckIK : MonoBehaviour
         head.rotation = headRotation;
         Vector3 headOffset = beak.position - head.position;
         float requiredNeckLength = Vector3.Distance(chain[0].position, target.position - headOffset);
+        // Cho phép phần hiển thị của cổ giãn vượt ngưỡng vật lý khi hai người chơi tách ra đồng thời qua độ trễ mạng/nội suy,
+        // giữ cho mỏ vịt luôn bám sát vào tay cầm của tổ.
+        float visualStretchLimit = Mathf.Max(player.NeckStretchLimit, 10f);
         float stretch = Mathf.Clamp(requiredNeckLength / (0.985f * Mathf.Max(0.001f, neckLength)),
-            1f, player.NeckStretchLimit);
+            1f, visualStretchLimit);
         // Use actual segment extension after chest lean, not distance to the nest.
         // The replicated movement state lets remote players fold wings on release too.
         float extraStretch = Mathf.Max(0f, stretch - 1f);

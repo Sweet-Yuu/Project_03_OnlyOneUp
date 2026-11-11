@@ -787,7 +787,7 @@ public static class KitchenMapBuilder
                 var propStart = soRound.FindProperty("_startCenter");
                 if (propStart != null) propStart.vector3Value = spawnPos;
                 var propDelay = soRound.FindProperty("_eggBreakRespawnDelay");
-                if (propDelay != null) propDelay.floatValue = 0.2f;
+                if (propDelay != null) propDelay.floatValue = 1.0f;
                 soRound.ApplyModifiedProperties();
             }
 
