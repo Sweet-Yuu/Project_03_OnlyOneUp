@@ -111,10 +111,14 @@ MonoBehaviour:
   enableEggTest: 1
   eggVisualPrefab: {fileID: 919132149155446097, guid: 383d56c9c6e72934a8593ef8b9424c0b, type: 3}
   _progressiveEggDamage: 0
-  _brokenEggVisualPrefab: {fileID: 0}
+  _brokenEggVisualPrefab: {fileID: 919132149155446097, guid: 1b5a04e8d569039458b1f0505023398e, type: 3}
   _eggDamageShakeDuration: 0.35
   _eggDamageShakeStrength: 0.07
   _eggDamageFlashDuration: 0.9
+  eggCrackClip: {fileID: 8300000, guid: 0387d0d99bc077446aa0100ab47012ad, type: 3}
+  eggCrackVolume: 1
+  eggBreakClip: {fileID: 8300000, guid: c329a7f2a8607f442992ae9e34c872fb, type: 3}
+  eggBreakVolume: 1
   _randomEggOnNestImpact: 1
   _nestImpactCrackChance: 0.5
   _nestImpactCooldown: 0.75

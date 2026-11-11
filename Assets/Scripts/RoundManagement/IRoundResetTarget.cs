@@ -8,4 +8,5 @@ public interface IRoundResetTarget
     bool IsPlaying { get; }
     bool CanPlayerMove(uint sequence);
     bool TryRestartRound(Vector3 center);
+    void OnCheckpointReached();
 }

@@ -18837,7 +18837,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkRoundManager
   ShowTopMostFoldoutHeaderGroup: 1
   _startCenter: {x: 0, y: 16.5, z: 6}
-  _eggBreakRespawnDelay: 0.2
+  _eggBreakRespawnDelay: 1
 --- !u!114 &347412339 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1735328774628698676, guid: dea9d0be98532ac4c9b187309ef71aae, type: 3}

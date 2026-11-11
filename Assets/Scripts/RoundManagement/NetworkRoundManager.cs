@@ -63,6 +63,11 @@ public sealed class NetworkRoundManager : NetworkBehaviour, IRoundSession, IOnli
     private System.Collections.IEnumerator PerformAction(bool menu)
     {
         _respawning.Value = true;
+        yield return RestartRoundWithOverlay(_startCenter, true, menu);
+    }
+
+    private System.Collections.IEnumerator RestartRoundWithOverlay(Vector3 center, bool resetCheckpoint, bool menu)
+    {
         _coveredClients.Clear();
         CoverRpc(false);
         float deadline = Time.realtimeSinceStartup + 10f;
@@ -81,10 +86,13 @@ public sealed class NetworkRoundManager : NetworkBehaviour, IRoundSession, IOnli
             FinishActionRpc(true);
             yield break;
         }
-        if (_resetTarget.TryRestartRound(_startCenter))
+        if (_resetTarget.TryRestartRound(center))
         {
-            _activeCheckpoint.Value = 0;
-            _respawnCenter.Value = _startCenter;
+            if (resetCheckpoint)
+            {
+                _activeCheckpoint.Value = 0;
+                _respawnCenter.Value = center;
+            }
             // Cho phép state machine chuẩn bị chạy; chính trạng thái Preparing khóa player.
             _respawning.Value = false;
             deadline = Time.realtimeSinceStartup + 20f;
@@ -137,7 +145,6 @@ public sealed class NetworkRoundManager : NetworkBehaviour, IRoundSession, IOnli
     private readonly Dictionary<int, OnlineCheckpoint> _checkpoints = new Dictionary<int, OnlineCheckpoint>();
     private readonly List<Collider> _deathZones = new List<Collider>();
     private IRoundResetTarget _resetTarget;
-    private double _respawnAt;
     public bool IsRespawning => IsSpawned && _respawning.Value;
     public int ActiveCheckpointId => _activeCheckpoint.Value;
     public Vector3 RespawnCenter => IsSpawned ? _respawnCenter.Value : _startCenter;
@@ -164,14 +171,6 @@ public sealed class NetworkRoundManager : NetworkBehaviour, IRoundSession, IOnli
     }
 
     private void OnRoundFailed() => ScheduleRespawn(_eggBreakRespawnDelay);
-
-    private void FixedUpdate()
-    {
-        if (!IsSpawned || !IsServer || _actionPending || !_respawning.Value || _resetTarget == null ||
-            NetworkManager.ServerTime.Time < _respawnAt) return;
-        // Giữ khóa khi thiếu người; chỉ mở sau khi lệnh chuẩn bị lượt mới được nhận.
-        if (_resetTarget.TryRestartRound(RespawnCenter)) _respawning.Value = false;
-    }
 
     public override void OnNetworkDespawn()
     {
@@ -266,6 +265,7 @@ public sealed class NetworkRoundManager : NetworkBehaviour, IRoundSession, IOnli
         }
         _respawnCenter.Value = center;
         _activeCheckpoint.Value = id;
+        _resetTarget.OnCheckpointReached();
     }
 
     private bool IsInsideDeathZone(Vector3 position)
@@ -300,10 +300,27 @@ public sealed class NetworkRoundManager : NetworkBehaviour, IRoundSession, IOnli
 
     private void ScheduleRespawn(float delay)
     {
-        if (!IsSpawned || !IsServer || _resetTarget == null || _respawning.Value ||
+        if (!IsSpawned || !IsServer || _resetTarget == null || _respawning.Value || _actionPending ||
             !_resetTarget.IsPlaying) return;
         _respawning.Value = true;
-        _respawnAt = NetworkManager.ServerTime.Time + Mathf.Max(0f, delay);
+        StartCoroutine(PerformRespawnWithOverlay(Mathf.Max(0f, delay)));
+    }
+
+    private System.Collections.IEnumerator PerformRespawnWithOverlay(float delay)
+    {
+        if (delay > 0f)
+        {
+            // Đợi prefab trứng vỡ và âm thanh vỡ hiển thị rõ trước khi đóng vòng tròn chuyển cảnh.
+            double targetTime = NetworkManager.ServerTime.Time + delay;
+            while (IsSpawned && NetworkManager.ServerTime.Time < targetTime)
+            {
+                if (_actionPending) yield break;
+                yield return null;
+            }
+        }
+        if (!IsSpawned || _actionPending || _resetTarget == null) yield break;
+        _actionPending = true;
+        yield return RestartRoundWithOverlay(RespawnCenter, false, false);
     }
 
 }
