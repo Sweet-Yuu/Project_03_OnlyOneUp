@@ -49,6 +49,7 @@ GameObject:
   - component: {fileID: 5725992306147283656}
   - component: {fileID: 7654861759507536315}
   - component: {fileID: 1295206699109162644}
+  - component: {fileID: 7654861759507536316}
   m_Layer: 7
   m_Name: NetWorkPlayer
   m_TagString: Untagged
@@ -303,6 +304,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkPlayerIdentity
   ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &7654861759507536316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2623746540007455877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99f183dda15146f08612cb976ad1ade8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkPlayerHonk
+  ShowTopMostFoldoutHeaderGroup: 1
+  catalog: {fileID: 11400000, guid: a1c60f64723948eca2fdb13578efb62c, type: 2}
+  volume: 1
+  cooldown: 0.25
 --- !u!1 &2638402628446935739
 GameObject:
   m_ObjectHideFlags: 0
