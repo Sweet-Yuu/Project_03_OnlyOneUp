@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 // Phát tiếng kêu (Honk) đã lưu của người chơi và đồng bộ cả âm thanh lẫn chữ bay qua mạng cho người chơi còn lại.
 public sealed class NetworkPlayerHonk : NetworkBehaviour
@@ -12,17 +14,20 @@ public sealed class NetworkPlayerHonk : NetworkBehaviour
     [SerializeField, Min(0.05f)] private float cooldown = 0.25f;
 
     [Header("Floating Honk Text")]
-    [SerializeField] private string honkText = "HONK!";
+    [SerializeField] private string honkText = "@aejddd##";
     [SerializeField] private Color honkTextColor = new(1f, 0.92f, 0.35f, 1f);
     [SerializeField] private TMP_FontAsset honkTextFont;
     [SerializeField, Min(1f)] private float popupFontSize = 6f;
-    [SerializeField] private float popupHeadOffset = 0.8f;
+    [SerializeField] private float popupHeadOffset = 1.6f;
+    [SerializeField] private float popupRightOffset = 1.1f;
     [SerializeField, Min(0.1f)] private float popupRiseDistance = 1.6f;
+    [SerializeField] private float popupFlyRightDistance = 1.4f;
     [SerializeField, Min(0.05f)] private float popupRiseDuration = 0.5f;
     [SerializeField, Min(0.05f)] private float popupFadeDuration = 0.3f;
 
     private readonly NetworkVariable<int> selectedHonkIndex = new(
         0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    private static readonly List<RaycastResult> UiRaycastResults = new();
     private AudioSource audioSource;
     private Transform headAnchor;
     private int localHonkIndex;
@@ -50,10 +55,10 @@ public sealed class NetworkPlayerHonk : NetworkBehaviour
     {
         if (!IsSpawned || !IsOwner || !Application.isFocused) return;
         if (Time.timeScale <= 0f || Time.unscaledTime < nextHonkAt) return;
-        if (IsTypingInInputField() || IsPointerOverUI()) return;
 
         Mouse mouse = Mouse.current;
         if (mouse == null || !mouse.rightButton.wasPressedThisFrame) return;
+        if (IsTypingInInputField() || IsPointerOverUI()) return;
 
         nextHonkAt = Time.unscaledTime + cooldown;
         TriggerHonkEffects(localHonkIndex);
@@ -98,27 +103,40 @@ public sealed class NetworkPlayerHonk : NetworkBehaviour
     {
         if (catalog == null) catalog = HonkCatalog.LoadDefault();
         AudioClip clip = catalog != null ? catalog.GetClip(index) : null;
-        if (clip == null || audioSource == null) return;
+        if (clip == null) return;
 
-        float sfxVolume = AudioManager.Instance != null ? AudioManager.Instance.SfxVolume : 1f;
-        audioSource.Stop();
-        audioSource.clip = clip;
-        audioSource.volume = volume * sfxVolume;
-        audioSource.Play();
+        // Ưu tiên phát qua AudioManager để đi đúng AudioMixerGroup SFX và âm lượng cài đặt.
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX(clip, volume);
+            return;
+        }
+
+        if (audioSource != null) audioSource.PlayOneShot(clip, volume);
     }
 
     private void SpawnHonkPopup()
     {
-        Vector3 origin = headAnchor != null
-            ? headAnchor.position + Vector3.up * popupHeadOffset
-            : transform.position + Vector3.up * (popupHeadOffset + 1.5f);
+        // Tính hướng phải theo camera hiện tại để chữ luôn xuất hiện ngoài đầu và bay chếch sang phải màn hình.
+        Camera cam = Camera.main;
+        Vector3 rightAxis = cam != null
+            ? Vector3.ProjectOnPlane(cam.transform.right, Vector3.up).normalized
+            : Vector3.right;
+        if (rightAxis.sqrMagnitude < 0.001f) rightAxis = Vector3.right;
+
+        Vector3 headBase = headAnchor != null
+            ? headAnchor.position
+            : transform.position + Vector3.up * 1.5f;
+        Vector3 origin = headBase + Vector3.up * popupHeadOffset + rightAxis * popupRightOffset;
+        Vector3 travelOffset = Vector3.up * popupRiseDistance + rightAxis * popupFlyRightDistance;
+
         HonkPopupText.Spawn(
             origin,
+            travelOffset,
             honkText,
             honkTextColor,
             honkTextFont,
             popupFontSize,
-            popupRiseDistance,
             popupRiseDuration,
             popupFadeDuration);
     }
@@ -137,7 +155,25 @@ public sealed class NetworkPlayerHonk : NetworkBehaviour
 
     private static bool IsPointerOverUI()
     {
-        return EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+        // Khi khóa chuột điều khiển gameplay hoặc trỏ vào HUD không tương tác, không chặn nút kêu.
+        if (Cursor.lockState == CursorLockMode.Locked || EventSystem.current == null) return false;
+        Mouse mouse = Mouse.current;
+        if (mouse == null) return false;
+
+        var pointerData = new PointerEventData(EventSystem.current)
+        {
+            position = mouse.position.ReadValue()
+        };
+        UiRaycastResults.Clear();
+        EventSystem.current.RaycastAll(pointerData, UiRaycastResults);
+        for (int i = 0; i < UiRaycastResults.Count; i++)
+        {
+            GameObject hit = UiRaycastResults[i].gameObject;
+            if (hit == null) continue;
+            if (hit.GetComponentInParent<Selectable>() != null || hit.GetComponentInParent<IPointerClickHandler>() != null)
+                return true;
+        }
+        return false;
     }
 
     private static bool IsTypingInInputField()
