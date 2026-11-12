@@ -581,7 +581,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "THO\xC1T (Ph\xEDm E)"
+  m_text: EXIT (E Key)
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
   m_sharedMaterial: {fileID: 7940830116172583300, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
@@ -802,7 +802,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "C\xC2U \u0110\u1ED0 \u0110\xC8N LI\xCAN K\u1EBET (3x3)"
+  m_text: LINKED LIGHTS PUZZLE (3x3)
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
   m_sharedMaterial: {fileID: 7940830116172583300, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
@@ -1076,9 +1076,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "B\u1EA5m v\xE0o m\u1ED9t \xF4 s\u1EBD \u0111\u1EA3o tr\u1EA1ng th\xE1i
-    c\u1EE7a \xF4 \u0111\xF3 v\xE0 c\xE1c \xF4 li\u1EC1n k\u1EC1 (ngang / d\u1ECDc).
-    T\u1EAFt h\u1EBFt 9 \u0111\xE8n \u0111\u1EC3 m\u1EDF c\u1ED5ng!"
+  m_text: 'Clicking a tile toggles its state and adjacent tiles (cross shape).
+
+    Turn
+    off all 9 lights to open the gate!'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
   m_sharedMaterial: {fileID: 7940830116172583300, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
@@ -2367,7 +2368,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u0110\u1EB6T L\u1EA0I (Ph\xEDm R)"
+  m_text: RESET (R Key)
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
   m_sharedMaterial: {fileID: 7940830116172583300, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
@@ -3004,8 +3005,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "B\u1EA5m tr\u1EF1c ti\u1EBFp v\xE0o \xF4 s\u1ED1 (ho\u1EB7c nh\u1EA5n
-    ph\xEDm 1\u20139) | R: \u0110\u1EB7t l\u1EA1i | E: Tho\xE1t"
+  m_text: "Click directly on tiles (or press 1\u20139) | R: Reset | E: Exit"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
   m_sharedMaterial: {fileID: 7940830116172583300, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}

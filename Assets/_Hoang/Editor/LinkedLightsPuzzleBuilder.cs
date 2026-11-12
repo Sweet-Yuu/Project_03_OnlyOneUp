@@ -46,9 +46,9 @@ namespace Hoang.Editor
                 terminal.transform.localPosition = new Vector3(-4.7f, 0f, 0f);
                 CreateBox("Board", terminal.transform, new Vector3(0f, 2.5f, 1f), new Vector3(4.5f, 5f, 0.3f), stone);
                 CreateText("Title", terminal.transform, new Vector3(0f, 4.6f, 0.82f), new Vector2(4.2f, 0.5f), 3.5f,
-                    "ĐÈN LIÊN KẾT", font);
+                    "LINKED LIGHTS", font);
                 CreateText("Rules", terminal.transform, new Vector3(0f, 4.1f, 0.82f), new Vector2(4.2f, 0.45f), 1.7f,
-                    "Chọn một ô sẽ đảo nó\nvà các ô sát cạnh ngang/dọc.", font);
+                    "Selecting a tile toggles it\nand adjacent horizontal/vertical tiles.", font);
 
                 var initial = new LinkedLightsBoard(new[] { 1, 2, 4, 5, 9 });
                 var lamps = new MeshRenderer[9];
@@ -64,7 +64,7 @@ namespace Hoang.Editor
                         new Vector2(0.6f, 0.25f), 1.8f, button.ToString(), font);
                 }
                 TMP_Text status = CreateText("Status", terminal.transform, new Vector3(0f, 0.35f, 0.82f),
-                    new Vector2(4.2f, 0.65f), 1.7f, "Tắt hết đèn để mở cổng.\nĐứng gần và nhấn E để chơi.", font);
+                    new Vector2(4.2f, 0.65f), 1.7f, "Turn off all lights to open gate.\nStand near and press E to play.", font);
                 BoxCollider trigger = terminal.AddComponent<BoxCollider>();
                 trigger.isTrigger = true;
                 trigger.center = new Vector3(0f, 1f, -1f);

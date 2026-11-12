@@ -330,8 +330,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "B\xC0N NH\u1EACP M\xC3\n\n\u0110\u1EE9ng g\u1EA7n v\xE0 nh\u1EA5n E\n\u0111\u1EC3
-    nh\u1EADp 3 ch\u1EEF s\u1ED1."
+  m_text: 'CIPHER CONSOLE
+
+
+    Stand near and press E
+
+    to enter 3 digits.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
   m_sharedMaterial: {fileID: 7940830116172583300, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
@@ -701,8 +705,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 340125033adca0b49a1977b9255a7c8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Hoang.Puzzles.SymbolCipherConsole
-  _puzzle: {fileID: 7525021826417603204}
-  _displayText: {fileID: 2646854665511673663}
+  puzzle: {fileID: 7525021826417603204}
+  displayText: {fileID: 2646854665511673663}
+  zoomUI: {fileID: 0}
 --- !u!1 &5251589152659013078
 GameObject:
   m_ObjectHideFlags: 0
@@ -1033,11 +1038,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "GI\u1EA2I M\xC3 C\u1ED4NG \u0110\xC1\n\n<color=#F7C55B>\u25CF</color>
-    + <color=#68D5EF>\u25B2</color> = 7\n<color=#68D5EF>\u25B2</color> + <color=#A4DE83>\u25A0</color>
-    = 5\n<color=#F7C55B>\u25CF</color> + <color=#A4DE83>\u25A0</color> = 8\n\nM\u1ED7i
-    k\xFD hi\u1EC7u l\xE0 m\u1ED9t ch\u1EEF s\u1ED1 0\u20139.\nNh\u1EADp theo th\u1EE9
-    t\u1EF1: <color=#F7C55B>\u25CF</color>  <color=#68D5EF>\u25B2</color>  <color=#A4DE83>\u25A0</color>"
+  m_text: "STONE GATE CIPHER\n\n<color=#F7C55B>\u25CF</color> + <color=#68D5EF>\u25B2</color>
+    = 7\n<color=#68D5EF>\u25B2</color> + <color=#A4DE83>\u25A0</color> = 5\n<color=#F7C55B>\u25CF</color>
+    + <color=#A4DE83>\u25A0</color> = 8\n\nEach symbol is a digit 0\u20139.\nEnter
+    in order: <color=#F7C55B>\u25CF</color>  <color=#68D5EF>\u25B2</color>  <color=#A4DE83>\u25A0</color>"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
   m_sharedMaterial: {fileID: 7940830116172583300, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
@@ -1308,6 +1312,13 @@ MonoBehaviour:
   _clueText: {fileID: 3975533310795572415}
   _consolePoint: {fileID: 3997689116894243166}
   _interactionDistance: 5
+  instantSolve: 0
+  passThroughOnSolved: 1
+  sinkBoardsOnSolved: 1
+  clueBoardTransform: {fileID: 0}
+  consoleTransform: {fileID: 0}
+  sinkOffset: 5
+  sinkSpeed: 6
 --- !u!1 &7544642309482926780
 GameObject:
   m_ObjectHideFlags: 0

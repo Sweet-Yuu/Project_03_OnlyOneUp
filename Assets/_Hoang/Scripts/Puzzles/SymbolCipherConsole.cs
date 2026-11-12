@@ -114,7 +114,7 @@ namespace Hoang.Puzzles
                 if (Time.unscaledTime >= responseDeadline)
                 {
                     isWaiting = false;
-                    displayText.text = "Chưa nhận được phản hồi.\nEnter để thử lại / E để thoát.";
+                    displayText.text = "No response received.\nEnter to retry / E to exit.";
                 }
                 return;
             }
@@ -141,13 +141,13 @@ namespace Hoang.Puzzles
 
             if (entry.Length != 3)
             {
-                displayText.text = "Cần nhập đủ 3 chữ số.\nBackspace: xóa / E: thoát";
+                displayText.text = "Must enter 3 digits.\nBackspace: clear / E: exit";
                 return;
             }
 
             isWaiting = true;
             responseDeadline = Time.unscaledTime + 5f;
-            displayText.text = "Đang kiểm tra mã...";
+            displayText.text = "Checking code...";
             puzzle.SubmitCode(entry);
         }
 
@@ -188,7 +188,7 @@ namespace Hoang.Puzzles
 
             if (!isEditing) return;
             entry = "";
-            displayText.text = "Mã chưa đúng hoặc chưa thể tương tác.\nHãy đọc lại gợi ý và thử lại.\n\n_ _ _\nE: thoát";
+            displayText.text = "Incorrect code or cannot interact.\nPlease check clues and try again.\n\n_ _ _\nE: exit";
         }
 
         private void HandleSolved(bool solved)
@@ -210,16 +210,16 @@ namespace Hoang.Puzzles
 
         private void ShowEntry()
         {
-            displayText.text = "MÃ: " + entry.PadRight(3, '_') +
-                "\n\n0–9: nhập / Enter: xác nhận\nBackspace: xóa / E: thoát";
+            displayText.text = "CODE: " + entry.PadRight(3, '_') +
+                "\n\n0–9: enter / Enter: confirm\nBackspace: clear / E: exit";
         }
 
         private void ShowIdle()
         {
             if (displayText == null) return;
             displayText.text = puzzle != null && puzzle.IsSolved
-                ? "ĐÃ GIẢI MÃ\nLỐI ĐI ĐÃ MỞ"
-                : "BÀN NHẬP MÃ\n\nĐứng gần và nhấn E\nđể nhập 3 chữ số.";
+                ? "DECODED\nPATH OPENED"
+                : "CIPHER CONSOLE\n\nStand near and press E\nto enter 3 digits.";
         }
     }
 }

@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -11,6 +12,7 @@ public sealed class GameWinPanelPresenter : MonoBehaviour
     private NetworkNest _nest;
     private Button _menuButton;
     private NetworkManager _manager;
+    private TMP_Text completionTimeText;
     private bool _won;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -62,11 +64,78 @@ public sealed class GameWinPanelPresenter : MonoBehaviour
     private void Show(bool won)
     {
         if (_nest == null || !_nest.IsSpawned) return;
+        bool wasWon = _won;
         _won = won;
         if (_panel != null) _panel.SetActive(won);
-        if (!won) return;
+
+        if (!won)
+        {
+            if (wasWon && GameSpeedrunTimer.Instance != null)
+                GameSpeedrunTimer.Instance.NotifyRoundRestarted();
+            return;
+        }
+
+        if (GameSpeedrunTimer.Instance != null)
+            GameSpeedrunTimer.Instance.NotifyRoundWon();
+
+        if (gameObject.scene.name == GameSpeedrunTimer.MainMapSceneName)
+            UpdateCompletionTimeLabel();
+
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+    }
+
+    private void UpdateCompletionTimeLabel()
+    {
+        if (_panel == null) return;
+
+        if (completionTimeText == null)
+        {
+            Transform existing = _panel.transform.Find("GameWinCompletionTime");
+            if (existing != null) existing.TryGetComponent(out completionTimeText);
+        }
+
+        if (completionTimeText == null)
+            completionTimeText = CreateCompletionTimeLabel();
+
+        float totalSeconds = GameSpeedrunTimer.Instance != null ? GameSpeedrunTimer.Instance.ElapsedSeconds : 0f;
+        completionTimeText.text = $"TIME: {GameSpeedrunTimer.FormatTime(totalSeconds, true)}";
+        completionTimeText.gameObject.SetActive(true);
+    }
+
+    private TMP_Text CreateCompletionTimeLabel()
+    {
+        var labelObj = new GameObject("GameWinCompletionTime", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+        labelObj.transform.SetParent(_panel.transform, false);
+
+        RectTransform rect = labelObj.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0.5f, 0.5f);
+        rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        // Đặt vào khoảng trống giữa GameWinSubtitle (y = 135) và RetryButton (y = 5).
+        rect.anchoredPosition = new Vector2(0f, 74f);
+        rect.sizeDelta = new Vector2(660f, 44f);
+
+        TextMeshProUGUI label = labelObj.GetComponent<TextMeshProUGUI>();
+        TMP_Text subtitle = FindSubtitleTemplate();
+        if (subtitle != null && subtitle.font != null) label.font = subtitle.font;
+        label.fontSize = 32f;
+        label.fontStyle = FontStyles.Bold;
+        label.color = new Color(1f, 0.88f, 0.35f, 1f);
+        label.alignment = TextAlignmentOptions.Center;
+        label.textWrappingMode = TextWrappingModes.NoWrap;
+        label.raycastTarget = false;
+        label.richText = false;
+        return label;
+    }
+
+    private TMP_Text FindSubtitleTemplate()
+    {
+        foreach (TMP_Text candidate in _panel.GetComponentsInChildren<TMP_Text>(true))
+        {
+            if (candidate.gameObject.name == "GameWinSubtitle") return candidate;
+        }
+        return _panel.GetComponentInChildren<TMP_Text>(true);
     }
 
     private void OnDestroy()
