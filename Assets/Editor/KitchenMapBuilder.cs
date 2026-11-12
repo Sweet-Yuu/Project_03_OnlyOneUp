@@ -1152,7 +1152,7 @@ public static class KitchenMapBuilder
         Undo.RegisterCreatedObjectUndo(coinObj, "Create Coin " + id);
         coinObj.name = $"Gold_Coin_Unity_{id}";
         coinObj.transform.position = pos;
-        coinObj.transform.localScale = new Vector3(2.5f, 2.5f, 2.5f);
+        coinObj.transform.localScale = new Vector3(100f, 100f, 100f);
         coinObj.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
 
         var netObj = coinObj.GetComponent<NetworkObject>();
@@ -1162,7 +1162,8 @@ public static class KitchenMapBuilder
         if (col == null)
         {
             var sphereCol = coinObj.AddComponent<SphereCollider>();
-            sphereCol.radius = 1.0f;
+            // Model Gold_Coin_Unity có đơn vị cm nên scale 100 cần bán kính local nhỏ để trigger ~1.2m ngoài world.
+            sphereCol.radius = 0.012f;
             sphereCol.isTrigger = true;
         }
         else
