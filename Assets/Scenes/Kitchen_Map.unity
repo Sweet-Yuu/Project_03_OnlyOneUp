@@ -295,7 +295,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.012
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &3580704
 PrefabInstance:
@@ -1225,7 +1225,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.012
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &18514760
 PrefabInstance:
@@ -9885,7 +9885,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.012
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &178141718
 PrefabInstance:
@@ -13058,7 +13058,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.012
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &239069602
 PrefabInstance:
@@ -16227,7 +16227,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.012
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &301600445
 PrefabInstance:
@@ -16405,7 +16405,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.012
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &303215187
 PrefabInstance:
@@ -16799,7 +16799,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.012
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &306652024
 PrefabInstance:
@@ -28367,7 +28367,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.012
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &542768411
 GameObject:
@@ -40340,7 +40340,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.012
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &813238637
 GameObject:
@@ -44684,7 +44684,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.012
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &886210736
 PrefabInstance:
@@ -53689,7 +53689,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.012
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1067640982
 PrefabInstance:
@@ -57462,7 +57462,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.012
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1153429306
 PrefabInstance:
@@ -58238,7 +58238,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.012
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1166113335
 PrefabInstance:
@@ -60394,7 +60394,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.012
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1201285111
 PrefabInstance:
@@ -83576,7 +83576,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.012
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1729082911
 GameObject:
@@ -90725,7 +90725,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.012
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1894018572
 PrefabInstance:
@@ -94819,7 +94819,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.012
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1971710771
 PrefabInstance:
@@ -95891,7 +95891,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.012
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1996131585
 PrefabInstance:
@@ -96177,7 +96177,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.012
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1998129031
 PrefabInstance:
@@ -96575,7 +96575,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
+  m_Radius: 0.012
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &2001952495
 PrefabInstance:
