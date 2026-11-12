@@ -62,7 +62,7 @@ public static class TutorialPanelBuilder
         winRect.anchorMin = new Vector2(0.5f, 0.5f);
         winRect.anchorMax = new Vector2(0.5f, 0.5f);
         winRect.pivot = new Vector2(0.5f, 0.5f);
-        winRect.sizeDelta = new Vector2(920f, 600f);
+        winRect.sizeDelta = new Vector2(1100f, 700f);
         Image winImage = window.GetComponent<Image>();
         winImage.color = new Color(0.12f, 0.15f, 0.22f, 0.96f);
 
@@ -73,7 +73,7 @@ public static class TutorialPanelBuilder
         headerRect.anchorMin = new Vector2(0f, 1f);
         headerRect.anchorMax = new Vector2(1f, 1f);
         headerRect.pivot = new Vector2(0.5f, 1f);
-        headerRect.sizeDelta = new Vector2(0f, 75f);
+        headerRect.sizeDelta = new Vector2(0f, 90f);
         Image headerImage = headerBar.GetComponent<Image>();
         headerImage.color = new Color(0.18f, 0.22f, 0.32f, 1f);
 
@@ -83,23 +83,22 @@ public static class TutorialPanelBuilder
         RectTransform titleRect = titleObj.GetComponent<RectTransform>();
         titleRect.anchorMin = new Vector2(0f, 0f);
         titleRect.anchorMax = new Vector2(1f, 1f);
-        titleRect.offsetMin = new Vector2(30f, 0f);
-        titleRect.offsetMax = new Vector2(-80f, 0f);
+        titleRect.offsetMin = new Vector2(40f, 0f);
+        titleRect.offsetMax = new Vector2(-90f, 0f);
         TextMeshProUGUI titleText = titleObj.GetComponent<TextMeshProUGUI>();
         if (fontAsset != null) titleText.font = fontAsset;
-        titleText.text = "HƯỚNG DẪN CHƠI - ONLY ONE UP";
-        titleText.fontSize = 32f;
+        titleText.text = "HOW TO PLAY - ONLY ONE UP";
+        titleText.fontSize = 40f;
         titleText.alignment = TextAlignmentOptions.MidlineLeft;
         titleText.color = new Color(1f, 0.82f, 0.35f, 1f);
-        titleText.fontStyle = FontStyles.Bold;
 
         // Close Button [X]
-        GameObject closeBtnObj = CreateButton(headerBar.transform, "CloseButton", "✕", new Vector2(48f, 48f), new Color(0.85f, 0.28f, 0.25f, 1f), fontAsset, 24f);
+        GameObject closeBtnObj = CreateButton(headerBar.transform, "CloseButton", "X", new Vector2(56f, 56f), new Color(0.85f, 0.28f, 0.25f, 1f), fontAsset, 28f);
         RectTransform closeBtnRect = closeBtnObj.GetComponent<RectTransform>();
         closeBtnRect.anchorMin = new Vector2(1f, 0.5f);
         closeBtnRect.anchorMax = new Vector2(1f, 0.5f);
         closeBtnRect.pivot = new Vector2(1f, 0.5f);
-        closeBtnRect.anchoredPosition = new Vector2(-15f, 0f);
+        closeBtnRect.anchoredPosition = new Vector2(-20f, 0f);
 
         // Content Area
         GameObject contentArea = new GameObject("ContentArea", typeof(RectTransform));
@@ -107,32 +106,32 @@ public static class TutorialPanelBuilder
         RectTransform contentRect = contentArea.GetComponent<RectTransform>();
         contentRect.anchorMin = new Vector2(0f, 0f);
         contentRect.anchorMax = new Vector2(1f, 1f);
-        contentRect.offsetMin = new Vector2(30f, 85f);
-        contentRect.offsetMax = new Vector2(-30f, -85f);
+        contentRect.offsetMin = new Vector2(40f, 115f);
+        contentRect.offsetMax = new Vector2(-40f, -100f);
 
         // 4. Create Pages
         GameObject page1 = CreatePage(contentArea.transform, "Page_01_Movement",
-            "1. CÁCH DI CHUYỂN",
-            "<color=#FBD38D><b>[ W ][ A ][ S ][ D ]</b></color>  hoặc các phím mũi tên  <color=#FBD38D><b>[ ↑ ][ ↓ ][ ← ][ → ]</b></color>",
-            "• Sử dụng các phím để điều khiển chú vịt của bạn di chuyển.\n\n" +
-            "• <b>Cơ chế giữ tổ:</b> Bạn và đồng đội đang cùng nhau nâng một chiếc tổ chứa trứng.\n\n" +
-            "• <b>Lưu ý quan trọng:</b> Hãy di chuyển nhịp nhàng cùng bạn chơi! Đi quá xa hoặc giật đột ngột sẽ kéo nghiêng tổ và khiến quả trứng dễ bị lăn ra ngoài.",
+            "1. MOVEMENT",
+            "<color=#FBD38D><b>[ W ][ A ][ S ][ D ]</b></color>  or the  <color=#FBD38D><b>ARROW KEYS</b></color>",
+            "- Use the keys to move your duck around.\n\n" +
+            "- <b>Carrying the nest:</b> You and your partner are carrying a nest with an egg inside.\n\n" +
+            "- <b>Stay in sync:</b> Move together! Straying too far or turning suddenly tilts the nest, and the egg may roll out.",
             fontAsset);
 
         GameObject page2 = CreatePage(contentArea.transform, "Page_02_Jump",
-            "2. NHẢY VƯỢT CHƯỚNG NGẠI VẬT",
-            "Phím nhảy:  <color=#FBD38D><b>[ SPACEBAR ] (Phím Cách)</b></color>",
-            "• Nhấn phím <b>Space</b> để nhảy lên các khối đá và vượt qua chướng ngại vật.\n\n" +
-            "• <b>Nhảy đồng bộ:</b> Khi gặp gờ cao, cả hai người chơi cần <b>cùng nhảy ăn ý</b> với nhau.\n\n" +
-            "• <b>Cảnh báo:</b> Nếu một người nhảy mà người kia đứng yên, tổ sẽ bị lật nghiêng sang một bên khiến trứng rơi vực ngay lập tức!",
+            "2. JUMPING OVER OBSTACLES",
+            "Jump key:  <color=#FBD38D><b>[ SPACE ]</b></color>",
+            "- Press <b>Space</b> to jump onto blocks and clear obstacles.\n\n" +
+            "- <b>Jump together:</b> At a high ledge, both players must <b>jump at the same time</b>.\n\n" +
+            "- <b>Warning:</b> If only one player jumps, the nest tips over and the egg falls into the pit!",
             fontAsset);
 
         GameObject page3 = CreatePage(contentArea.transform, "Page_03_Rules",
-            "3. LUẬT CHƠI & BẢO VỆ TRỨNG",
-            "Mục tiêu tối thượng:  <color=#68D391><b>ĐƯA TRỨNG VỀ ĐÍCH AN TOÀN</b></color>",
-            "• <b>Độ bền của trứng:</b> Tránh để tổ va quệt mạnh vào vách núi hoặc chướng ngại vật. Va đập mạnh có thể làm nứt hoặc vỡ trứng!\n\n" +
-            "• <b>Điểm hồi sinh (Checkpoint):</b> Khi trứng bị vỡ hoặc hai bạn rơi vực, đội sẽ được hồi sinh tại Checkpoint gần nhất.\n\n" +
-            "• <b>Chiến thắng:</b> Hãy cùng nhau leo lên đỉnh và đưa chiếc tổ chạm vào <color=#FBD38D><b>Vùng Đích (Win Area)</b></color> để giành chiến thắng!",
+            "3. RULES & PROTECTING THE EGG",
+            "Your goal:  <color=#68D391><b>GET THE EGG TO THE FINISH SAFELY</b></color>",
+            "- <b>Egg durability:</b> Avoid hitting walls or obstacles hard with the nest. A heavy hit can crack or break the egg!\n\n" +
+            "- <b>Checkpoints:</b> If the egg breaks or you both fall, your team respawns at the nearest checkpoint.\n\n" +
+            "- <b>Victory:</b> Climb to the top together and carry the nest into the <color=#FBD38D><b>Win Area</b></color> to win!",
             fontAsset);
 
         // 5. Footer Bar
@@ -142,15 +141,15 @@ public static class TutorialPanelBuilder
         footerRect.anchorMin = new Vector2(0f, 0f);
         footerRect.anchorMax = new Vector2(1f, 0f);
         footerRect.pivot = new Vector2(0.5f, 0f);
-        footerRect.sizeDelta = new Vector2(0f, 75f);
+        footerRect.sizeDelta = new Vector2(0f, 110f);
 
         // Prev Button
-        GameObject prevBtnObj = CreateButton(footerBar.transform, "PrevButton", "< Trang trước", new Vector2(170f, 50f), new Color(0.24f, 0.28f, 0.38f, 1f), fontAsset, 20f);
+        GameObject prevBtnObj = CreateButton(footerBar.transform, "PrevButton", "< Prev", new Vector2(200f, 56f), new Color(0.24f, 0.28f, 0.38f, 1f), fontAsset, 26f);
         RectTransform prevBtnRect = prevBtnObj.GetComponent<RectTransform>();
         prevBtnRect.anchorMin = new Vector2(0f, 0.5f);
         prevBtnRect.anchorMax = new Vector2(0f, 0.5f);
         prevBtnRect.pivot = new Vector2(0f, 0.5f);
-        prevBtnRect.anchoredPosition = new Vector2(30f, 0f);
+        prevBtnRect.anchoredPosition = new Vector2(40f, 12f);
 
         // Page Indicator
         GameObject indicatorObj = new GameObject("PageIndicator", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
@@ -159,21 +158,22 @@ public static class TutorialPanelBuilder
         indRect.anchorMin = new Vector2(0.5f, 0.5f);
         indRect.anchorMax = new Vector2(0.5f, 0.5f);
         indRect.pivot = new Vector2(0.5f, 0.5f);
-        indRect.sizeDelta = new Vector2(250f, 40f);
+        indRect.sizeDelta = new Vector2(300f, 50f);
+        indRect.anchoredPosition = new Vector2(0f, 12f);
         TextMeshProUGUI indText = indicatorObj.GetComponent<TextMeshProUGUI>();
         if (fontAsset != null) indText.font = fontAsset;
-        indText.text = "Trang 1 / 3";
-        indText.fontSize = 20f;
+        indText.text = "Page 1 / 3";
+        indText.fontSize = 26f;
         indText.alignment = TextAlignmentOptions.Center;
         indText.color = new Color(0.85f, 0.88f, 0.95f, 1f);
 
         // Next Button
-        GameObject nextBtnObj = CreateButton(footerBar.transform, "NextButton", "Trang sau >", new Vector2(170f, 50f), new Color(0.95f, 0.55f, 0.15f, 1f), fontAsset, 20f);
+        GameObject nextBtnObj = CreateButton(footerBar.transform, "NextButton", "Next >", new Vector2(200f, 56f), new Color(0.95f, 0.55f, 0.15f, 1f), fontAsset, 26f);
         RectTransform nextBtnRect = nextBtnObj.GetComponent<RectTransform>();
         nextBtnRect.anchorMin = new Vector2(1f, 0.5f);
         nextBtnRect.anchorMax = new Vector2(1f, 0.5f);
         nextBtnRect.pivot = new Vector2(1f, 0.5f);
-        nextBtnRect.anchoredPosition = new Vector2(-30f, 0f);
+        nextBtnRect.anchoredPosition = new Vector2(-40f, 12f);
 
         // Hint Shortcut Text
         GameObject hintObj = new GameObject("HintText", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
@@ -182,12 +182,12 @@ public static class TutorialPanelBuilder
         hintRect.anchorMin = new Vector2(0.5f, 0f);
         hintRect.anchorMax = new Vector2(0.5f, 0f);
         hintRect.pivot = new Vector2(0.5f, 0f);
-        hintRect.anchoredPosition = new Vector2(0f, 8f);
-        hintRect.sizeDelta = new Vector2(600f, 25f);
+        hintRect.anchoredPosition = new Vector2(0f, 6f);
+        hintRect.sizeDelta = new Vector2(800f, 28f);
         TextMeshProUGUI hintText = hintObj.GetComponent<TextMeshProUGUI>();
         if (fontAsset != null) hintText.font = fontAsset;
-        hintText.text = "💡 Mẹo: Bạn có thể nhấn phím [H] hoặc [F1] để xem lại hướng dẫn bất kỳ lúc nào.";
-        hintText.fontSize = 14f;
+        hintText.text = "Tip: Press [H] or [F1] to reopen this guide at any time.";
+        hintText.fontSize = 18f;
         hintText.alignment = TextAlignmentOptions.Center;
         hintText.color = new Color(0.65f, 0.70f, 0.80f, 0.85f);
 
@@ -244,12 +244,11 @@ public static class TutorialPanelBuilder
         titleRect.anchorMax = new Vector2(1f, 1f);
         titleRect.pivot = new Vector2(0f, 1f);
         titleRect.anchoredPosition = new Vector2(10f, -5f);
-        titleRect.sizeDelta = new Vector2(-20f, 38f);
+        titleRect.sizeDelta = new Vector2(-20f, 48f);
         TextMeshProUGUI titleTMP = titleObj.GetComponent<TextMeshProUGUI>();
         if (font != null) titleTMP.font = font;
         titleTMP.text = pageTitle;
-        titleTMP.fontSize = 24f;
-        titleTMP.fontStyle = FontStyles.Bold;
+        titleTMP.fontSize = 34f;
         titleTMP.color = new Color(0.95f, 0.95f, 0.98f, 1f);
 
         // Badge Box / Highlight Box
@@ -259,8 +258,8 @@ public static class TutorialPanelBuilder
         badgeRect.anchorMin = new Vector2(0f, 1f);
         badgeRect.anchorMax = new Vector2(1f, 1f);
         badgeRect.pivot = new Vector2(0.5f, 1f);
-        badgeRect.anchoredPosition = new Vector2(0f, -48f);
-        badgeRect.sizeDelta = new Vector2(0f, 52f);
+        badgeRect.anchoredPosition = new Vector2(0f, -60f);
+        badgeRect.sizeDelta = new Vector2(0f, 64f);
         Image badgeImg = badgeBox.GetComponent<Image>();
         badgeImg.color = new Color(0.18f, 0.23f, 0.34f, 0.85f);
 
@@ -269,12 +268,12 @@ public static class TutorialPanelBuilder
         RectTransform badgeTextRect = badgeTextObj.GetComponent<RectTransform>();
         badgeTextRect.anchorMin = Vector2.zero;
         badgeTextRect.anchorMax = Vector2.one;
-        badgeTextRect.offsetMin = new Vector2(15f, 0f);
-        badgeTextRect.offsetMax = new Vector2(-15f, 0f);
+        badgeTextRect.offsetMin = new Vector2(20f, 0f);
+        badgeTextRect.offsetMax = new Vector2(-20f, 0f);
         TextMeshProUGUI badgeTMP = badgeTextObj.GetComponent<TextMeshProUGUI>();
         if (font != null) badgeTMP.font = font;
         badgeTMP.text = badgeText;
-        badgeTMP.fontSize = 20f;
+        badgeTMP.fontSize = 26f;
         badgeTMP.alignment = TextAlignmentOptions.MidlineLeft;
         badgeTMP.color = Color.white;
 
@@ -284,13 +283,16 @@ public static class TutorialPanelBuilder
         RectTransform bodyRect = bodyObj.GetComponent<RectTransform>();
         bodyRect.anchorMin = new Vector2(0f, 0f);
         bodyRect.anchorMax = new Vector2(1f, 1f);
-        bodyRect.offsetMin = new Vector2(10f, 15f);
-        bodyRect.offsetMax = new Vector2(-10f, -115f);
+        bodyRect.offsetMin = new Vector2(10f, 10f);
+        bodyRect.offsetMax = new Vector2(-10f, -150f);
         TextMeshProUGUI bodyTMP = bodyObj.GetComponent<TextMeshProUGUI>();
         if (font != null) bodyTMP.font = font;
         bodyTMP.text = bodyText;
-        bodyTMP.fontSize = 19f;
-        bodyTMP.lineSpacing = 18f;
+        bodyTMP.fontSize = 26f;
+        bodyTMP.enableAutoSizing = true;
+        bodyTMP.fontSizeMin = 18f;
+        bodyTMP.fontSizeMax = 26f;
+        bodyTMP.lineSpacing = 8f;
         bodyTMP.alignment = TextAlignmentOptions.TopLeft;
         bodyTMP.color = new Color(0.85f, 0.88f, 0.93f, 1f);
 
@@ -328,7 +330,6 @@ public static class TutorialPanelBuilder
         if (font != null) tmp.font = font;
         tmp.text = text;
         tmp.fontSize = fontSize;
-        tmp.fontStyle = FontStyles.Bold;
         tmp.alignment = TextAlignmentOptions.Center;
         tmp.color = Color.white;
 

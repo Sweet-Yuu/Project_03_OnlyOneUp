@@ -10989,7 +10989,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 75}
+  m_SizeDelta: {x: 0, y: 110}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!1001 &205428394
 PrefabInstance:
@@ -14193,8 +14193,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -50}
-  m_SizeDelta: {x: -20, y: -130}
+  m_AnchoredPosition: {x: 0, y: -70}
+  m_SizeDelta: {x: -20, y: -160}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &267703789
 MonoBehaviour:
@@ -14216,15 +14216,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u2022 <b>\u0110\u1ED9 b\u1EC1n c\u1EE7a tr\u1EE9ng:</b> Tr\xE1nh \u0111\u1EC3
-    t\u1ED5 va qu\u1EC7t m\u1EA1nh v\xE0o v\xE1ch n\xFAi ho\u1EB7c ch\u01B0\u1EDBng
-    ng\u1EA1i v\u1EADt. Va \u0111\u1EADp m\u1EA1nh c\xF3 th\u1EC3 l\xE0m n\u1EE9t
-    ho\u1EB7c v\u1EE1 tr\u1EE9ng!\n\n\u2022 <b>\u0110i\u1EC3m h\u1ED3i sinh (Checkpoint):</b>
-    Khi tr\u1EE9ng b\u1ECB v\u1EE1 ho\u1EB7c hai b\u1EA1n r\u01A1i v\u1EF1c, \u0111\u1ED9i
-    s\u1EBD \u0111\u01B0\u1EE3c h\u1ED3i sinh t\u1EA1i Checkpoint g\u1EA7n nh\u1EA5t.\n\n\u2022
-    <b>Chi\u1EBFn th\u1EAFng:</b> H\xE3y c\xF9ng nhau leo l\xEAn \u0111\u1EC9nh v\xE0
-    \u0111\u01B0a chi\u1EBFc t\u1ED5 ch\u1EA1m v\xE0o <color=#FBD38D><b>V\xF9ng \u0110\xEDch
-    (Win Area)</b></color> \u0111\u1EC3 gi\xE0nh chi\u1EBFn th\u1EAFng!"
+  m_text: "- <b>Egg durability:</b> Avoid hitting walls or obstacles hard with the nest. A heavy hit can crack or break the egg!\n\n- <b>Checkpoints:</b> If the egg breaks or you both fall, your team respawns at the nearest checkpoint.\n\n- <b>Victory:</b> Climb to the top together and carry the nest into the <color=#FBD38D><b>Win Area</b></color> to win!"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
   m_sharedMaterial: {fileID: -5956804898211954380, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
@@ -14251,12 +14243,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 19
-  m_fontSizeBase: 19
+  m_fontSize: 26
+  m_fontSizeBase: 26
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 26
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
@@ -14264,7 +14256,7 @@ MonoBehaviour:
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
-  m_lineSpacing: 18
+  m_lineSpacing: 8
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
@@ -18011,7 +18003,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -25, y: 0}
-  m_SizeDelta: {x: -110, y: 0}
+  m_SizeDelta: {x: -130, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &332613129
 MonoBehaviour:
@@ -18033,7 +18025,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "H\u01AF\u1EDANG D\u1EAAN CH\u01A0I - ONLY ONE UP"
+  m_text: "HOW TO PLAY - ONLY ONE UP"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
   m_sharedMaterial: {fileID: -5956804898211954380, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
@@ -18060,13 +18052,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 32
-  m_fontSizeBase: 32
+  m_fontSize: 40
+  m_fontSizeBase: 40
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 4096
   m_textAlignment: 65535
@@ -18494,7 +18486,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "< Trang tr\u01B0\u1EDBc"
+  m_text: "< Prev"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
   m_sharedMaterial: {fileID: -5956804898211954380, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
@@ -18521,13 +18513,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 26
+  m_fontSizeBase: 26
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -19978,7 +19970,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 75}
+  m_SizeDelta: {x: 0, y: 90}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &368648295
 MonoBehaviour:
@@ -20491,8 +20483,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -48}
-  m_SizeDelta: {x: 0, y: 52}
+  m_AnchoredPosition: {x: 0, y: -60}
+  m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &379990442
 MonoBehaviour:
@@ -20566,8 +20558,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -50}
-  m_SizeDelta: {x: -20, y: -130}
+  m_AnchoredPosition: {x: 0, y: -70}
+  m_SizeDelta: {x: -20, y: -160}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &380151360
 MonoBehaviour:
@@ -20589,14 +20581,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u2022 Nh\u1EA5n ph\xEDm <b>Space</b> \u0111\u1EC3 nh\u1EA3y l\xEAn c\xE1c
-    kh\u1ED1i \u0111\xE1 v\xE0 v\u01B0\u1EE3t qua ch\u01B0\u1EDBng ng\u1EA1i v\u1EADt.\n\n\u2022
-    <b>Nh\u1EA3y \u0111\u1ED3ng b\u1ED9:</b> Khi g\u1EB7p g\u1EDD cao, c\u1EA3 hai
-    ng\u01B0\u1EDDi ch\u01A1i c\u1EA7n <b>c\xF9ng nh\u1EA3y \u0103n \xFD</b> v\u1EDBi
-    nhau.\n\n\u2022 <b>C\u1EA3nh b\xE1o:</b> N\u1EBFu m\u1ED9t ng\u01B0\u1EDDi nh\u1EA3y
-    m\xE0 ng\u01B0\u1EDDi kia \u0111\u1EE9ng y\xEAn, t\u1ED5 s\u1EBD b\u1ECB l\u1EADt
-    nghi\xEAng sang m\u1ED9t b\xEAn khi\u1EBFn tr\u1EE9ng r\u01A1i v\u1EF1c ngay
-    l\u1EADp t\u1EE9c!"
+  m_text: "- Press <b>Space</b> to jump onto blocks and clear obstacles.\n\n- <b>Jump together:</b> At a high ledge, both players must <b>jump at the same time</b>.\n\n- <b>Warning:</b> If only one player jumps, the nest tips over and the egg falls into the pit!"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
   m_sharedMaterial: {fileID: -5956804898211954380, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
@@ -20623,12 +20608,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 19
-  m_fontSizeBase: 19
+  m_fontSize: 26
+  m_fontSizeBase: 26
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 26
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
@@ -20636,7 +20621,7 @@ MonoBehaviour:
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
-  m_lineSpacing: 18
+  m_lineSpacing: 8
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
@@ -21872,8 +21857,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 250, y: 40}
+  m_AnchoredPosition: {x: 0, y: 12}
+  m_SizeDelta: {x: 300, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &413369066
 MonoBehaviour:
@@ -21895,7 +21880,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Trang 1 / 3
+  m_text: "Page 1 / 3"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
   m_sharedMaterial: {fileID: -5956804898211954380, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
@@ -21922,8 +21907,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 26
+  m_fontSizeBase: 26
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -35374,7 +35359,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 10, y: -5}
-  m_SizeDelta: {x: -20, y: 38}
+  m_SizeDelta: {x: -20, y: 48}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &712522563
 MonoBehaviour:
@@ -35396,7 +35381,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "1. C\xC1CH DI CHUY\u1EC2N"
+  m_text: "1. MOVEMENT"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
   m_sharedMaterial: {fileID: -5956804898211954380, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
@@ -35423,13 +35408,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 34
+  m_fontSizeBase: 34
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
   m_textAlignment: 65535
@@ -38923,7 +38908,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -30, y: 0}
+  m_SizeDelta: {x: -40, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &797044246
 MonoBehaviour:
@@ -38945,8 +38930,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "<color=#FBD38D><b>[ W ][ A ][ S ][ D ]</b></color>  ho\u1EB7c c\xE1c ph\xEDm
-    m\u0169i t\xEAn  <color=#FBD38D><b>[ \u2191 ][ \u2193 ][ \u2190 ][ \u2192 ]</b></color>"
+  m_text: "<color=#FBD38D><b>[ W ][ A ][ S ][ D ]</b></color>  or the  <color=#FBD38D><b>ARROW KEYS</b></color>"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
   m_sharedMaterial: {fileID: -5956804898211954380, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
@@ -38973,8 +38957,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 26
+  m_fontSizeBase: 26
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -39168,8 +39152,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -50}
-  m_SizeDelta: {x: -20, y: -130}
+  m_AnchoredPosition: {x: 0, y: -70}
+  m_SizeDelta: {x: -20, y: -160}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &799683195
 MonoBehaviour:
@@ -39191,14 +39175,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u2022 S\u1EED d\u1EE5ng c\xE1c ph\xEDm \u0111\u1EC3 \u0111i\u1EC1u khi\u1EC3n
-    ch\xFA v\u1ECBt c\u1EE7a b\u1EA1n di chuy\u1EC3n.\n\n\u2022 <b>C\u01A1 ch\u1EBF
-    gi\u1EEF t\u1ED5:</b> B\u1EA1n v\xE0 \u0111\u1ED3ng \u0111\u1ED9i \u0111ang c\xF9ng
-    nhau n\xE2ng m\u1ED9t chi\u1EBFc t\u1ED5 ch\u1EE9a tr\u1EE9ng.\n\n\u2022 <b>L\u01B0u
-    \xFD quan tr\u1ECDng:</b> H\xE3y di chuy\u1EC3n nh\u1ECBp nh\xE0ng c\xF9ng b\u1EA1n
-    ch\u01A1i! \u0110i qu\xE1 xa ho\u1EB7c gi\u1EADt \u0111\u1ED9t ng\u1ED9t s\u1EBD
-    k\xE9o nghi\xEAng t\u1ED5 v\xE0 khi\u1EBFn qu\u1EA3 tr\u1EE9ng d\u1EC5 b\u1ECB
-    l\u0103n ra ngo\xE0i."
+  m_text: "- Use the keys to move your duck around.\n\n- <b>Carrying the nest:</b> You and your partner are carrying a nest with an egg inside.\n\n- <b>Stay in sync:</b> Move together! Straying too far or turning suddenly tilts the nest, and the egg may roll out."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
   m_sharedMaterial: {fileID: -5956804898211954380, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
@@ -39225,12 +39202,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 19
-  m_fontSizeBase: 19
+  m_fontSize: 26
+  m_fontSizeBase: 26
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 26
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
@@ -39238,7 +39215,7 @@ MonoBehaviour:
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
-  m_lineSpacing: 18
+  m_lineSpacing: 8
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
@@ -48216,8 +48193,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -15, y: 0}
-  m_SizeDelta: {x: 48, y: 48}
+  m_AnchoredPosition: {x: -20, y: 0}
+  m_SizeDelta: {x: 56, y: 56}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &950769420
 MonoBehaviour:
@@ -55094,8 +55071,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -48}
-  m_SizeDelta: {x: 0, y: 52}
+  m_AnchoredPosition: {x: 0, y: -60}
+  m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1102590588
 MonoBehaviour:
@@ -60859,7 +60836,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 10, y: -5}
-  m_SizeDelta: {x: -20, y: 38}
+  m_SizeDelta: {x: -20, y: 48}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1210016646
 MonoBehaviour:
@@ -60881,7 +60858,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "3. LU\u1EACT CH\u01A0I & B\u1EA2O V\u1EC6 TR\u1EE8NG"
+  m_text: "3. RULES & PROTECTING THE EGG"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
   m_sharedMaterial: {fileID: -5956804898211954380, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
@@ -60908,13 +60885,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 34
+  m_fontSizeBase: 34
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
   m_textAlignment: 65535
@@ -61213,8 +61190,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -30, y: 0}
-  m_SizeDelta: {x: 170, y: 50}
+  m_AnchoredPosition: {x: -40, y: 12}
+  m_SizeDelta: {x: 200, y: 56}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &1216804012
 MonoBehaviour:
@@ -64395,7 +64372,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 10, y: -5}
-  m_SizeDelta: {x: -20, y: 38}
+  m_SizeDelta: {x: -20, y: 48}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1295946778
 MonoBehaviour:
@@ -64417,7 +64394,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "2. NH\u1EA2Y V\u01AF\u1EE2T CH\u01AF\u1EDANG NG\u1EA0I V\u1EACT"
+  m_text: "2. JUMPING OVER OBSTACLES"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
   m_sharedMaterial: {fileID: -5956804898211954380, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
@@ -64444,13 +64421,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 34
+  m_fontSizeBase: 34
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
   m_textAlignment: 65535
@@ -67814,7 +67791,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -30, y: 0}
+  m_SizeDelta: {x: -40, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1393853656
 MonoBehaviour:
@@ -67836,8 +67813,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "M\u1EE5c ti\xEAu t\u1ED1i th\u01B0\u1EE3ng:  <color=#68D391><b>\u0110\u01AFA
-    TR\u1EE8NG V\u1EC0 \u0110\xCDCH AN TO\xC0N</b></color>"
+  m_text: "Your goal:  <color=#68D391><b>GET THE EGG TO THE FINISH SAFELY</b></color>"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
   m_sharedMaterial: {fileID: -5956804898211954380, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
@@ -67864,8 +67840,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 26
+  m_fontSizeBase: 26
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -68574,13 +68550,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -70538,7 +70514,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 920, y: 600}
+  m_SizeDelta: {x: 1100, y: 700}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1446550772
 MonoBehaviour:
@@ -77042,7 +77018,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Trang sau >
+  m_text: "Next >"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
   m_sharedMaterial: {fileID: -5956804898211954380, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
@@ -77069,13 +77045,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 26
+  m_fontSizeBase: 26
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -81809,8 +81785,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 8}
-  m_SizeDelta: {x: 600, y: 25}
+  m_AnchoredPosition: {x: 0, y: 6}
+  m_SizeDelta: {x: 800, y: 28}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1697461090
 MonoBehaviour:
@@ -81832,9 +81808,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "[*] M\u1EB9o: B\u1EA1n c\xF3 th\u1EC3 nh\u1EA5n ph\xEDm [H] ho\u1EB7c
-    [F1] \u0111\u1EC3 xem l\u1EA1i h\u01B0\u1EDBng d\u1EABn b\u1EA5t k\u1EF3 l\xFAc
-    n\xE0o."
+  m_text: "Tip: Press [H] or [F1] to reopen this guide at any time."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
   m_sharedMaterial: {fileID: -5956804898211954380, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
@@ -81861,8 +81835,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+  m_fontSize: 18
+  m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -83251,8 +83225,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -48}
-  m_SizeDelta: {x: 0, y: 52}
+  m_AnchoredPosition: {x: 0, y: -60}
+  m_SizeDelta: {x: 0, y: 64}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1725977757
 MonoBehaviour:
@@ -91823,7 +91797,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -30, y: 0}
+  m_SizeDelta: {x: -40, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1913158910
 MonoBehaviour:
@@ -91845,7 +91819,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Ph\xEDm nh\u1EA3y:  <color=#FBD38D><b>[ SPACEBAR ] (Ph\xEDm C\xE1ch)</b></color>"
+  m_text: "Jump key:  <color=#FBD38D><b>[ SPACE ]</b></color>"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
   m_sharedMaterial: {fileID: -5956804898211954380, guid: 5b89710dea255ae4fa799a0af4200fe3, type: 2}
@@ -91872,8 +91846,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 26
+  m_fontSizeBase: 26
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -93840,8 +93814,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 30, y: 0}
-  m_SizeDelta: {x: 170, y: 50}
+  m_AnchoredPosition: {x: 40, y: 12}
+  m_SizeDelta: {x: 200, y: 56}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1956129574
 MonoBehaviour:
@@ -94111,8 +94085,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -60, y: -170}
+  m_AnchoredPosition: {x: 0, y: 7.5}
+  m_SizeDelta: {x: -80, y: -215}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &1962969352
 PrefabInstance:

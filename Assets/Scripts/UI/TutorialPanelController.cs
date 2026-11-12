@@ -262,11 +262,11 @@ public sealed class TutorialPanelController : MonoBehaviour
 
         if (_nextButton != null)
         {
-            // Trang cuối có thể đổi text thành "BẮT ĐẦU CHƠI" hoặc giữ nút đóng
+            // Trang cuối có thể đổi text thành "Start Playing" hoặc giữ nút đóng
             TMP_Text nextText = _nextButton.GetComponentInChildren<TMP_Text>();
             if (nextText != null)
             {
-                nextText.text = (_currentPageIndex >= _pages.Length - 1) ? "Bắt đầu chơi >" : "Trang tiếp >";
+                nextText.text = (_currentPageIndex >= _pages.Length - 1) ? "Start Playing >" : "Next >";
             }
         }
     }
@@ -275,7 +275,7 @@ public sealed class TutorialPanelController : MonoBehaviour
     {
         if (_pageIndicatorText != null)
         {
-            _pageIndicatorText.text = $"Trang {_currentPageIndex + 1} / {TotalPages}";
+            _pageIndicatorText.text = $"Page {_currentPageIndex + 1} / {TotalPages}";
         }
     }
 }
