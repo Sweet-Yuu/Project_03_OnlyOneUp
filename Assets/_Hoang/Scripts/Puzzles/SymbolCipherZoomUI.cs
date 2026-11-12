@@ -206,8 +206,8 @@ namespace Hoang.Puzzles
             if (statusText != null)
             {
                 statusText.text = activePuzzle != null && activePuzzle.IsSolved
-                    ? "<color=#40FF70>CỔNG ĐÁ ĐÃ ĐƯỢC MỞ KHÓA!</color>"
-                    : "Nhập 3 chữ số theo thứ tự: ●  ▲  ■";
+                    ? "<color=#40FF70>STONE GATE UNLOCKED!</color>"
+                    : "Enter 3 digits in order: ●  ▲  ■";
             }
         }
 
@@ -368,7 +368,7 @@ namespace Hoang.Puzzles
             {
                 if (statusText != null)
                 {
-                    statusText.text = "<color=#FFB020>Cần nhập đủ 3 chữ số trước khi xác nhận!</color>";
+                    statusText.text = "<color=#FFB020>Must enter all 3 digits before confirming!</color>";
                 }
                 return;
             }
@@ -376,7 +376,7 @@ namespace Hoang.Puzzles
             isWaitingResponse = true;
             if (statusText != null)
             {
-                statusText.text = "Đang kiểm tra mã số...";
+                statusText.text = "Checking code...";
             }
 
             activePuzzle.SubmitCode(currentEntry);
@@ -389,7 +389,7 @@ namespace Hoang.Puzzles
             {
                 if (statusText != null)
                 {
-                    statusText.text = "<color=#40FF70>CHÍNH XÁC! CỔNG ĐÁ ĐANG MỞ...</color>";
+                    statusText.text = "<color=#40FF70>CORRECT! THE GATE IS OPENING...</color>";
                 }
                 autoCloseRoutine = StartCoroutine(AutoCloseAfterDelay(1.5f));
             }
@@ -397,7 +397,7 @@ namespace Hoang.Puzzles
             {
                 if (statusText != null)
                 {
-                    statusText.text = "<color=#FF5555>MÃ CHƯA ĐÚNG! Hãy tính lại theo gợi ý.</color>";
+                    statusText.text = "<color=#FF5555>INCORRECT CODE! Recalculate using the clues.</color>";
                 }
                 currentEntry = "";
                 UpdateDisplay();
@@ -410,7 +410,7 @@ namespace Hoang.Puzzles
             {
                 if (statusText != null)
                 {
-                    statusText.text = "<color=#40FF70>CỔNG ĐÁ ĐÃ MỞ THÀNH CÔNG!</color>";
+                    statusText.text = "<color=#40FF70>STONE GATE OPENED SUCCESSFULLY!</color>";
                 }
             }
         }

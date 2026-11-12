@@ -301,9 +301,9 @@ MonoBehaviour:
       m_Calls: []
   m_text: "<color=#F7C55B>\u25CF</color> + <color=#68D5EF>\u25B2</color> = 7\n<color=#68D5EF>\u25B2</color>
     + <color=#A4DE83>\u25A0</color> = 5\n<color=#F7C55B>\u25CF</color> + <color=#A4DE83>\u25A0</color>
-    = 8\n\n<size=22>M\u1ED7i k\xFD hi\u1EC7u t\u01B0\u01A1ng \u1EE9ng m\u1ED9t ch\u1EEF
-    s\u1ED1 0\u20139.\nNh\u1EADp m\xE3 3 ch\u1EEF s\u1ED1 theo th\u1EE9 t\u1EF1:</size>\n<size=36><color=#F7C55B>\u25CF</color>   
-    <color=#68D5EF>\u25B2</color>    <color=#A4DE83>\u25A0</color></size>"
+    = 8\n\n<size=22>Each symbol represents a digit 0\u20139.\nEnter 3-digit code
+    in order:</size>\n<size=36><color=#F7C55B>\u25CF</color>    <color=#68D5EF>\u25B2</color>   
+    <color=#A4DE83>\u25A0</color></size>"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
   m_sharedMaterial: {fileID: 7940830116172583300, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
@@ -440,7 +440,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u2190 X\xD3A"
+  m_text: "\u2190 BACKSPACE"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
   m_sharedMaterial: {fileID: 7940830116172583300, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
@@ -698,7 +698,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "B\u1EA2NG G\u1EE2I \xDD M\u1EACT M\xC3"
+  m_text: CIPHER CLUES
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
   m_sharedMaterial: {fileID: 7940830116172583300, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
@@ -3278,7 +3278,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "X\xD3A H\u1EBET"
+  m_text: CLEAR ALL
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
   m_sharedMaterial: {fileID: 7940830116172583300, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
@@ -3536,8 +3536,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "B\u1EA5m chu\u1ED9t v\xE0o b\xE0n ph\xEDm s\u1ED1 (ho\u1EB7c nh\u1EA5n
-    ph\xEDm 0\u20139, Enter, Backspace) | E: Tho\xE1t"
+  m_text: "Click keypad (or press keys 0\u20139, Enter, Backspace) | E: Exit"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
   m_sharedMaterial: {fileID: 7940830116172583300, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
@@ -3674,7 +3673,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "X\xC1C NH\u1EACN M\xC3 (ENTER)"
+  m_text: SUBMIT CODE (ENTER)
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
   m_sharedMaterial: {fileID: 7940830116172583300, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
@@ -3932,7 +3931,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "GI\u1EA2I M\xC3 C\u1ED4NG \u0110\xC1"
+  m_text: STONE GATE CIPHER
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
   m_sharedMaterial: {fileID: 7940830116172583300, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}

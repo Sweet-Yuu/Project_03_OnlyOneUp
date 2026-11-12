@@ -341,7 +341,7 @@ namespace Hoang.Puzzles
             {
                 if (statusText != null)
                 {
-                    statusText.text = "<color=#40FF70>XUẤT SẮC! ĐÃ TẮT HẾT ĐÈN - CỔNG ĐÃ MỞ!</color>";
+                    statusText.text = "<color=#40FF70>EXCELLENT! ALL LIGHTS OFF - GATE OPENED!</color>";
                 }
             }
         }
@@ -371,15 +371,15 @@ namespace Hoang.Puzzles
             {
                 if (activePuzzle == null || !activePuzzle.IsReady)
                 {
-                    statusText.text = "Đang kết nối câu đố...";
+                    statusText.text = "Connecting to puzzle...";
                 }
                 else if (activePuzzle.IsSolved)
                 {
-                    statusText.text = "<color=#40FF70>XUẤT SẮC! ĐÃ TẮT HẾT ĐÈN - CỔNG ĐÃ MỞ!</color>";
+                    statusText.text = "<color=#40FF70>EXCELLENT! ALL LIGHTS OFF - GATE OPENED!</color>";
                 }
                 else
                 {
-                    statusText.text = "Bấm trực tiếp vào ô số (hoặc nhấn phím 1–9) | R: Đặt lại | E: Thoát";
+                    statusText.text = "Click on tiles (or press 1–9) | R: Reset | E: Exit";
                 }
             }
         }
