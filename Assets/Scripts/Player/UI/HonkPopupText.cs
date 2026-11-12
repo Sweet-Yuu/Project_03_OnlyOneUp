@@ -7,20 +7,20 @@ public sealed class HonkPopupText : MonoBehaviour
 {
     private TextMeshPro label;
     private Vector3 startPosition;
-    private Vector3 driftVelocity;
+    private Vector3 travelOffset;
+    private Vector3 jitterOffset;
     private Color baseColor;
-    private float riseDistance;
     private float riseDuration;
     private float fadeDuration;
     private float elapsed;
 
     public static void Spawn(
         Vector3 worldPosition,
+        Vector3 travelOffset,
         string message,
         Color color,
         TMP_FontAsset font,
         float fontSize,
-        float riseDistance,
         float riseDuration,
         float fadeDuration)
     {
@@ -30,27 +30,27 @@ public sealed class HonkPopupText : MonoBehaviour
         go.transform.position = worldPosition;
 
         HonkPopupText popup = go.AddComponent<HonkPopupText>();
-        popup.Initialize(worldPosition, message, color, font, fontSize, riseDistance, riseDuration, fadeDuration);
+        popup.Initialize(worldPosition, travelOffset, message, color, font, fontSize, riseDuration, fadeDuration);
     }
 
     private void Initialize(
         Vector3 worldPosition,
+        Vector3 travelOffset,
         string message,
         Color color,
         TMP_FontAsset font,
         float fontSize,
-        float riseDistance,
         float riseDuration,
         float fadeDuration)
     {
         startPosition = worldPosition;
+        this.travelOffset = travelOffset;
         baseColor = color;
-        this.riseDistance = Mathf.Max(0.1f, riseDistance);
         this.riseDuration = Mathf.Max(0.05f, riseDuration);
         this.fadeDuration = Mathf.Max(0.05f, fadeDuration);
 
-        // Tạo độ lệch ngang nhẹ để khi bấm liên tiếp các chữ không đè khít lên nhau.
-        driftVelocity = new Vector3(Random.Range(-0.35f, 0.35f), 0f, Random.Range(-0.2f, 0.2f));
+        // Lệch nhẹ ngẫu nhiên để bấm liên tiếp các dòng chữ không đè khít lên nhau.
+        jitterOffset = new Vector3(Random.Range(-0.15f, 0.15f), Random.Range(-0.1f, 0.15f), 0f);
 
         label = gameObject.AddComponent<TextMeshPro>();
         if (font != null) label.font = font;
@@ -84,9 +84,9 @@ public sealed class HonkPopupText : MonoBehaviour
         if (elapsed <= riseDuration)
         {
             float t = elapsed / riseDuration;
-            // Hất nhanh ở đầu rồi chậm dần khi lên đỉnh.
+            // Hất nhanh ở đầu theo hướng chếch rồi chậm dần khi tới đỉnh.
             float eased = 1f - (1f - t) * (1f - t);
-            transform.position = startPosition + Vector3.up * (riseDistance * eased) + driftVelocity * elapsed;
+            transform.position = startPosition + travelOffset * eased + jitterOffset * t;
 
             float scale = t < 0.25f
                 ? Mathf.Lerp(0.75f, 1.12f, t / 0.25f)
@@ -98,8 +98,8 @@ public sealed class HonkPopupText : MonoBehaviour
 
         float fadeProgress = (elapsed - riseDuration) / fadeDuration;
         transform.position = startPosition
-            + Vector3.up * (riseDistance * (1f + 0.15f * fadeProgress))
-            + driftVelocity * elapsed;
+            + travelOffset * (1f + 0.15f * fadeProgress)
+            + jitterOffset;
         transform.localScale = Vector3.one;
         SetAlpha(baseColor.a * (1f - fadeProgress));
     }
