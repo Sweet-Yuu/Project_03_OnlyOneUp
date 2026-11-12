@@ -45,12 +45,12 @@ namespace Hoang.Editor
                 // Giữ scale của text độc lập với mesh để thay kích thước bảng không làm méo glyph.
                 TMP_Text clue = CreateText("ClueText", root.transform, board.localPosition + Vector3.back * 0.17f,
                     new Vector2(4.3f, 3.8f), 3.6f, font);
-                clue.text = "GIẢI MÃ CỔNG ĐÁ\n\n" +
+                clue.text = "STONE GATE CIPHER\n\n" +
                     "<color=#F7C55B>●</color> + <color=#68D5EF>▲</color> = 7\n" +
                     "<color=#68D5EF>▲</color> + <color=#A4DE83>■</color> = 5\n" +
                     "<color=#F7C55B>●</color> + <color=#A4DE83>■</color> = 8\n\n" +
-                    "Mỗi ký hiệu là một chữ số 0–9.\n" +
-                    "Nhập theo thứ tự: <color=#F7C55B>●</color>  <color=#68D5EF>▲</color>  <color=#A4DE83>■</color>";
+                    "Each symbol is a digit 0–9.\n" +
+                    "Enter in order: <color=#F7C55B>●</color>  <color=#68D5EF>▲</color>  <color=#A4DE83>■</color>";
 
                 GameObject terminal = new GameObject("CipherConsole");
                 terminal.transform.SetParent(root.transform, false);
@@ -59,7 +59,7 @@ namespace Hoang.Editor
                 CreateBox("ConsoleBoard", terminal.transform, new Vector3(0f, 1.8f, 0.5f), new Vector3(3.1f, 2.3f, 0.3f), stone);
                 TMP_Text display = CreateText("CodeDisplay", terminal.transform, new Vector3(0f, 1.8f, 0.33f),
                     new Vector2(2.9f, 2.1f), 2.8f, font);
-                display.text = "BÀN NHẬP MÃ\n\nĐứng gần và nhấn E\nđể nhập 3 chữ số.";
+                display.text = "CIPHER CONSOLE\n\nStand near and press E\nto enter 3 digits.";
                 BoxCollider trigger = terminal.AddComponent<BoxCollider>();
                 trigger.isTrigger = true;
                 trigger.center = new Vector3(0f, 1f, -1f);

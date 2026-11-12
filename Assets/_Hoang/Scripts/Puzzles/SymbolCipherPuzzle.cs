@@ -68,7 +68,7 @@ namespace Hoang.Puzzles
             catch (ArgumentException error)
             {
                 Debug.LogError($"[SymbolCipherPuzzle] {error.Message}", this);
-                if (_clueText != null) _clueText.text = "CÂU ĐỐ CHƯA ĐƯỢC CẤU HÌNH ĐÚNG";
+                if (_clueText != null) _clueText.text = "PUZZLE NOT CONFIGURED PROPERLY";
                 enabled = false;
             }
         }
@@ -299,12 +299,12 @@ namespace Hoang.Puzzles
 
         private void RefreshClues()
         {
-            _clueText.text = $"GIẢI MÃ CỔNG ĐÁ\n\n" +
+            _clueText.text = $"STONE GATE CIPHER\n\n" +
                 $"<color=#F7C55B>●</color> + <color=#68D5EF>▲</color> = {_circleTriangleSum}\n" +
                 $"<color=#68D5EF>▲</color> + <color=#A4DE83>■</color> = {_triangleSquareSum}\n" +
                 $"<color=#F7C55B>●</color> + <color=#A4DE83>■</color> = {_circleSquareSum}\n\n" +
-                "Mỗi ký hiệu là một chữ số 0–9.\n" +
-                "Nhập theo thứ tự: <color=#F7C55B>●</color>  <color=#68D5EF>▲</color>  <color=#A4DE83>■</color>";
+                "Each symbol is a digit 0–9.\n" +
+                "Enter in order: <color=#F7C55B>●</color>  <color=#68D5EF>▲</color>  <color=#A4DE83>■</color>";
         }
     }
 }

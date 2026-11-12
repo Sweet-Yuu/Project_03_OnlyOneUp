@@ -1,3 +1,4 @@
+
 using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
@@ -183,11 +184,11 @@ namespace Hoang.Puzzles
 
         private void RefreshPrompt()
         {
-            if (!puzzle.IsReady) displayText.text = "Puzzle chưa sẵn sàng.\nKiểm tra cấu hình / kết nối mạng.";
-            else if (puzzle.IsSolved) displayText.text = "ĐÃ TẮT HẾT ĐÈN\nLỐI ĐI ĐÃ MỞ";
+            if (!puzzle.IsReady) displayText.text = "Puzzle is not ready.\nCheck config / network connection.";
+            else if (puzzle.IsSolved) displayText.text = "ALL LIGHTS OFF\nPATH OPENED";
             else displayText.text = isEditing
-                ? "1–9: chọn ô | R: đặt lại | E: thoát\nTắt hết chín đèn để mở cổng."
-                : "Tắt hết đèn để mở cổng.\nĐứng gần và nhấn E để chơi.";
+                ? "1–9: select tile | R: reset | E: exit\nTurn off all 9 lights to open gate."
+                : "Turn off all lights to open gate.\nStand near and press E to play.";
         }
     }
 }

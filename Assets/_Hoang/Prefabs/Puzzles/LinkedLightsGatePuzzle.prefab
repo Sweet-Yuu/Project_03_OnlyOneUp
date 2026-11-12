@@ -1239,9 +1239,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2503c93021fb5b14a926cbc1fd0e1ee9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Hoang.Puzzles.LinkedLightsConsole
-  _puzzle: {fileID: 3217209269905032325}
-  _displayText: {fileID: 118811562921259441}
-  _lamps:
+  puzzle: {fileID: 3217209269905032325}
+  displayText: {fileID: 118811562921259441}
+  lamps:
   - {fileID: 7223401749947625110}
   - {fileID: 4543919839931532677}
   - {fileID: 6771069019896110150}
@@ -1251,6 +1251,7 @@ MonoBehaviour:
   - {fileID: 7861058888191961438}
   - {fileID: 7325650036776452181}
   - {fileID: 3369741116301214731}
+  zoomUI: {fileID: 0}
 --- !u!1 &3825955527128579835
 GameObject:
   m_ObjectHideFlags: 0
@@ -1942,8 +1943,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "T\u1EAFt h\u1EBFt \u0111\xE8n \u0111\u1EC3 m\u1EDF c\u1ED5ng.\n\u0110\u1EE9ng
-    g\u1EA7n v\xE0 nh\u1EA5n E \u0111\u1EC3 ch\u01A1i."
+  m_text: 'Turn off all lights to open gate.
+
+    Stand near and press E to play.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
   m_sharedMaterial: {fileID: 7940830116172583300, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
@@ -2756,7 +2758,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u0110\xC8N LI\xCAN K\u1EBET"
+  m_text: LINKED LIGHTS
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
   m_sharedMaterial: {fileID: 7940830116172583300, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
@@ -3272,6 +3274,7 @@ MonoBehaviour:
   _gateBehaviour: {fileID: 2320098633718078585}
   _consolePoint: {fileID: 158528867778131269}
   _interactionDistance: 5
+  instantSolve: 0
 --- !u!1 &8051942447070716005
 GameObject:
   m_ObjectHideFlags: 0
@@ -3378,8 +3381,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Ch\u1ECDn m\u1ED9t \xF4 s\u1EBD \u0111\u1EA3o n\xF3\nv\xE0 c\xE1c \xF4
-    s\xE1t c\u1EA1nh ngang/d\u1ECDc."
+  m_text: 'Selecting a tile toggles it
+
+    and adjacent horizontal/vertical tiles.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
   m_sharedMaterial: {fileID: 7940830116172583300, guid: 852e6acba67602b4d8ec0fe0d7347d02, type: 2}
